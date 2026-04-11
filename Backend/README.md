@@ -1,4 +1,4 @@
-# CascadeNet Mumbai Backend
+# Riva Mumbai Backend
 
 FastAPI backend for detection, dispatch agent orchestration, cascade simulation, WebSockets, accountability logging, and demo playback.
 

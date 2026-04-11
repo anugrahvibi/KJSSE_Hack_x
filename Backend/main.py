@@ -39,7 +39,7 @@ async def lifespan(_: FastAPI):
         overdue_task.cancel()
 
 
-app = FastAPI(title="CascadeNet Mumbai Backend", version="1.0.0", lifespan=lifespan)
+app = FastAPI(title="Riva Mumbai Backend", version="1.0.0", lifespan=lifespan)
 
 app.include_router(detection.router)
 app.include_router(agent.router)

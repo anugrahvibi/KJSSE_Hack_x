@@ -11,7 +11,7 @@ from models.ward import WardStatus
 
 
 MUMBAI_DISPATCH_SYSTEM_PROMPT = """
-You are CascadeNet Mumbai's flood dispatch agent. When a ward enters
+You are Riva Mumbai's flood dispatch agent. When a ward enters
 CRITICAL or WARNING flood status, you generate specific, sequenced,
 actionable instructions for each responsible agency.
 Return only valid JSON matching the requested schema.
