@@ -81,9 +81,16 @@ function Navigation() {
   ];
 
   return (
-    <div ref={navRef} className="fixed top-3 sm:top-5 left-1/2 -translate-x-1/2 w-[96%] max-w-7xl z-50 flex flex-col gap-2">
+    <div ref={navRef} className="fixed top-3 sm:top-5 left-1/2 -translate-x-1/2 w-[96%] max-w-7xl z-50 flex flex-col gap-2 pointer-events-none">
       {/* PRIMARY NAV BAR */}
-      <nav className="h-16 sm:h-20 rounded-[2rem] flex items-center justify-between px-8 border border-white/80 glass-card shadow-2xl">
+      <nav 
+        className="h-16 sm:h-20 rounded-[2rem] flex items-center justify-between px-8 border border-white/80 shadow-2xl pointer-events-auto"
+        style={{ 
+          background: 'rgba(255, 255, 255, 0.25)', 
+          backdropFilter: 'blur(40px) saturate(180%)',
+          WebkitBackdropFilter: 'blur(40px) saturate(180%)'
+        }}
+      >
         <div className="flex items-center gap-8">
           <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate('/')}>
              <img src="/logo.svg" alt="Riva logo" className="w-8 h-8" />
@@ -113,7 +120,7 @@ function Navigation() {
                 key={nav.path}
                 onClick={() => navigate(nav.path)}
                 className={`px-6 py-2.5 rounded-xl text-[11px] font-black uppercase transition-all ${
-                  location.pathname === nav.path ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20' : 'text-gray-600 hover:bg-white'
+                  location.pathname === nav.path ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20' : 'text-gray-600 hover:bg-white/60'
                 }`}
               >
                 {nav.label}
@@ -137,9 +144,17 @@ function Navigation() {
           </button>
         </div>
       </nav>
+
       {/* TACTICAL SUB-BAR (Only for Agency Portal) */}
       {isAgencyPortal && (
-        <div className="flex items-center justify-center gap-2 glass-card rounded-2xl border border-white/40 p-1.5 shadow-xl animate-in fade-in slide-in-from-top-2 duration-300">
+        <div 
+           className="flex items-center justify-center gap-2 rounded-2xl border border-white/40 p-1.5 shadow-xl animate-in fade-in slide-in-from-top-2 duration-300 pointer-events-auto"
+           style={{ 
+             background: 'rgba(255, 255, 255, 0.15)', 
+             backdropFilter: 'blur(40px) saturate(180%)',
+             WebkitBackdropFilter: 'blur(40px) saturate(180%)'
+           }}
+        >
            {agencyRoles.map((agency) => (
               <button
                 key={agency.id}

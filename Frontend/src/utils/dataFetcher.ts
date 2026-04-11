@@ -12,9 +12,10 @@ import type {
 
 // ─── Fetch Robustness ─────────────────────────────────────────────────────────
 
-const DEFAULT_TIMEOUT_MS = 30000;  // 30s for normal endpoints
-const SLOW_TIMEOUT_MS = 120000;   // 120s for heavy ML computation endpoints
-const DEFAULT_RETRIES = 2;
+const IS_DEV = import.meta.env.DEV;
+const DEFAULT_TIMEOUT_MS = IS_DEV ? 5000 : 30000;  // Fail fast in dev for snappy UI fallback
+const SLOW_TIMEOUT_MS = IS_DEV ? 15000 : 120000;   // Still allow heavier endpoints in production
+const DEFAULT_RETRIES = IS_DEV ? 0 : 2;
 
 function wait(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));

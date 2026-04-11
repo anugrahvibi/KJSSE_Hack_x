@@ -33,6 +33,43 @@ export function MapView({ infrastructureNodes, predictions, onZoneClick, selecte
   const LRef = useRef<any>(null);
   const invalidateTimersRef = useRef<number[]>([]);
 
+  const applyTileLayer = (map: any, L: any) => {
+    if (!map || !L) return;
+
+    map.eachLayer((layer: any) => {
+      if (layer instanceof L.TileLayer) {
+        map.removeLayer(layer);
+      }
+    });
+
+    const tileConfigs = {
+      tactical: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+      emergency: 'https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png',
+      // Keep railway on a reliable public source; old provider is intermittently unavailable.
+      railway: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+      hydro: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager_labels_under/{z}/{x}/{y}{r}.png',
+      audit: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
+    } as const;
+
+    const url = tileConfigs[variant] || tileConfigs.tactical;
+    const baseLayer = L.tileLayer(url, {
+      attribution: '© CartoDB / OSM',
+      maxZoom: 19,
+    });
+
+    // Fallback for provider outages so maps never render blank.
+    baseLayer.once('tileerror', () => {
+      if (url !== tileConfigs.tactical) {
+        L.tileLayer(tileConfigs.tactical, {
+          attribution: '© CartoDB / OSM',
+          maxZoom: 19,
+        }).addTo(map);
+      }
+    });
+
+    baseLayer.addTo(map);
+  };
+
   const queueMapInvalidate = () => {
     const map = mapRef.current;
     if (!map) return;
@@ -116,6 +153,7 @@ export function MapView({ infrastructureNodes, predictions, onZoneClick, selecte
         zoomControl: true,
       });
       mapRef.current = map;
+      applyTileLayer(map, L);
 
       map.whenReady(() => {
         queueMapInvalidate();
@@ -139,28 +177,7 @@ export function MapView({ infrastructureNodes, predictions, onZoneClick, selecte
     const map = mapRef.current;
     const L = LRef.current;
     if (!map || !L) return;
-
-    // Remove old tile layers
-    map.eachLayer((layer: any) => {
-      if (layer instanceof L.TileLayer) {
-        map.removeLayer(layer);
-      }
-    });
-
-    const tileConfigs = {
-      tactical: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
-      emergency: 'https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png',
-      railway: 'https://{s}.tile.memomaps.de/tilegen/{z}/{x}/{y}.png',
-      hydro: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager_labels_under/{z}/{x}/{y}{r}.png',
-      audit: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
-    } as any;
-
-    const url = tileConfigs[variant] || tileConfigs.tactical;
-    L.tileLayer(url, {
-      attribution: '© CartoDB / OSM',
-      maxZoom: 19,
-    }).addTo(map);
-
+    applyTileLayer(map, L);
   }, [variant]);
 
   // ── Re-draw zone circles when predictions update ────────────────────────────
@@ -168,6 +185,13 @@ export function MapView({ infrastructureNodes, predictions, onZoneClick, selecte
     const map = mapRef.current;
     const L = LRef.current;
     if (!map || !L || !predictions || predictions.length === 0) return;
+    if (variant === 'railway') {
+      circleLayersRef.current.forEach(c => {
+        try { c.remove(); } catch (e) { }
+      });
+      circleLayersRef.current = [];
+      return;
+    }
 
     // Clear old circles safely
     circleLayersRef.current.forEach(c => {
@@ -244,13 +268,20 @@ export function MapView({ infrastructureNodes, predictions, onZoneClick, selecte
         console.warn("Map Circle Error:", err);
       }
     });
-  }, [predictions, selectedZoneId]);
+  }, [predictions, selectedZoneId, variant]);
 
   // ── Draw infrastructure nodes once they arrive ──────────────────────────────
   useEffect(() => {
     const map = mapRef.current;
     const L = LRef.current;
     if (!map || !L || !infrastructureNodes || infrastructureNodes.length === 0) return;
+    if (variant === 'railway') {
+      nodeLayersRef.current.forEach(m => {
+        try { m.remove(); } catch (e) { }
+      });
+      nodeLayersRef.current = [];
+      return;
+    }
 
     // Clear old node markers safely
     nodeLayersRef.current.forEach(m => {
@@ -268,7 +299,6 @@ export function MapView({ infrastructureNodes, predictions, onZoneClick, selecte
     };
 
     const getFilteredNodes = () => {
-       if (variant === 'railway') return infrastructureNodes.filter(n => n.type === 'road'); // Assuming road for railway context if no rail type
        if (variant === 'hydro') return infrastructureNodes.filter(n => n.type === 'water_pump');
        if (variant === 'emergency') return infrastructureNodes.filter(n => n.type === 'hospital' || n.type === 'comm_tower');
        return infrastructureNodes;
@@ -301,13 +331,14 @@ export function MapView({ infrastructureNodes, predictions, onZoneClick, selecte
       );
       nodeLayersRef.current.push(marker);
     });
-  }, [infrastructureNodes]);
+  }, [infrastructureNodes, variant]);
 
   return (
     <div style={{ position: 'relative', width: '100%', height: '100%', borderRadius: '12px', overflow: 'hidden' }}>
       <div ref={containerRef} style={{ width: '100%', height: '100%' }} />
 
       {/* Risk Legend */}
+      {variant !== 'railway' && (
       <div className="glass-card" style={{
         position: 'absolute', bottom: 20, right: 20, zIndex: 1000,
         borderRadius: 20, padding: '12px 16px',
@@ -326,8 +357,10 @@ export function MapView({ infrastructureNodes, predictions, onZoneClick, selecte
           ))}
         </div>
       </div>
+      )}
 
       {/* Geospatial Intelligence Card */}
+      {variant !== 'railway' && (
       <div className="glass-card shadow-2xl overflow-visible border-white/60" style={{
         position: 'absolute', top: 20, left: 60, zIndex: 1000,
         borderRadius: 24, padding: '16px',
@@ -375,9 +408,10 @@ export function MapView({ infrastructureNodes, predictions, onZoneClick, selecte
           </div>
         </div>
       </div>
+      )}
 
       {/* Loading overlay while predictions not yet arrived */}
-      {predictions.length === 0 && (
+      {variant !== 'railway' && predictions.length === 0 && (
         <div className="absolute inset-0 z-[999] flex items-center justify-center bg-transparent pointer-events-none">
           <div className="flex items-center justify-center glass-card px-8 py-5 rounded-2xl shrink-0">
             <span className="text-[13px] font-black text-blue-600 uppercase whitespace-nowrap animate-pulse">
