@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 
 interface LabelProps {
   label: string;
@@ -180,22 +180,62 @@ export function TacticalAlertRow({ status, title, description, time, action }: T
 /**
  * TacticalSparkline - A lightweight SVG trend visualization
  */
-export function TacticalSparkline({ data, color = "#2563eb", height = 40 }: { data: number[], color?: string, height?: number }) {
+export function TacticalSparkline({
+  data,
+  color = "#2563eb",
+  height = 40,
+  width = 100,
+  animateLoop = false,
+  loopStepMs = 450,
+}: {
+  data: number[];
+  color?: string;
+  height?: number;
+  width?: number;
+  animateLoop?: boolean;
+  loopStepMs?: number;
+}) {
   if (!data.length) return null;
-  const max = Math.max(...data, 1);
-  const min = Math.min(...data, 0);
-  const range = max - min;
-  const step = 100 / (data.length - 1);
+  const [loopOffset, setLoopOffset] = useState(0);
+
+  useEffect(() => {
+    if (!animateLoop || data.length < 2) return;
+
+    const intervalId = window.setInterval(() => {
+      setLoopOffset((prev) => (prev + 1) % data.length);
+    }, loopStepMs);
+
+    return () => window.clearInterval(intervalId);
+  }, [animateLoop, data, loopStepMs]);
+
+  const chartData = useMemo(() => {
+    if (!animateLoop || data.length < 2) return data;
+    return data.map((_, i) => data[(i + loopOffset) % data.length]);
+  }, [animateLoop, data, loopOffset]);
+
+  const max = Math.max(...chartData, 1);
+  const min = Math.min(...chartData, 0);
+  const range = Math.max(max - min, 1);
+  const step = chartData.length > 1 ? width / (chartData.length - 1) : width;
   
-  const points = data.map((val, i) => {
+  const pointPairs = chartData.map((val, i) => {
     const x = i * step;
     const y = height - ((val - min) / range) * height;
-    return `${x},${y}`;
-  }).join(' ');
+    return { x, y };
+  });
+
+  const points = pointPairs.map((p) => `${p.x},${p.y}`).join(' ');
+
+  const smoothPath = pointPairs.reduce((acc, point, i, arr) => {
+    if (i === 0) return `M ${point.x},${point.y}`;
+    const prev = arr[i - 1];
+    const midX = (prev.x + point.x) / 2;
+    return `${acc} Q ${midX},${prev.y} ${point.x},${point.y}`;
+  }, '');
 
   return (
     <div className="w-full" style={{ height }}>
-      <svg viewBox={`0 0 100 ${height}`} className="w-full h-full overflow-visible">
+      <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-full overflow-visible">
         <defs>
           <linearGradient id={`grad-${color}`} x1="0%" y1="0%" x2="0%" y2="100%">
             <stop offset="0%" stopColor={color} stopOpacity="0.2" />
@@ -203,17 +243,17 @@ export function TacticalSparkline({ data, color = "#2563eb", height = 40 }: { da
           </linearGradient>
         </defs>
         <path
-          d={`M 0,${height} L ${points} L 100,${height} Z`}
+          d={`M 0,${height} L ${points} L ${width},${height} Z`}
           fill={`url(#grad-${color})`}
           className="transition-all duration-1000"
         />
-        <polyline
+        <path
+          d={smoothPath}
           fill="none"
           stroke={color}
           strokeWidth="2"
           strokeLinecap="round"
           strokeLinejoin="round"
-          points={points}
           className="transition-all duration-1000"
         />
       </svg>

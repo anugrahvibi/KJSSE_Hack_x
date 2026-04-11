@@ -11,9 +11,9 @@ from fastapi.responses import JSONResponse
 # Add parent directory to Python path to import AI modules
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from .config import OVERDUE_CHECK_SECONDS
-from .routers import accountability, agent, cascade, compat_v1, demo, detection, websocket
-from .services.runtime import log_service, ws_manager
+from Backend.config import OVERDUE_CHECK_SECONDS
+from Backend.routers import accountability, agent, cascade, compat_v1, demo, detection, websocket
+from Backend.services.runtime import log_service, ws_manager
 
 
 overdue_task: asyncio.Task | None = None
@@ -60,6 +60,28 @@ def health_check():
     return {"status": "ok"}
 
 
+@app.get("/health/llm")
+def llm_health_check():
+    try:
+        from AI_ML.layer2_agent.agent import client as shared_client
+
+        ready = shared_client is not None
+        provider = "groq" if ready else "unconfigured"
+        return {
+            "status": "ok",
+            "llm_ready": ready,
+            "provider": provider,
+            "message": "LLM client is ready" if ready else "LLM client is not configured. Set GROQ_API_KEY.",
+        }
+    except Exception as exc:
+        return {
+            "status": "error",
+            "llm_ready": False,
+            "provider": "unknown",
+            "message": f"LLM health check failed: {exc}",
+        }
+
+
 @app.get("/")
 def root():
     return {
@@ -67,6 +89,7 @@ def root():
         "status": "ok",
         "docs": "/docs",
         "health": "/health",
+        "llm_health": "/health/llm",
     }
 
 

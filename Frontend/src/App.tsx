@@ -6,7 +6,6 @@ import { Bell, LogOut, X, ArrowRight, Clock, Shield, Activity, AlertTriangle, Si
 // Dashboards
 import { CommandDashboard } from './dashboards/CommandDashboard';
 import { NdrfDashboard } from './dashboards/NdrfDashboard';
-import { DamOperatorDashboard } from './dashboards/DamOperatorDashboard';
 import { DistrictAdminDashboard } from './dashboards/DistrictAdminDashboard';
 import { HighwayDepartmentDashboard } from './dashboards/HighwayDepartmentDashboard';
 import { AuditDashboard } from './dashboards/AuditDashboard';
@@ -41,13 +40,13 @@ function AgencyPortal() {
   if (currentRole === 'NDRF') return <NdrfDashboard />;
   if (currentRole === 'Western Railway' || currentRole === 'Central Railway') return <HighwayDepartmentDashboard />;
   if (currentRole === 'KEM Hospital') return <DistrictAdminDashboard />;
-  return <DamOperatorDashboard />;
+  return <CommandDashboard />;
 }
 
 function Navigation() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { role, logout, simulationMode, toggleSimulation, setRoleDirectly } = useAuth();
+  const { role, logout, simulationMode, setSimulationMode, setRoleDirectly, isSwitchingMode } = useAuth();
   const [notifications, setNotifications] = useState<StakeholderAction[]>([]);
   const navRef = useRef<HTMLDivElement>(null);
 
@@ -129,15 +128,30 @@ function Navigation() {
         </div>
 
         <div className="flex items-center gap-4">
-          <button
-            onClick={toggleSimulation}
-            className={`px-5 py-2 rounded-xl text-[10px] font-semibold uppercase flex items-center gap-2 transition-all ${
-              simulationMode === 'DEMO' ? 'bg-emerald-600 text-white shadow-xl' : 'bg-gray-600 text-white shadow-xl'
-            }`}
-          >
-            {simulationMode === 'DEMO' ? <Activity size={14} /> : <AlertTriangle size={14} />}
-            {simulationMode === 'DEMO' ? 'Live Mode' : 'Offline Mode'}
-          </button>
+          {/* Live / Demo mode controls */}
+          <div className={`inline-flex items-center gap-2 ${isSwitchingMode ? 'opacity-50 pointer-events-none' : ''}`}>
+            <button
+              onClick={() => !isSwitchingMode && setSimulationMode('LIVE')}
+              disabled={isSwitchingMode}
+              className={`px-4 py-2 rounded-xl text-[10px] font-semibold uppercase flex items-center gap-2 transition-all ${
+                simulationMode === 'LIVE' ? 'bg-emerald-600 text-white shadow-xl' : 'bg-gray-200 text-gray-700'
+              }`}
+            >
+              <Activity size={14} />
+              Live Mode
+            </button>
+
+            <button
+              onClick={() => !isSwitchingMode && setSimulationMode('DEMO')}
+              disabled={isSwitchingMode}
+              className={`px-4 py-2 rounded-xl text-[10px] font-semibold uppercase flex items-center gap-2 transition-all ${
+                simulationMode === 'DEMO' ? 'bg-red-600 text-white shadow-xl' : 'bg-gray-200 text-gray-700'
+              }`}
+            >
+              <AlertTriangle size={14} />
+              Demo Mode
+            </button>
+          </div>
           
           <button onClick={logout} className="p-3 bg-white rounded-xl border border-black/5 text-gray-900 hover:bg-slate-50 transition-all ml-2">
              <LogOut size={18} />
@@ -182,7 +196,7 @@ function ProtectedRoute({ children, allowedRole }: { children: React.ReactNode, 
 }
 
 function AppContent() {
-  const { role } = useAuth();
+  const { role, isSwitchingMode, simulationMode } = useAuth();
   const isAuthenticated = !!role;
   
   return (
@@ -192,9 +206,25 @@ function AppContent() {
         <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-blue-800/10 blur-[140px] rounded-full" />
       </div>
 
-      {isAuthenticated && <Navigation />}
+  {isAuthenticated && <Navigation />}
 
       <main className="flex-1 w-full h-full relative z-10 overflow-visible">
+        {isSwitchingMode && (
+          <div className="fixed inset-0 z-[9999] bg-white/80 backdrop-blur-md flex flex-col items-center justify-center transition-all duration-500">
+             <div className="relative">
+                <div className={`w-24 h-24 border-4 rounded-full animate-spin ${simulationMode === 'DEMO' ? 'border-orange-100 border-t-orange-600' : 'border-emerald-100 border-t-emerald-600'}`}></div>
+                <div className="absolute inset-0 flex items-center justify-center">
+                   <Activity className={`${simulationMode === 'DEMO' ? 'text-orange-600' : 'text-emerald-600'} animate-pulse`} size={24} />
+                </div>
+             </div>
+             <h2 className="mt-8 text-xl font-black text-gray-800 uppercase tracking-widest animate-pulse">
+                {simulationMode === 'DEMO' ? 'Initializing Simulation' : 'Restoring Live Feed'}
+             </h2>
+             <p className="mt-2 text-sm font-bold text-gray-500 italic">
+                {simulationMode === 'DEMO' ? 'Connecting to RIVA Core... injecting synthetic event data...' : 'Clearing synthetic data... reconnecting to live sensor arrays...'}
+             </p>
+          </div>
+        )}
         <ErrorBoundary>
           <Routes>
             <Route path="/login" element={<Login />} />

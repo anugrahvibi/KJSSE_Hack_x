@@ -4,6 +4,7 @@ import { fetchInfrastructure, fetchPredictions, fetchActiveAlerts } from '../uti
 import type { StakeholderAction, InfrastructureNode, ZonePrediction } from '@schema';
 import { Navigation, ShieldAlert, Target, Clock, AlertTriangle } from 'lucide-react';
 import { useGsapAnimations } from '../utils/useGsapAnimations';
+import { useAuth } from '../AuthContext';
 import { AccountabilityBanner } from '../components/AccountabilityBanner';
 import { TacticalCard, TacticalBadge } from '../components/tactical/TacticalLibrary';
 
@@ -15,6 +16,8 @@ export function NdrfDashboard() {
   const [selectedZone, setSelectedZone] = useState<string | null>('H-East');
 
   useGsapAnimations(containerRef, [alerts, predictions]);
+
+   const { simulationMode } = useAuth();
 
   useEffect(() => {
     async function init() {
@@ -34,8 +37,9 @@ export function NdrfDashboard() {
    <div ref={containerRef} className="h-full w-full bg-transparent pt-40 sm:pt-44 lg:pt-48 px-3 sm:px-4 lg:px-6 py-10 flex flex-col gap-10 overflow-y-auto custom-scrollbar overflow-visible">
       <AccountabilityBanner />
       
-      {/* Top Urgent Alert Bar */}
-      <div className="glass-card p-6 rounded-[2rem] border border-red-200 bg-red-50/20 flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl overflow-visible">
+      {/* Top Urgent Alert Bar (only in DEMO) */}
+      {simulationMode === 'DEMO' ? (
+        <div className="glass-card p-6 rounded-[2rem] border border-red-200 bg-red-50/20 flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl overflow-visible">
          <div className="flex-1 space-y-1">
             <p className="text-[13px] font-black text-red-600 uppercase flex items-center gap-2">
                <AlertTriangle size={16} /> Alert Dispatched 09:07
@@ -48,12 +52,18 @@ export function NdrfDashboard() {
             <button className="px-8 py-3 bg-gray-950 text-white rounded-xl font-black text-[13px] uppercase hover:scale-95 transition-all shadow-xl shadow-black/20">ACK + deploying</button>
             <button className="px-8 py-3 bg-white border border-red-200 text-red-600 rounded-xl font-black text-[13px] uppercase hover:scale-95 transition-all">Cannot deploy</button>
          </div>
-      </div>
+        </div>
+      ) : (
+        <div className="glass-card p-4 rounded-xl border border-white/20 bg-emerald-50/30 text-emerald-700 font-bold">
+           Live mode — peaceful. Operational orders and dispatch instructions are hidden. Switch to Demo Mode to simulate incidents.
+        </div>
+      )}
 
       <div className="flex flex-col lg:flex-row gap-10">
         
         {/* LEFT COLUMN: Mission Context (65%) */}
-        <div className="flex-[0.65] flex flex-col gap-10">
+        {simulationMode === 'DEMO' ? (
+          <div className="flex-[0.65] flex flex-col gap-10">
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <TacticalCard 
@@ -95,9 +105,32 @@ export function NdrfDashboard() {
              </div>
           </div>
         </div>
+        ) : (
+          <div className="flex-[0.65] flex flex-col gap-10">
+            <div className="glass-card p-8 rounded-[2.5rem] border border-emerald-200 bg-emerald-50/30 text-emerald-700 flex flex-col items-center justify-center min-h-96">
+              <AlertTriangle size={48} className="mb-4 text-emerald-600" />
+              <h3 className="text-lg font-bold text-emerald-700 uppercase mb-2">Live Mode — No Active Deployments</h3>
+              <p className="text-sm text-gray-600 text-center max-w-md">Battalion status: Ready and awaiting deployment orders. Sector assessment: All clear. Switch to Demo Mode to simulate tactical scenarios and deployment orders.</p>
+            </div>
+            <div className="flex-1 min-h-[450px] glass-card rounded-[2.5rem] border border-white/40 shadow-xl relative overflow-hidden bg-slate-50/50">
+               <div className="absolute top-6 left-6 z-[1000] glass-card px-4 py-2 rounded-xl text-[10px] font-black text-gray-400 uppercase">ROUTE MAP  -  MONITORING</div>
+               <MapView
+                 infrastructureNodes={infra}
+                 predictions={predictions}
+                 onZoneClick={setSelectedZone}
+                 selectedZoneId={selectedZone}
+                 variant="emergency"
+               />
+               <div className="absolute bottom-6 left-6 z-[1000] text-[10px] font-bold text-emerald-600 uppercase italic">
+                  All sectors clear — routine patrol mode active
+               </div>
+            </div>
+          </div>
+        )}
 
         {/* RIGHT COLUMN: Estimates & Deadlines (35%) */}
-        <div className="flex-[0.35] flex flex-col gap-10">
+        {simulationMode === 'DEMO' ? (
+          <div className="flex-[0.35] flex flex-col gap-10">
           
           <TacticalCard title="Casualty Estimate IF Delayed" icon={<Clock size={16} className="text-gray-400" />}>
              <div className="space-y-6">
@@ -121,6 +154,22 @@ export function NdrfDashboard() {
              </div>
           </TacticalCard>
         </div>
+        ) : (
+          <div className="flex-[0.35] flex flex-col gap-10">
+            <TacticalCard title="Battalion Status" className="flex-1">
+              <div className="space-y-6 flex flex-col justify-between h-full">
+                <div className="space-y-3">
+                  <p className="text-[13px] font-bold text-emerald-600 uppercase">READY</p>
+                  <p className="text-[16px] font-bold text-gray-700 leading-relaxed">All personnel present and accounted for. Equipment ready. Awaiting deployment orders.</p>
+                </div>
+                <div className="space-y-2 pt-4 border-t border-emerald-200">
+                  <p className="text-[11px] font-bold text-gray-500 italic">No active casualties.</p>
+                  <p className="text-[11px] font-bold text-gray-500 italic">No urgent deadlines.</p>
+                </div>
+              </div>
+            </TacticalCard>
+          </div>
+        )}
       </div>
     </div>
   );

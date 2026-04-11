@@ -3,6 +3,7 @@ import { fetchPredictions, fetchActiveAlerts } from '../utils/dataFetcher';
 import type { ZonePrediction, StakeholderAction } from '@schema';
 import { PlusCircle, Bed, Ambulance, AlertTriangle, Activity, Navigation, Clock } from 'lucide-react';
 import { useGsapAnimations } from '../utils/useGsapAnimations';
+import { useAuth } from '../AuthContext';
 import { AccountabilityBanner } from '../components/AccountabilityBanner';
 import { TacticalCard, TacticalBadge } from '../components/tactical/TacticalLibrary';
 
@@ -11,6 +12,8 @@ export function DistrictAdminDashboard() {
   const [alerts, setAlerts] = useState<StakeholderAction[]>([]);
 
   useGsapAnimations(containerRef, [alerts]);
+
+   const { simulationMode } = useAuth();
 
   useEffect(() => {
     async function init() {
@@ -25,8 +28,9 @@ export function DistrictAdminDashboard() {
       <div className="w-full space-y-12 py-10">
         <AccountabilityBanner />
 
-        {/* Alert Bar */}
-        <div className="glass-card p-6 rounded-[2.25rem] border border-orange-200 bg-orange-500/10 shadow-xl overflow-visible flex flex-col md:flex-row items-center justify-between gap-6 group">
+        {/* Alert Bar - only in DEMO */}
+        {simulationMode === 'DEMO' ? (
+          <div className="glass-card p-6 rounded-[2.25rem] border border-orange-200 bg-orange-500/10 shadow-xl overflow-visible flex flex-col md:flex-row items-center justify-between gap-6 group">
             <div className="flex-1 space-y-1">
                <p className="text-[13px] font-black text-orange-600 uppercase flex items-center gap-2">
                   Alert Dispatched 09:07
@@ -39,7 +43,12 @@ export function DistrictAdminDashboard() {
                <button className="px-8 py-3 bg-gray-950 text-white rounded-xl font-black text-[13px] uppercase hover:scale-95 transition-all shadow-xl">ACK + activating</button>
                <button className="px-8 py-3 bg-white border border-gray-200 text-gray-500 rounded-xl font-black text-[13px] uppercase hover:scale-95 transition-all">Cannot comply</button>
             </div>
-        </div>
+          </div>
+        ) : (
+          <div className="glass-card p-4 rounded-xl border border-white/20 bg-emerald-50/30 text-emerald-700 font-bold">
+            Live mode — peaceful. No surge protocol actions are shown. Switch to Demo Mode to simulate hospital surge instructions.
+          </div>
+        )}
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
            
@@ -55,54 +64,73 @@ export function DistrictAdminDashboard() {
               </TacticalCard>
 
               {/* Cascade Risk to KEM */}
-              <TacticalCard title="CASCADE RISK TO KEM" icon={<AlertTriangle size={18} className="text-red-600" />}>
-                 <div className="space-y-6">
-                    <p className="text-[16px] font-bold text-gray-700 leading-snug uppercase">
-                       If WR fails at T+60 â†’ roads choke at T+90 â†’ <span className="text-red-600 font-black">KEM unreachable by T+135</span>
-                    </p>
-                    <div className="space-y-2">
-                       <StatusMetric label="Current window" value="125 min remaining" color="text-emerald-600" />
-                       <StatusMetric label="Generator" value="72hr fuel" color="text-gray-950" />
-                       <StatusMetric label="Backup power" value="online" color="text-emerald-600" />
-                    </div>
-                 </div>
-              </TacticalCard>
+              {simulationMode === 'DEMO' ? (
+                <TacticalCard title="CASCADE RISK TO KEM" icon={<AlertTriangle size={18} className="text-red-600" />}>
+                   <div className="space-y-6">
+                      <p className="text-[16px] font-bold text-gray-700 leading-snug uppercase">
+                         If WR fails at T+60 â†' roads choke at T+90 â†' <span className="text-red-600 font-black">KEM unreachable by T+135</span>
+                      </p>
+                      <div className="space-y-2">
+                         <StatusMetric label="Current window" value="125 min remaining" color="text-emerald-600" />
+                         <StatusMetric label="Generator" value="72hr fuel" color="text-gray-950" />
+                         <StatusMetric label="Backup power" value="online" color="text-emerald-600" />
+                      </div>
+                   </div>
+                </TacticalCard>
+              ) : (
+                <TacticalCard title="SYSTEM STATUS" icon={<Activity size={18} className="text-emerald-600" />}>
+                   <div className="space-y-6">
+                      <p className="text-[16px] font-bold text-gray-700 leading-snug uppercase">
+                         All systems operational and stable
+                      </p>
+                      <div className="space-y-2">
+                         <StatusMetric label="Hospital" value="Normal operations" color="text-emerald-600" />
+                         <StatusMetric label="Generator" value="72hr fuel reserve" color="text-gray-950" />
+                         <StatusMetric label="Backup power" value="Online and ready" color="text-emerald-600" />
+                      </div>
+                   </div>
+                </TacticalCard>
+              )}
            </div>
 
            {/* RIGHT COLUMN */}
            <div className="space-y-8 flex flex-col">
               
-              {/* Surge Protocol Checklist */}
-              <TacticalCard title="SURGE PROTOCOL CHECKLIST" icon={<Activity size={18} className="text-blue-600" />}>
-                 <div className="space-y-2">
-                    <HospChecklistRow time="09:07" label="Surge protocol alert received" status="ACK" color="emerald" />
-                    <HospChecklistRow time="09:12" label="4 ambulances pre-positioned at 90 Feet Rd" status="DONE" color="emerald" />
-                    <HospChecklistRow time="09:20" label="Generator fuel check  -  72hr reserve confirmed" status="DONE" color="emerald" />
-                    <HospChecklistRow time="09:32" label="Ground floor patient shift  -  flood prep" status="IN PROG" color="orange" />
-                    <HospChecklistRow time="09:45" label="Staff surge team on standby" status="PENDING" color="orange" variant="outline" />
-                 </div>
-              </TacticalCard>
+              {simulationMode === 'DEMO' ? (
+                <>
+                  {/* Surge Protocol Checklist (DEMO only) */}
+                  <TacticalCard title="SURGE PROTOCOL CHECKLIST" icon={<Activity size={18} className="text-blue-600" />}>
+                     <div className="space-y-2">
+                        <HospChecklistRow time="09:07" label="Surge protocol alert received" status="ACK" color="emerald" />
+                        <HospChecklistRow time="09:12" label="4 ambulances pre-positioned at 90 Feet Rd" status="DONE" color="emerald" />
+                        <HospChecklistRow time="09:20" label="Generator fuel check  -  72hr reserve confirmed" status="DONE" color="emerald" />
+                        <HospChecklistRow time="09:32" label="Ground floor patient shift  -  flood prep" status="IN PROG" color="orange" />
+                        <HospChecklistRow time="09:45" label="Staff surge team on standby" status="PENDING" color="orange" variant="outline" />
+                     </div>
+                  </TacticalCard>
 
-              {/* Ambulance Routing */}
-              <div className="flex-1 glass-card rounded-[2.5rem] border border-white/40 shadow-xl bg-slate-50/50 flex flex-col p-8">
-                 <header className="mb-8">
-                    <h3 className="text-[11px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-3">
-                       <Ambulance size={18} /> AMBULANCE ROUTING
-                    </h3>
-                 </header>
-                 <div className="flex-1 flex flex-col items-center justify-center gap-8">
-                    <div className="flex items-center gap-6">
-                       <TacticalBadge label="KEM base" color="emerald" variant="outline" className="px-6 py-3 rounded-2xl" />
-                       <ArrowIcon />
-                       <TacticalBadge label="90 Feet Rd" color="emerald" variant="outline" className="px-6 py-3 rounded-2xl" />
-                       <ArrowIcon />
-                    </div>
-                    <div className="p-6 bg-red-100 rounded-[2rem] border border-red-200">
-                       <span className="text-[14px] font-black text-red-600 uppercase">Sector B staging</span>
-                    </div>
-                    <span className="text-[11px] font-black text-gray-400 uppercase italic">avoid Sion underpass  -  closed by BMC</span>
-                 </div>
-              </div>
+                  {/* Ambulance Routing (DEMO only) */}
+                  <div className="flex-1 glass-card rounded-[2.5rem] border border-white/40 shadow-xl bg-slate-50/50 flex flex-col p-8">
+                     <header className="mb-8">
+                        <h3 className="text-[11px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-3">
+                           <Ambulance size={18} /> AMBULANCE ROUTING
+                        </h3>
+                     </header>
+                     <div className="flex-1 flex flex-col items-center justify-center gap-8">
+                        <div className="flex items-center gap-6">
+                           <TacticalBadge label="KEM base" color="emerald" variant="outline" className="px-6 py-3 rounded-2xl" />
+                           <ArrowIcon />
+                           <TacticalBadge label="90 Feet Rd" color="emerald" variant="outline" className="px-6 py-3 rounded-2xl" />
+                           <ArrowIcon />
+                        </div>
+                        <div className="p-6 bg-red-100 rounded-[2rem] border border-red-200">
+                           <span className="text-[14px] font-black text-red-600 uppercase">Sector B staging</span>
+                        </div>
+                        <span className="text-[11px] font-black text-gray-400 uppercase italic">avoid Sion underpass  -  closed by BMC</span>
+                     </div>
+                  </div>
+                </>
+              ) : null}
            </div>
         </div>
       </div>

@@ -4,6 +4,7 @@ import { fetchActiveAlerts, fetchInfrastructure, fetchPredictions } from '../uti
 import type { StakeholderAction, InfrastructureNode, ZonePrediction } from '@schema';
 import { TrainFront, Zap, StopCircle, Info } from 'lucide-react';
 import { useGsapAnimations } from '../utils/useGsapAnimations';
+import { useAuth } from '../AuthContext';
 import { AccountabilityBanner } from '../components/AccountabilityBanner';
 import { TacticalCard, TacticalBadge } from '../components/tactical/TacticalLibrary';
 
@@ -15,6 +16,7 @@ export function HighwayDepartmentDashboard() {
   const containerRef = useRef<HTMLDivElement>(null);
 
   useGsapAnimations(containerRef, [alerts, predictions]);
+   const { simulationMode } = useAuth();
 
   useEffect(() => {
     async function init() {
@@ -35,25 +37,32 @@ export function HighwayDepartmentDashboard() {
       <div className="w-full space-y-12 py-10">
         <AccountabilityBanner />
 
-        {/* OVERDUE Alert Bar */}
-        <div className="glass-card p-6 rounded-[2.25rem] border border-red-300 bg-red-600 shadow-xl overflow-visible flex flex-col md:flex-row items-center justify-between gap-6 group">
+        {/* OVERDUE Alert Bar - only visible in DEMO */}
+        {simulationMode === 'DEMO' ? (
+          <div className="glass-card p-6 rounded-[2.25rem] border border-red-200 bg-white shadow-xl overflow-visible flex flex-col md:flex-row items-center justify-between gap-6 group">
             <div className="flex-1 space-y-1">
-               <p className="text-[13px] font-black text-white uppercase flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-white animate-pulse" /> OVERDUE  -  09:27
+               <p className="text-[13px] font-black text-red-600 uppercase flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-red-600 animate-pulse" /> OVERDUE  -  09:27
                </p>
-               <p className="text-[16px] font-bold text-white leading-tight uppercase">
+               <p className="text-[16px] font-bold text-gray-900 leading-tight uppercase">
                   Station prep at Kurla + Sion not acknowledged Â· This silence is logged Â· Deadline passed
                </p>
             </div>
             <div className="flex gap-4">
-               <button className="px-8 py-3 bg-white text-red-600 rounded-xl font-black text-[13px] uppercase hover:scale-95 transition-all shadow-xl">ACK now</button>
-               <button className="px-8 py-3 border border-white/40 text-white rounded-xl font-black text-[13px] uppercase hover:scale-95 transition-all">Escalate</button>
+               <button className="px-8 py-3 bg-red-600 text-white rounded-xl font-black text-[13px] uppercase hover:scale-95 transition-all shadow-xl">ACK now</button>
+               <button className="px-8 py-3 border border-red-200 text-red-600 bg-red-50/50 rounded-xl font-black text-[13px] uppercase hover:scale-95 transition-all">Escalate</button>
             </div>
-        </div>
+          </div>
+        ) : (
+          <div className="glass-card p-4 rounded-xl border border-white/20 bg-emerald-50/30 text-emerald-700 font-bold">
+            Live mode — peaceful. Operational alerts are hidden. Switch to Demo Mode to view simulated overdue alerts and instructions.
+          </div>
+        )}
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
            
            {/* LEFT COLUMN */}
+           {simulationMode === 'DEMO' ? (
            <div className="space-y-8 flex flex-col">
               
               {/* Live Railway Map */}
@@ -86,8 +95,38 @@ export function HighwayDepartmentDashboard() {
                  </div>
               </TacticalCard>
            </div>
+           ) : (
+           <div className="space-y-8 flex flex-col">
+              <div className="flex-1 min-h-[450px] glass-card rounded-[2.5rem] border border-white/40 shadow-xl bg-slate-900/5 relative overflow-hidden flex flex-col">
+                 <header className="p-8 pb-0 z-[1000] relative pointer-events-none">
+                    <h3 className="text-[11px] font-black text-gray-900 uppercase tracking-widest flex items-center gap-3">
+                       <TrainFront size={16} className="text-emerald-600" /> LIVE RAILWAY COMMAND  -  ALL CLEAR
+                    </h3>
+                 </header>
+                 <div className="absolute inset-0">
+                    <MapView 
+                      infrastructureNodes={infra}
+                      predictions={predictions}
+                      onZoneClick={setSelectedZone}
+                      selectedZoneId={selectedZone}
+                      variant="railway"
+                    />
+                 </div>
+                 <div className="absolute bottom-6 left-8 z-[1000] text-[10px] font-bold text-emerald-600 bg-white/60 px-2 py-1 rounded-lg backdrop-blur-md uppercase italic">
+                    All stations operational Â· normal service running
+                 </div>
+              </div>
+
+              <TacticalCard title="Station Status" icon={<Zap size={16} className="text-emerald-600" />}>
+                 <div className="space-y-4">
+                    <div className="text-sm text-gray-600 italic">All stations: Normal operations. No service disruptions. Central dispatch monitoring routine patrol protocols.</div>
+                 </div>
+              </TacticalCard>
+           </div>
+           )}
 
            {/* RIGHT COLUMN */}
+           {simulationMode === 'DEMO' ? (
            <div className="space-y-8 flex flex-col">
               
               <TacticalCard title="Crowd Management Checklist  -  KURLA" className="flex-[0.6]">
@@ -125,6 +164,19 @@ export function HighwayDepartmentDashboard() {
                  </div>
               </TacticalCard>
            </div>
+           ) : (
+           <div className="space-y-8 flex flex-col">
+              <TacticalCard title="Railway Dispatch Status" className="flex-1">
+                 <div className="space-y-4">
+                    <p className="text-[13px] font-bold text-emerald-600 uppercase">NORMAL OPERATIONS</p>
+                    <p className="text-[14px] font-bold text-gray-700 leading-relaxed uppercase">All corridors operational. Central dispatch monitoring routine. No service halts planned. Personnel on standard alert posture.</p>
+                    <div className="pt-4 border-t border-gray-200">
+                       <p className="text-[11px] font-bold text-gray-500 italic">Switch to Demo Mode to simulate incident scenarios and operational decisions.</p>
+                    </div>
+                 </div>
+              </TacticalCard>
+           </div>
+           )}
         </div>
       </div>
     </div>

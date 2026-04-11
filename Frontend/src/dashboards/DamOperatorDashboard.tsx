@@ -4,6 +4,7 @@ import { fetchActiveAlerts, fetchSensorReadings, fetchInfrastructure, fetchPredi
 import type { StakeholderAction, SensorReading, InfrastructureNode, ZonePrediction } from '@schema';
 import { Waves, Droplets, Activity, AlertCircle, Clock, MapPin, BrainCircuit, Navigation } from 'lucide-react';
 import { useGsapAnimations } from '../utils/useGsapAnimations';
+import { useAuth } from '../AuthContext';
 import { AccountabilityBanner } from '../components/AccountabilityBanner';
 import { TacticalCard, TacticalBadge } from '../components/tactical/TacticalLibrary';
 
@@ -16,6 +17,8 @@ export function DamOperatorDashboard() {
   const [selectedZone, setSelectedZone] = useState<string | null>('H-East');
 
   useGsapAnimations(containerRef, [sensor, alerts, predictions]);
+
+   const { simulationMode } = useAuth();
 
   useEffect(() => {
     async function init() {
@@ -39,8 +42,9 @@ export function DamOperatorDashboard() {
       <div className="w-full space-y-12 py-10">
         <AccountabilityBanner />
 
-        {/* Urgent Alert Header */}
-        <div className="glass-card p-6 rounded-[2rem] border border-red-200 bg-red-50/20 flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl overflow-visible">
+        {/* Urgent Alert Header (DEMO only) */}
+        {simulationMode === 'DEMO' ? (
+          <div className="glass-card p-6 rounded-[2rem] border border-red-200 bg-red-50/20 flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl overflow-visible">
            <div className="flex-1 space-y-1">
               <p className="text-[13px] font-black text-red-600 uppercase flex items-center gap-2">
                  <AlertCircle size={16} /> Alert Dispatched 09:07
@@ -53,28 +57,39 @@ export function DamOperatorDashboard() {
               <button className="px-8 py-3 bg-gray-950 text-white rounded-xl font-black text-[13px] uppercase hover:scale-95 transition-all shadow-xl shadow-black/20">ACK + acting</button>
               <button className="px-8 py-3 bg-white border border-red-200 text-red-600 rounded-xl font-black text-[13px] uppercase hover:scale-95 transition-all">Cannot comply</button>
            </div>
-        </div>
+          </div>
+        ) : (
+          <div className="glass-card p-4 rounded-xl border border-white/20 bg-emerald-50/30 text-emerald-700 font-bold">
+            Live mode — peaceful. No operational alerts or instructions are displayed. Switch to Demo Mode to view simulated orders.
+          </div>
+        )}
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           
           <div className="space-y-8 flex flex-col">
-            <TacticalCard 
-               title="Ward Alert  -  H-East Dharavi" 
-               icon={<AlertCircle size={18} className="text-red-600" />}
-               className="bg-red-50/10 border-red-200"
-            >
-               <div className="space-y-6">
-                  <p className="text-[20px] font-black leading-snug text-gray-950 uppercase">
-                     <span className="text-red-600">Tidal lock confirmed.</span> Drainage capacity 0%. Rainfall <span className="text-red-600">87mm/hr</span>.
-                  </p>
-                  <p className="text-[16px] font-bold text-gray-700 leading-relaxed uppercase">
-                     Close Sion underpass immediately  -  NDRF vehicle route depends on this. Pumps 3 and 7 at 90 Feet Rd must activate within 15 min window.
-                  </p>
-                  <div className="p-4 bg-red-600 text-white rounded-2xl">
-                     <p className="text-[16px] font-black uppercase">Evacuation notice for Sector B  -  1,200 at risk near 90 Feet Rd.</p>
-                  </div>
-               </div>
-            </TacticalCard>
+            {simulationMode === 'DEMO' ? (
+              <TacticalCard 
+                 title="Ward Alert  -  H-East Dharavi" 
+                 icon={<AlertCircle size={18} className="text-red-600" />}
+                 className="bg-red-50/10 border-red-200"
+              >
+                 <div className="space-y-6">
+                    <p className="text-[20px] font-black leading-snug text-gray-950 uppercase">
+                       <span className="text-red-600">Tidal lock confirmed.</span> Drainage capacity 0%. Rainfall <span className="text-red-600">87mm/hr</span>.
+                    </p>
+                    <p className="text-[16px] font-bold text-gray-700 leading-relaxed uppercase">
+                       Close Sion underpass immediately  -  NDRF vehicle route depends on this. Pumps 3 and 7 at 90 Feet Rd must activate within 15 min window.
+                    </p>
+                    <div className="p-4 bg-red-600 text-white rounded-2xl">
+                       <p className="text-[16px] font-black uppercase">Evacuation notice for Sector B  -  1,200 at risk near 90 Feet Rd.</p>
+                    </div>
+                 </div>
+              </TacticalCard>
+            ) : (
+              <TacticalCard title="Ward Status" icon={<AlertCircle size={18} className="text-emerald-600" />}>
+                 <div className="text-sm text-gray-600 italic">Live mode — no active ward alerts. Monitor infrastructure and sensor metrics.</div>
+              </TacticalCard>
+            )}
 
             <TacticalCard title="Road Closure Status" icon={<Navigation size={18} className="text-blue-600" />}>
                <div className="space-y-2">
@@ -122,12 +137,18 @@ export function DamOperatorDashboard() {
                </div>
             </TacticalCard>
 
-            <TacticalCard title="Agent Reasoning" icon={<BrainCircuit size={18} className="text-blue-600" />}>
-               <div className="space-y-4">
-                  <ReasoningLine text="Sion underpass is the only NDRF route  -  close before Bn4 deploys" />
-                  <ReasoningLine text="Pumps 3+7 at 90 Feet Rd  -  highest capacity in H-East" />
-               </div>
-            </TacticalCard>
+            {simulationMode === 'DEMO' ? (
+              <TacticalCard title="Agent Reasoning" icon={<BrainCircuit size={18} className="text-blue-600" />}>
+                 <div className="space-y-4">
+                    <ReasoningLine text="Sion underpass is the only NDRF route  -  close before Bn4 deploys" />
+                    <ReasoningLine text="Pumps 3+7 at 90 Feet Rd  -  highest capacity in H-East" />
+                 </div>
+              </TacticalCard>
+            ) : (
+              <TacticalCard title="Agent Reasoning" icon={<BrainCircuit size={18} className="text-emerald-600" />}>
+                 <div className="text-sm text-gray-600 italic">Live mode — agent suggestions are suppressed. Switch to Demo Mode to view strategic instructions.</div>
+              </TacticalCard>
+            )}
           </div>
         </div>
       </div>

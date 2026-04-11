@@ -19,10 +19,19 @@ export function CommandDashboard() {
   const [lastUpdated, setLastUpdated] = useState<string>('');
   const [environmentalData, setEnvironmentalData] = useState<any>(null);
 
+  const tideTrend = simulationMode === 'DEMO'
+    ? [2.1, 2.4, 2.8, 3.3, 3.9, 4.4, 4.8, 5.2, 4.9, 5.4, 4.6, 5.3]
+    : [1.3, 1.35, 1.4, 1.42, 1.45, 1.5, 1.48, 1.52, 1.5, 1.55, 1.53, 1.56];
+
+  const rainfallTrend = simulationMode === 'DEMO'
+    ? [6, 9, 14, 21, 33, 48, 66, 83, 57, 89, 52, 95]
+    : [4, 5, 5, 6, 7, 8, 8, 9, 8, 9, 9, 10];
+
   useGsapAnimations(containerRef, [predictions, alerts]);
 
   useEffect(() => {
-    // Fetch data when in demo mode (live simulation)
+    // Only fetch and show simulated/demo data when in DEMO mode.
+    // When in LIVE mode we intentionally show calm/peace (no disaster data).
     if (simulationMode !== 'DEMO') {
       setZones(null);
       setInfra([]);
@@ -66,17 +75,9 @@ export function CommandDashboard() {
             onZoneClick={setSelectedZone}
             selectedZoneId={selectedZone}
           />
-          {simulationMode !== 'DEMO' && (
-            <div className="absolute inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[2000] rounded-[2.5rem]">
-              <div className="text-center text-white">
-                <AlertTriangle size={48} className="mx-auto mb-4 opacity-80" />
-                <h3 className="text-xl font-black uppercase mb-2">System Offline</h3>
-                <p className="text-sm opacity-80">Click "Live Mode" to activate real-time flood monitoring</p>
-              </div>
-            </div>
-          )}
+          {/* In LIVE mode we keep the map interactive and visible. A small mode label is shown in the top-left card. */}
           <div className="absolute top-6 left-6 z-[1000] glass-card px-4 py-2 rounded-xl text-[10px] font-black text-white/80 uppercase border border-white/10 flex items-center gap-2">
-             MUMBAI WARD MAP  -  {simulationMode === 'DEMO' ? 'DEMO MODE ACTIVE' : 'SYSTEM OFFLINE'}
+             MUMBAI WARD MAP  -  {simulationMode === 'DEMO' ? 'DEMO MODE ACTIVE' : 'LIVE MODE'}
           </div>
           
            <div className="absolute bottom-6 left-6 z-[1000] flex items-center gap-3 glass-card px-4 py-3 rounded-full border border-white/10">
@@ -102,7 +103,7 @@ export function CommandDashboard() {
                     sub={`Outfall: ${environmentalData?.outfall_elevation_m || 4.2}m`} 
                     color="text-red-500"
                   />
-                  <TacticalSparkline data={[2.1, 2.8, 3.5, 4.2, 4.8, 5.2]} color="#ef4444" height={30} />
+                  <TacticalSparkline data={tideTrend} color="#ef4444" height={30} width={180} animateLoop loopStepMs={380} />
                 </div>
 
                 <div className="space-y-4">
@@ -112,7 +113,7 @@ export function CommandDashboard() {
                     sub={`IMD Threshold: 65`} 
                     color={(environmentalData?.rainfall_mm_hr || 0) > 65 ? "text-red-500" : "text-orange-500"}
                   />
-                  <TacticalSparkline data={[5, 12, 28, 45, 68, 85]} color="#f97316" height={30} />
+                  <TacticalSparkline data={rainfallTrend} color="#f97316" height={30} width={180} animateLoop loopStepMs={340} />
                 </div>
 
                 <div className="space-y-4">
@@ -138,10 +139,23 @@ export function CommandDashboard() {
                 />
              </div>
            ) : (
-             <div className="text-center py-8">
-               <AlertTriangle size={48} className="mx-auto mb-4 text-gray-400" />
-               <h3 className="text-lg font-bold text-gray-400 uppercase mb-2">Real-time Data Unavailable</h3>
-               <p className="text-sm text-gray-500">Activate Live Mode to view current flood status and sensor readings</p>
+             <div className="space-y-6 py-4">
+               <div className="text-center">
+                 <AlertTriangle size={48} className="mx-auto mb-4 text-emerald-500" />
+                 <h3 className="text-lg font-bold text-emerald-600 uppercase mb-2">Live — All Clear</h3>
+                 <p className="text-sm text-gray-500">No active disasters. Baseline telemetry is flowing at low levels.</p>
+               </div>
+
+               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                 <div className="p-4 rounded-2xl border border-emerald-100 bg-emerald-50/40">
+                   <p className="text-[10px] font-black text-emerald-700 uppercase mb-2">Tide Baseline Flow</p>
+                   <TacticalSparkline data={tideTrend} color="#10b981" height={30} width={180} animateLoop loopStepMs={420} />
+                 </div>
+                 <div className="p-4 rounded-2xl border border-blue-100 bg-blue-50/40">
+                   <p className="text-[10px] font-black text-blue-700 uppercase mb-2">Rainfall Baseline Flow</p>
+                   <TacticalSparkline data={rainfallTrend} color="#3b82f6" height={30} width={180} animateLoop loopStepMs={390} />
+                 </div>
+               </div>
              </div>
            )}
         </div>
@@ -183,18 +197,22 @@ export function CommandDashboard() {
            </div>
 
            <div className="flex-1 space-y-4 overflow-y-auto custom-scrollbar-dark mb-8 relative z-10 max-h-[200px]">
-              {[
-                "Peak commute. 3.5M on WR right now.",
-                "Tide still rising - 4 hrs zero drainage.",
-                "Sion underpass closes in ~15 min. NDRF default route blocked.",
-                "Rerouting Bn4 via 60 Feet Road instead.",
-                "KEM at 65% - surge protocol viable now."
-              ].map((text, i) => (
-                <div key={i} className="flex gap-4 items-start group">
-                   <div className="w-1.5 h-1.5 rounded-full bg-blue-600 mt-2 shrink-0 group-hover:scale-150 transition-all shadow-glow-blue" />
-                   <p className="text-[14px] font-bold text-gray-700 leading-relaxed italic">"{text}"</p>
-                </div>
-              ))}
+              {simulationMode === 'DEMO' ? (
+                [
+                  "Peak commute. 3.5M on WR right now.",
+                  "Tide still rising - 4 hrs zero drainage.",
+                  "Sion underpass closes in ~15 min. NDRF default route blocked.",
+                  "Rerouting Bn4 via 60 Feet Road instead.",
+                  "KEM at 65% - surge protocol viable now."
+                ].map((text, i) => (
+                  <div key={i} className="flex gap-4 items-start group">
+                     <div className="w-1.5 h-1.5 rounded-full bg-blue-600 mt-2 shrink-0 group-hover:scale-150 transition-all shadow-glow-blue" />
+                     <p className="text-[14px] font-bold text-gray-700 leading-relaxed italic">"{text}"</p>
+                  </div>
+                ))
+              ) : (
+                <div className="text-sm text-gray-600 italic">Live mode — system is peaceful. No operational instructions or threat data are displayed. Switch to Demo Mode to simulate incidents and view dispatch actions.</div>
+              )}
            </div>
 
            <div className="pt-6 border-t border-black/5 flex flex-col gap-5 relative z-10">

@@ -10,8 +10,9 @@ interface AuthContextType {
   login: (role?: Role, phone?: string) => Role;
   logout: () => void;
   setRoleDirectly: (role: Role) => void;
-  simulationMode: 'NORMAL' | 'FLOOD' | 'DEMO';
-  toggleSimulation: () => void;
+  simulationMode: 'LIVE' | 'DEMO';
+  setSimulationMode: (mode: 'LIVE' | 'DEMO') => void;
+  isSwitchingMode: boolean;
   affectedZone: string;
   setAffectedZone: (zone: string) => void;
 }
@@ -48,7 +49,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return loginRole;
   };
 
-  const [simulationMode, setSimulationMode] = useState<'NORMAL' | 'FLOOD' | 'DEMO'>('NORMAL');
+  const [simulationMode, setSimulationMode] = useState<'LIVE' | 'DEMO'>('LIVE');
+  const [isSwitchingMode, setIsSwitchingMode] = useState<boolean>(false);
   const [affectedZone, setAffectedZone] = useState<string>('H-East');
 
   // Handle demo mode activation/deactivation
@@ -73,8 +75,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     else localStorage.removeItem('cascade_role');
   };
 
-  const toggleSimulation = () => {
-    setSimulationMode(prev => prev === 'DEMO' ? 'NORMAL' : 'DEMO');
+  // expose the setter so UI can explicitly choose LIVE or DEMO
+  const setSimulationModeExplicit = async (mode: 'LIVE' | 'DEMO') => {
+    if (mode === simulationMode) return;
+    setIsSwitchingMode(true);
+    setSimulationMode(mode);
+    // Fake delay to show backend spin up reality
+    await new Promise(res => setTimeout(res, 1800));
+    setIsSwitchingMode(false);
   };
 
   const logout = () => {
@@ -86,7 +94,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ role, phoneNumber, login, logout, setRoleDirectly, simulationMode, toggleSimulation, affectedZone, setAffectedZone }}>
+    <AuthContext.Provider value={{ role, phoneNumber, login, logout, setRoleDirectly, simulationMode, setSimulationMode: setSimulationModeExplicit, isSwitchingMode, affectedZone, setAffectedZone }}>
       {children}
     </AuthContext.Provider>
   );
