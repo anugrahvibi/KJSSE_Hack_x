@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+from typing import Coroutine
 
 
 class DemoService:
@@ -14,6 +15,6 @@ class DemoService:
         if self.running():
             self._task.cancel()
 
-    def start(self, coro: asyncio.coroutines) -> None:
+    def start(self, coro: Coroutine) -> None:
         self.stop()
         self._task = asyncio.create_task(coro)
