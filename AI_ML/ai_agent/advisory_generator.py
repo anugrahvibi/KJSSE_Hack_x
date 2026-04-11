@@ -2,7 +2,9 @@ import os
 import json
 from groq import Groq
 
-client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
+# Check if API key is available, otherwise use mock mode
+GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
+client = Groq(api_key=GROQ_API_KEY) if GROQ_API_KEY else None
 
 ADVISORY_PROMPT = """
 You are RIVA's Public Advisory System for Mumbai.
@@ -30,6 +32,10 @@ def generate_public_advisory(dispatch_plan: dict) -> dict:
     """
     Takes the output of the dispatch agent and generates a public-facing advisory.
     """
+    # Mock mode if no API key
+    if not client:
+        return _mock_public_advisory(dispatch_plan)
+
     response = client.chat.completions.create(
         model="llama-3.3-70b-versatile",
         messages=[
@@ -47,3 +53,32 @@ def generate_public_advisory(dispatch_plan: dict) -> dict:
     )
 
     return json.loads(response.choices[0].message.content)
+
+def _mock_public_advisory(dispatch_plan: dict) -> dict:
+    """
+    Mock public advisory when API key is not available.
+    """
+    scenario = dispatch_plan.get("scenario_summary", "Flood emergency in progress")
+    actions = dispatch_plan.get("actions", [])
+
+    # Extract affected areas from actions
+    affected_areas = []
+    for action in actions:
+        if "BMC_WARD_OFFICER" in action.get("dept_id", ""):
+            affected_areas.append("Dharavi area")
+        elif "WESTERN_RAILWAY" in action.get("dept_id", ""):
+            affected_areas.append("Railway stations")
+
+    return {
+        "headline": "Flood Emergency Alert",
+        "summary": scenario,
+        "affected_areas": affected_areas if affected_areas else ["Low-lying areas"],
+        "travel_advice": "Avoid affected roads and railway stations. Use alternate routes and public transport.",
+        "safety_steps": [
+            "Stay indoors if possible",
+            "Avoid walking through flood waters",
+            "Follow local authority instructions",
+            "Keep emergency contacts ready"
+        ],
+        "next_update": "Within 30 minutes"
+    }

@@ -6,7 +6,9 @@ from .system_prompt import (
     build_user_message
 )
 
-client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
+# Check if API key is available, otherwise use mock mode
+GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
+client = Groq(api_key=GROQ_API_KEY) if GROQ_API_KEY else None
 
 def run_dispatch_agent(ward_status: dict,
                         context: dict) -> dict:
@@ -15,6 +17,10 @@ def run_dispatch_agent(ward_status: dict,
     Takes ward status from Layer 1 + context.
     Returns structured action plan.
     """
+    # Mock mode if no API key
+    if not client:
+        return _mock_dispatch_plan(ward_status, context)
+
     response = client.chat.completions.create(
         model="llama-3.3-70b-versatile",
         messages=[
@@ -35,6 +41,40 @@ def run_dispatch_agent(ward_status: dict,
 
     raw = response.choices[0].message.content
     return json.loads(raw)
+
+def _mock_dispatch_plan(ward_status: dict, context: dict) -> dict:
+    """
+    Mock dispatch plan when API key is not available.
+    """
+    ward_name = ward_status.get("ward_name", "Unknown Ward")
+    flood_status = ward_status.get("flood_status", "UNKNOWN")
+
+    return {
+        "scenario_summary": f"{ward_name} in {flood_status} flood status due to tidal lock and heavy rainfall.",
+        "actions": [
+            {
+                "dept_id": "BMC_WARD_OFFICER",
+                "action": f"Activate all pump stations in {ward_name}. Close affected roads and underpasses.",
+                "priority": "CRITICAL",
+                "deadline_minutes": 15,
+                "rationale": "Immediate drainage required to prevent further flooding."
+            },
+            {
+                "dept_id": "WESTERN_RAILWAY",
+                "action": f"Halt services at {ward_name} stations. Prepare crowd management teams.",
+                "priority": "HIGH",
+                "deadline_minutes": 30,
+                "rationale": "Prevent commuter exposure to flood waters."
+            },
+            {
+                "dept_id": "NDRF",
+                "action": f"Deploy Battalion 4 to {ward_name} sector with rescue boats and medical teams.",
+                "priority": "HIGH",
+                "deadline_minutes": 45,
+                "rationale": "Emergency rescue operations required."
+            }
+        ]
+    }
 
 
 # Quick test — run this file directly to verify
