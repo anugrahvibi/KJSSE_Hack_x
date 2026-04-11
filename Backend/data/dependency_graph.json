@@ -1,0 +1,64 @@
+{
+  "nodes": [
+    {"id": "ward_h_east", "label": "Ward H-East", "type": "ward"},
+    {"id": "ward_g_south", "label": "Ward G-South", "type": "ward", "permanently_undrained": true},
+    {
+      "id": "train_network_wr",
+      "label": "Western Railway",
+      "type": "transport",
+      "daily_users": 3500000,
+      "flood_depth_threshold_m": 0.3
+    },
+    {
+      "id": "train_network_cr",
+      "label": "Central Railway",
+      "type": "transport",
+      "daily_users": 2800000,
+      "flood_depth_threshold_m": 0.3
+    },
+    {
+      "id": "road_arterial_sion",
+      "label": "Sion-Trombay Road",
+      "type": "road",
+      "daily_vehicles": 120000,
+      "flood_depth_threshold_m": 0.2
+    },
+    {
+      "id": "kem_hospital",
+      "label": "KEM Hospital",
+      "type": "hospital",
+      "bed_count": 1800,
+      "flood_depth_threshold_m": 0.5
+    }
+  ],
+  "edges": [
+    {
+      "source": "ward_h_east",
+      "target": "train_network_wr",
+      "propagation_delay_min": 60,
+      "impact_multiplier": 0.85,
+      "failure_condition": "Kurla station tracks submerging"
+    },
+    {
+      "source": "ward_h_east",
+      "target": "train_network_cr",
+      "propagation_delay_min": 70,
+      "impact_multiplier": 0.72,
+      "failure_condition": "Harbour line congestion"
+    },
+    {
+      "source": "train_network_wr",
+      "target": "road_arterial_sion",
+      "propagation_delay_min": 30,
+      "impact_multiplier": 0.7,
+      "failure_condition": "Commuter displacement into road network"
+    },
+    {
+      "source": "road_arterial_sion",
+      "target": "kem_hospital",
+      "propagation_delay_min": 45,
+      "impact_multiplier": 0.6,
+      "failure_condition": "Emergency vehicle access blocked"
+    }
+  ]
+}

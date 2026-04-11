@@ -1,0 +1,35 @@
+{
+  "scenario_id": "july_15_dharavi",
+  "events": [
+    {
+      "t_seconds": 0,
+      "type": "ward_status_update",
+      "payload": {
+        "ward_id": "H-East",
+        "severity": "CRITICAL",
+        "drainage_capacity_pct": 0
+      }
+    },
+    {
+      "t_seconds": 5,
+      "type": "agent_dispatch",
+      "payload": {"ward_id": "H-East"}
+    },
+    {
+      "t_seconds": 90,
+      "type": "acknowledge",
+      "payload": {"alert_id": "ALT-001", "dept": "BMC_WARD_H_EAST"}
+    },
+    {
+      "t_seconds": 120,
+      "type": "cascade_step",
+      "payload": {
+        "step": 1,
+        "node": "railway_kurla",
+        "description": "Kurla station tracks submerging",
+        "affected_population": 180000,
+        "t_plus_minutes": 60
+      }
+    }
+  ]
+}

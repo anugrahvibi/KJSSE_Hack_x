@@ -1,0 +1,43 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "ward_id": "H-East",
+        "ward_name": "Dharavi"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [72.848, 19.04],
+            [72.872, 19.04],
+            [72.872, 19.02],
+            [72.848, 19.02],
+            [72.848, 19.04]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ward_id": "G-South",
+        "ward_name": "Bandra-Kurla Complex"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [72.857, 19.08],
+            [72.879, 19.08],
+            [72.879, 19.055],
+            [72.857, 19.055],
+            [72.857, 19.08]
+          ]
+        ]
+      }
+    }
+  ]
+}
