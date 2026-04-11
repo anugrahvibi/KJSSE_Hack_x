@@ -1,4 +1,9 @@
-Frontend copy/
+# Python virtual environments
+test_env/
+myenev/
+venv/
+.venv/
+env/
 
 # Python
 __pycache__/
@@ -222,3 +227,5 @@ logs
 .Trashes
 ehthumbs.db
 Thumbs.db
+
+Frontend copy/
