@@ -1,21 +1,33 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { fetchZones, fetchActiveAlerts } from '../utils/dataFetcher';
-import type { StakeholderAction } from '@schema';
-import { Navigation, ShieldAlert, Target, Clock, MapPin, AlertTriangle } from 'lucide-react';
+import { fetchZones, fetchInfrastructure, fetchPredictions, fetchActiveAlerts } from '../utils/dataFetcher';
+import type { StakeholderAction, InfrastructureNode, ZonePrediction } from '@schema';
+import { Navigation, ShieldAlert, Target, Clock, AlertTriangle } from 'lucide-react';
 import { useGsapAnimations } from '../utils/useGsapAnimations';
 import { AccountabilityBanner } from '../components/AccountabilityBanner';
-import { TacticalCard, TacticalBadge, TacticalAlertRow } from '../components/tactical/TacticalLibrary';
+import { MapView } from '../components/MapView';
+import { TacticalCard, TacticalBadge, Label } from '../components/tactical/TacticalLibrary';
 
 export function NdrfDashboard() {
   const containerRef = useRef<HTMLDivElement>(null);
+   const [zones, setZones] = useState<any>(null);
+   const [infra, setInfra] = useState<InfrastructureNode[]>([]);
+   const [predictions, setPredictions] = useState<ZonePrediction[]>([]);
   const [alerts, setAlerts] = useState<StakeholderAction[]>([]);
-  const [selectedZone, setSelectedZone] = useState<string | null>(null);
+   const [selectedZone, setSelectedZone] = useState<string | null>('H-East');
 
   useGsapAnimations(containerRef, [alerts]);
 
   useEffect(() => {
     async function init() {
-      const aData = await fetchActiveAlerts('NDRF');
+         const [zData, iData, pData, aData] = await Promise.all([
+            fetchZones(),
+            fetchInfrastructure(),
+            fetchPredictions(),
+            fetchActiveAlerts('NDRF'),
+         ]);
+         setZones(zData);
+         setInfra((iData.nodes || []).filter((node: InfrastructureNode) => node.type === 'road' || node.type === 'comm_tower'));
+         setPredictions(pData);
       setAlerts(aData);
     }
     init();
@@ -55,35 +67,44 @@ export function NdrfDashboard() {
             >
                <div className="space-y-4">
                   <p className="text-[18px] font-black text-emerald-700 leading-snug">Deploy Battalion 4 immediately to Dharavi Sector B.</p>
-                  <p className="text-[15px] font-bold text-orange-600 uppercase">Avoid Sion underpass — BMC closing it now.</p>
+                  <p className="text-[15px] font-bold text-orange-600 uppercase">Avoid Sion underpass - BMC closing it now.</p>
                   <p className="text-[15px] font-bold text-emerald-800">Use 60 Feet Road northbound approach only.</p>
                   <p className="text-[15px] font-bold text-gray-700">Estimated travel: <span className="font-black">18 min</span>.</p>
-                  <p className="text-[15px] font-black text-emerald-600">Flood peak T+90 min — you have time.</p>
+                  <p className="text-[15px] font-black text-emerald-600">Flood peak T+90 min - you have time.</p>
                </div>
             </TacticalCard>
 
             {/* Sector Assessment (Status Grid) */}
-            <TacticalCard title="Sector Assessment — H-East" icon={<ShieldAlert size={18} className="text-blue-600" />}>
+            <TacticalCard title="Sector Assessment - H-East" icon={<ShieldAlert size={18} className="text-blue-600" />}>
                <div className="grid grid-cols-2 gap-4">
-                  <SectorBlock label="Sector B — RED" desc="Dharavi near 90 Feet Rd · Water rising · 1,200 at risk · Evacuate priority" color="red" />
-                  <SectorBlock label="Sector A — AMBER" desc="Dharavi north · Monitor only · 340 residents" color="orange" />
-                  <SectorBlock label="Sector C — CLEAR" desc="Mahim side · No action needed" color="emerald" />
-                  <SectorBlock label="Sector D — WATCH" desc="Near Sion border · Monitor if rain persists" color="blue" />
+                  <SectorBlock label="Sector B - RED" desc="Dharavi near 90 Feet Rd · Water rising · 1,200 at risk · Evacuate priority" color="red" />
+                  <SectorBlock label="Sector A - AMBER" desc="Dharavi north · Monitor only · 340 residents" color="orange" />
+                  <SectorBlock label="Sector C - CLEAR" desc="Mahim side · No action needed" color="emerald" />
+                  <SectorBlock label="Sector D - WATCH" desc="Near Sion border · Monitor if rain persists" color="blue" />
                </div>
             </TacticalCard>
           </div>
 
-          {/* Route Map (Placeholder visualization) */}
+          {/* Route Map */}
           <div className="flex-1 min-h-[400px] glass-card rounded-[2.5rem] border border-white/40 shadow-xl relative overflow-hidden bg-slate-50/50">
-             <div className="absolute top-6 left-6 z-10 glass-card px-4 py-2 rounded-xl text-[10px] font-black text-gray-400 uppercase">ROUTE MAP — LIVE AVOIDANCES</div>
-             {/* Mock Route Imagery Style */}
-             <div className="flex items-center justify-center h-full opacity-40 grayscale flex-col gap-4">
-                <Navigation size={64} className="text-blue-600 animate-pulse" />
-                <span className="text-[12px] font-black text-gray-400 uppercase tracking-widest">Sion Rd · 60 Feet Rd · Dharavi Tactical Grid</span>
-             </div>
-             <div className="absolute bottom-6 left-6 text-[10px] font-bold text-red-600 uppercase italic">
-                18 min ETA — avoid Sion underpass (closed)
-             </div>
+             <MapView
+               zonesGeoJson={zones}
+               infrastructureNodes={infra}
+               predictions={predictions}
+               onZoneClick={setSelectedZone}
+               selectedZoneId={selectedZone}
+             />
+             <Label
+               label="Route Map - Live Avoidances"
+               as="div"
+               variant="block"
+               className="absolute top-6 left-6 z-10 glass-card text-gray-500 border border-black/5"
+             />
+             <Label
+               label="18 min ETA - avoid Sion underpass (closed)"
+               as="div"
+               className="absolute bottom-6 left-6 z-10 bg-red-100 text-red-600"
+             />
           </div>
         </div>
 
@@ -93,9 +114,9 @@ export function NdrfDashboard() {
           {/* Casualty Estimate */}
           <TacticalCard title="Casualty Estimate IF Delayed" icon={<Clock size={16} className="text-gray-400" />}>
              <div className="space-y-6">
-                <EstimateRow time="T+0" label="Deploy now — 340 people evacuated safely" badge="TARGET" badgeColor="emerald" />
-                <EstimateRow time="T+30" label="60 Feet Rd starts flooding — route compromised" badge="RISK" badgeColor="orange" />
-                <EstimateRow time="T+90" label="Sector B fully submerged — rescue only, no evac" badge="CRITICAL" badgeColor="red" />
+                <EstimateRow time="T+0" label="Deploy now - 340 people evacuated safely" badge="TARGET" badgeColor="emerald" />
+                <EstimateRow time="T+30" label="60 Feet Rd starts flooding - route compromised" badge="RISK" badgeColor="orange" />
+                <EstimateRow time="T+90" label="Sector B fully submerged - rescue only, no evac" badge="CRITICAL" badgeColor="red" />
              </div>
           </TacticalCard>
 

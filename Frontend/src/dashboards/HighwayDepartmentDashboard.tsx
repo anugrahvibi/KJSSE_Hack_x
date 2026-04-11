@@ -1,20 +1,33 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { TrainFront, Activity, Zap, StopCircle, Clock, AlertCircle, Info } from 'lucide-react';
-import { fetchActiveAlerts, fetchPredictions } from '../utils/dataFetcher';
-import type { StakeholderAction, ZonePrediction } from '@schema';
+import { fetchZones, fetchInfrastructure, fetchActiveAlerts, fetchPredictions } from '../utils/dataFetcher';
+import type { StakeholderAction, InfrastructureNode, ZonePrediction } from '@schema';
 import { useGsapAnimations } from '../utils/useGsapAnimations';
 import { AccountabilityBanner } from '../components/AccountabilityBanner';
-import { TacticalCard, TacticalBadge } from '../components/tactical/TacticalLibrary';
+import { MapView } from '../components/MapView';
+import { TacticalCard, TacticalBadge, Label } from '../components/tactical/TacticalLibrary';
 
 export function HighwayDepartmentDashboard() {
+   const [zones, setZones] = useState<any>(null);
+   const [infra, setInfra] = useState<InfrastructureNode[]>([]);
+   const [predictions, setPredictions] = useState<ZonePrediction[]>([]);
   const [alerts, setAlerts] = useState<StakeholderAction[]>([]);
+   const [selectedZone, setSelectedZone] = useState<string | null>('H-East');
   const containerRef = useRef<HTMLDivElement>(null);
 
   useGsapAnimations(containerRef, [alerts]);
 
   useEffect(() => {
     async function init() {
-      const aData = await fetchActiveAlerts('WESTERN_RAILWAY');
+         const [zData, iData, pData, aData] = await Promise.all([
+            fetchZones(),
+            fetchInfrastructure(),
+            fetchPredictions(),
+            fetchActiveAlerts('WESTERN_RAILWAY'),
+         ]);
+         setZones(zData);
+         setInfra((iData.nodes || []).filter((node: InfrastructureNode) => node.type === 'road' || node.type === 'comm_tower'));
+         setPredictions(pData);
       setAlerts(aData);
     }
     init();
@@ -46,29 +59,30 @@ export function HighwayDepartmentDashboard() {
            {/* LEFT COLUMN */}
            <div className="space-y-8 flex flex-col">
               
-              {/* Rail Line Schematic */}
+            {/* Rail Route Risk Map */}
               <div className="flex-1 min-h-[400px] glass-card rounded-[2.5rem] border border-white/40 shadow-xl bg-slate-900/5 relative overflow-hidden flex flex-col">
-                 <header className="p-8 pb-0">
-                    <h3 className="text-[11px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-3">
-                       <TrainFront size={16} /> RAIL LINE SCHEMATIC — KURLA-DADAR CORRIDOR
-                    </h3>
-                 </header>
-                 <div className="flex-1 flex items-center justify-center p-10 grayscale opacity-40">
-                    {/* Simplified Schematic Visualization */}
-                    <div className="flex items-center gap-12">
-                       <SchematicNode id="KRL" label="Kurla" status="HIGH RISK" color="red" sub="Sub T+60" />
-                       <SchematicNode id="SION" label="Sion" status="MEDIUM" color="orange" sub="Watch T+90" />
-                       <SchematicNode id="MAT" label="Matunga Rd" status="MEDIUM" color="orange" sub="Monitor" />
-                       <SchematicNode id="DDR" label="Dadar" status="LOW" color="emerald" sub="Clear" />
-                    </div>
-                 </div>
-                 <div className="p-8 pt-0 text-[10px] font-bold text-gray-400 uppercase italic">
-                    Western Railway WR main line — Harbour branch — RIVA cascade overlay
-                 </div>
+                 <MapView
+                   zonesGeoJson={zones}
+                   infrastructureNodes={infra}
+                   predictions={predictions}
+                   onZoneClick={setSelectedZone}
+                   selectedZoneId={selectedZone}
+                 />
+                 <Label
+                   label="Rail Route Risk Map - Kurla to Dadar Corridor"
+                   as="div"
+                   variant="block"
+                   className="absolute top-6 left-6 z-10 glass-card text-gray-500 border border-black/5 max-w-[320px]"
+                 />
+                 <Label
+                   label="Western Railway main line - Harbour branch - RIVA overlay"
+                   as="div"
+                   className="absolute bottom-6 left-6 z-10 bg-white/80 text-gray-500"
+                 />
               </div>
 
               {/* Station Risk List */}
-              <TacticalCard title="STATION RISK — AT-RISK STATIONS" icon={<Zap size={16} className="text-orange-600" />}>
+              <TacticalCard title="Station Risk - At-Risk Stations" icon={<Zap size={16} className="text-orange-600" />}>
                  <div className="space-y-4">
                     <RiskRow label="Kurla (WR Main line)" status="HIGH RISK" sub="Submerge T+60" color="red" />
                     <RiskRow label="Sion station" status="MEDIUM" sub="Watch T+90" color="orange" />
@@ -82,7 +96,7 @@ export function HighwayDepartmentDashboard() {
            <div className="space-y-8 flex flex-col">
               
               {/* Crowd Management Checklist */}
-              <TacticalCard title="Crowd Management Checklist — KURLA" className="flex-[0.6]">
+              <TacticalCard title="Crowd Management Checklist - Kurla" className="flex-[0.6]">
                  <div className="space-y-2">
                     <ChecklistRow time="09:07" label="Alert received — station prep required" status="IGNORED" color="red-ghost" />
                     <ChecklistRow time="09:22" label="Deadline passed — no response logged" status="OVERDUE" color="red-ghost" />
