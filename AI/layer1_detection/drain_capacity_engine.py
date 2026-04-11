@@ -1,6 +1,8 @@
 from pydantic import BaseModel
 from enum import Enum
 
+CONFIDENCE_THRESHOLD = 0.75
+
 class FloodStatus(str, Enum):
     CLEAR = "CLEAR"
     WATCH = "WATCH"
@@ -15,6 +17,7 @@ class WardStatus(BaseModel):
     outfall_elevation_m: float
     rainfall_rate: float
     flood_status: FloodStatus
+    confidence_score: float
     permanently_undrained: bool = False
 
 def compute_ward_status(ward_id: str, ward_name: str, outfall_elevation_m: float,
@@ -27,8 +30,14 @@ def compute_ward_status(ward_id: str, ward_name: str, outfall_elevation_m: float
     """
     if tide_height >= outfall_elevation_m:
         drain_pct = 0.0   # Tidal lock — drain is sealed
+        excess = tide_height - outfall_elevation_m
+        confidence_score = min(1.0, excess / outfall_elevation_m)
     else:
         drain_pct = (outfall_elevation_m - tide_height) / outfall_elevation_m * 100
+        if drain_pct > 0 and drain_pct < 30:
+            confidence_score = round(1.0 - (drain_pct / 30), 2)
+        else:
+            confidence_score = 0.0
 
     if drain_pct == 0 and rainfall_rate > 0:
         status = FloodStatus.CRITICAL
@@ -39,6 +48,9 @@ def compute_ward_status(ward_id: str, ward_name: str, outfall_elevation_m: float
     else:
         status = FloodStatus.CLEAR
 
+    if status == FloodStatus.CRITICAL and confidence_score < CONFIDENCE_THRESHOLD:
+        status = FloodStatus.WATCH
+
     return WardStatus(
         ward_id=ward_id,
         ward_name=ward_name,
@@ -47,6 +59,7 @@ def compute_ward_status(ward_id: str, ward_name: str, outfall_elevation_m: float
         outfall_elevation_m=outfall_elevation_m,
         rainfall_rate=rainfall_rate,
         flood_status=status,
+        confidence_score=confidence_score,
         permanently_undrained=permanently_undrained
     )
 
