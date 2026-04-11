@@ -4,7 +4,7 @@ import { useAuth } from '../AuthContext';
 
 export function DemoControl() {
     const { phoneNumber } = useAuth();
-    const [zoneId, setZoneId] = useState('ZONE_KALPETTA');
+    const [zoneId, setZoneId] = useState('H-East');
     const [status, setStatus] = useState<{ type: 'success' | 'error', message: string } | null>(null);
     const [loading, setLoading] = useState(false);
 
@@ -12,12 +12,16 @@ export function DemoControl() {
         setLoading(true);
         setStatus(null);
         try {
-            const url = `/api/v1/ml/alerts/distress?zone_id=${zoneId}${phoneNumber ? `&phone_number=${encodeURIComponent(phoneNumber)}` : ''}`;
-            const resp = await fetch(url, { method: 'POST' });
+            const url = `/api/detection/trigger`;
+            const resp = await fetch(url, { 
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ ward_id: zoneId, severity: 'CRITICAL' })
+            });
             if (resp.ok) {
                 setStatus({
                     type: 'success',
-                    message: `Strategic SOS alerts dispatched to field units${phoneNumber ? ` (Target: ${phoneNumber})` : ''}.`
+                    message: `Strategic SOS alerts dispatched for ${zoneId} sector.`
                 });
             } else {
                 setStatus({ type: 'error', message: 'Uplink failed.' });
@@ -28,15 +32,19 @@ export function DemoControl() {
         setLoading(false);
     };
 
-    const clearDistress = async () => {
+    const runFullScenario = async () => {
         setLoading(true);
         setStatus(null);
         try {
-            const resp = await fetch('/api/v1/ml/alerts/distress', { method: 'DELETE' });
+            const resp = await fetch('/api/demo/start', { 
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ speed_multiplier: 1.0 })
+            });
             if (resp.ok) {
-                setStatus({ type: 'success', message: 'SOS Signal Terminated.' });
+                setStatus({ type: 'success', message: 'Full Demo Scenario Playback Initialized.' });
             } else {
-                setStatus({ type: 'error', message: 'Termination failed.' });
+                setStatus({ type: 'error', message: 'Demo Playback failed.' });
             }
         } catch (err) {
             setStatus({ type: 'error', message: 'Connection Error.' });
@@ -74,12 +82,10 @@ export function DemoControl() {
                                 onChange={(e) => setZoneId(e.target.value)}
                                 className="w-full h-16 bg-slate-50 border-none rounded-2xl pl-14 pr-6 font-bold text-gray-900 appearance-none focus:ring-2 focus:ring-red-500/20 transition-all outline-none"
                             >
-                                <option value="ZONE_KALPETTA">Kalpetta Sector</option>
-                                <option value="ZONE_MANANTHAVADY">Mananthavady Sector</option>
-                                <option value="ZONE_SULTHAN_BATHERY">Bathery Sector</option>
-                                <option value="ZONE_VYTHIRI">Vythiri Sector</option>
-                                <option value="ZONE_PANAMARAM">Panamaram Sector</option>
-                                <option value="ZONE_AMBALAVAYAL">Ambalavayal Sector</option>
+                                <option value="H-East">Dharavi (H-East)</option>
+                                <option value="G-South">BKC (G-South)</option>
+                                <option value="E">Byculla (E)</option>
+                                <option value="L">Kurla (L)</option>
                             </select>
                         </div>
                     </div>
@@ -95,12 +101,12 @@ export function DemoControl() {
                         </button>
 
                         <button
-                            onClick={clearDistress}
+                            onClick={runFullScenario}
                             disabled={loading}
                             className="w-full h-14 glass-tint-blue rounded-2xl font-black uppercase text-xs tracking-widest flex items-center justify-center gap-2 transition-all active:scale-95 disabled:opacity-50"
                         >
-                            <Trash2 size={16} />
-                            End Transmission
+                            <Signal size={16} />
+                            Start Full Playback
                         </button>
                     </div>
 

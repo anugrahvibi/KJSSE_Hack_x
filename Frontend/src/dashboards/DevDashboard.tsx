@@ -11,15 +11,17 @@ export function DevDashboard() {
   
   useGsapAnimations(containerRef);
 
-  const roles: Role[] = ['Dam Controller', 'NDRF', 'District Collector', 'Highway Department'];
-  const zones = ['All Zones', 'Kalpetta Town', 'Sulthan Bathery', 'Mananthavady', 'Vythiri', 'Panamaram', 'Ambalavayal'];
+  const roles: Role[] = ['BMC Ward Officer', 'NDRF', 'Western Railway', 'Central Railway', 'KEM Hospital', 'Public Advisory', 'Developer'];
+  const zones = ['H-East', 'G-South', 'E', 'L', 'F-North'];
 
   const getRoleIcon = (r: Role) => {
     switch (r) {
-      case 'Dam Controller': return <Waves size={20} />;
+      case 'BMC Ward Officer': return <Waves size={20} />;
       case 'NDRF': return <HardHat size={20} />;
-      case 'District Collector': return <Gavel size={20} />;
-      case 'Highway Department': return <Truck size={20} />;
+      case 'Western Railway': return <Truck size={20} />;
+      case 'Central Railway': return <Truck size={20} />;
+      case 'KEM Hospital': return <Shield size={20} />;
+      case 'Public Advisory': return <Users size={20} />;
       case 'Developer': return <Terminal size={20} />;
       default: return <Shield size={20} />;
     }

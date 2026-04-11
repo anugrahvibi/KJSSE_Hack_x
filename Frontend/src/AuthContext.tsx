@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState } from 'react';
 import type { ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-export type Role = 'Dam Controller' | 'NDRF' | 'District Collector' | 'Highway Department' | 'Developer' | 'Public' | null;
+export type Role = 'BMC Ward Officer' | 'NDRF' | 'Western Railway' | 'Central Railway' | 'KEM Hospital' | 'Public Advisory' | 'Developer' | null;
 
 interface AuthContextType {
   role: Role;
@@ -10,7 +10,7 @@ interface AuthContextType {
   login: (role?: Role, phone?: string) => Role;
   logout: () => void;
   setRoleDirectly: (role: Role) => void;
-  simulationMode: 'NORMAL' | 'FLOOD';
+  simulationMode: 'NORMAL' | 'FLOOD' | 'DEMO';
   toggleSimulation: () => void;
   affectedZone: string;
   setAffectedZone: (zone: string) => void;
@@ -32,7 +32,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const registeredRole = localStorage.getItem('registered_role') as Role;
 
     // If no role is provided at login, use the registered one
-    const loginRole = r || registeredRole || 'Public';
+    const loginRole = r || registeredRole || 'Public Advisory';
 
     setRole(loginRole);
     localStorage.setItem('cascade_role', loginRole || '');
@@ -48,8 +48,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return loginRole;
   };
 
-  const [simulationMode, setSimulationMode] = useState<'NORMAL' | 'FLOOD'>('NORMAL');
-  const [affectedZone, setAffectedZone] = useState<string>('All Zones');
+  const [simulationMode, setSimulationMode] = useState<'NORMAL' | 'FLOOD' | 'DEMO'>('NORMAL');
+  const [affectedZone, setAffectedZone] = useState<string>('H-East');
 
   const setRoleDirectly = (r: Role) => {
     setRole(r);
@@ -58,7 +58,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const toggleSimulation = () => {
-    setSimulationMode(prev => prev === 'NORMAL' ? 'FLOOD' : 'NORMAL');
+    setSimulationMode(prev => {
+      if (prev === 'NORMAL') return 'FLOOD';
+      if (prev === 'FLOOD') return 'DEMO';
+      return 'NORMAL';
+    });
   };
 
   const logout = () => {

@@ -27,7 +27,7 @@ export function Signup() {
     navigate('/', { replace: true });
   };
 
-  const roles = ['Dam Controller', 'NDRF', 'District Collector', 'Highway Department', 'Developer', 'Public'];
+  const roles = ['BMC Ward Officer', 'NDRF', 'Western Railway', 'Central Railway', 'KEM Hospital', 'Public Advisory', 'Developer'];
 
   return (
     <div ref={containerRef} className="min-h-screen w-full flex items-center justify-center p-6 relative bg-[#f8fafc] overflow-hidden">

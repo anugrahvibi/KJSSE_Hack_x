@@ -20,11 +20,12 @@ export function Login() {
   // Auto-redirect if already authenticated
   React.useEffect(() => {
     if (role === 'NDRF') navigate('/ndrf', { replace: true });
-    else if (role === 'Dam Controller') navigate('/dam', { replace: true });
-    else if (role === 'District Collector') navigate('/admin', { replace: true });
-    else if (role === 'Highway Department') navigate('/highway', { replace: true });
+    else if (role === 'BMC Ward Officer') navigate('/bmc', { replace: true });
+    else if (role === 'Western Railway') navigate('/western-railway', { replace: true });
+    else if (role === 'Central Railway') navigate('/central-railway', { replace: true });
+    else if (role === 'KEM Hospital') navigate('/kem', { replace: true });
     else if (role === 'Developer') navigate('/dev', { replace: true });
-    else if (role === 'Public') navigate('/public', { replace: true });
+    else if (role === 'Public Advisory') navigate('/public', { replace: true });
   }, [role, navigate]);
 
   const requestOtp = async (e: React.FormEvent) => {
