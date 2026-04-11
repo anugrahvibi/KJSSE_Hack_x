@@ -64,7 +64,6 @@ async function fetchJsonWithRetry<T>(url: string, options: {
       return await response.json();
     } catch (err) {
       if (i === retries) {
-        console.error(`Fetch failed for ${url}:`, err);
         return null;
       }
       await wait(1000 * Math.pow(2, i)); // Exponential backoff
@@ -76,8 +75,8 @@ async function fetchJsonWithRetry<T>(url: string, options: {
 // ─── Shared Persistence API ────────────────────────────────────────────────────
 
 export async function fetchZones(): Promise<any[]> {
-  const data = await fetchJsonWithRetry<any[]>('/api/v1/zones');
-  return data || [];
+  const data = await fetchJsonWithRetry<any>('/api/wards/geojson');
+  return data || { type: 'FeatureCollection', features: [] };
 }
 
 export async function fetchInfrastructure(): Promise<GraphResponse> {
@@ -100,9 +99,10 @@ export async function fetchActiveAlerts(role: string, scenario: string = '2024_p
   const cached = cacheGet<StakeholderAction[]>(cacheKey);
   if (cached) return cached;
 
-  const data = await fetchJsonWithRetry<AlertsResponse>(`/api/v1/ml/alerts/summary?scenario=${scenario}`);
-  if (data?.action_plan?.action_plans) {
-    const filteredActions = data.action_plan.action_plans.filter(action => !role || action.department === role);
+  // Use new agent alerts endpoint
+  const data = await fetchJsonWithRetry<StakeholderAction[]>('/api/agent/alerts');
+  if (data) {
+    const filteredActions = data.filter(action => !role || action.department.toLowerCase() === role.toLowerCase());
     cacheSet(cacheKey, filteredActions);
     return filteredActions;
   }
@@ -111,15 +111,24 @@ export async function fetchActiveAlerts(role: string, scenario: string = '2024_p
 
 
 export async function fetchSensorReadings(zoneId: string): Promise<SensorReading[]> {
-  const latestData = await fetchJsonWithRetry<SensorReading>(`/api/v1/sensors/${zoneId}/latest`, {
+  const latestData = await fetchJsonWithRetry<any>(`/api/detection/ward/${zoneId}`, {
     retries: 1,
     timeoutMs: 5000,
   });
-  return latestData ? [latestData] : [];
+  if (latestData) {
+    return [{
+       zone_id: latestData.ward_id,
+       reservoir_pct: 0, // Not in new schema directly
+       flow_rate: latestData.rainfall_rate,
+       rainfall_mm: latestData.rainfall_rate,
+       timestamp: new Date().toISOString()
+    }];
+  }
+  return [];
 }
 
 export async function fetchCascadeAnalysis(zoneId: string): Promise<any> {
-  return await fetchJsonWithRetry<any>(`/api/v1/cascade/${zoneId}`);
+  return await fetchJsonWithRetry<any>(`/api/cascade/event/${zoneId}`);
 }
 
 export async function fetchVulnerabilities(): Promise<VulnerabilityAnalysis | null> {
@@ -127,7 +136,7 @@ export async function fetchVulnerabilities(): Promise<VulnerabilityAnalysis | nu
   const cached = cacheGet<VulnerabilityAnalysis>(cacheKey);
   if (cached) return cached;
 
-  const data = await fetchJsonWithRetry<VulnerabilityAnalysis>('/api/v1/ml/analytics/vulnerability-map', { timeoutMs: SLOW_TIMEOUT_MS });
+  const data = await fetchJsonWithRetry<VulnerabilityAnalysis>('/api/cascade/audit', { timeoutMs: SLOW_TIMEOUT_MS });
   if (data) {
     cacheSet(cacheKey, data);
     return data;
@@ -137,41 +146,31 @@ export async function fetchVulnerabilities(): Promise<VulnerabilityAnalysis | nu
 
 
 export async function fetchLeadTimes(scenario: string = '2024_peak'): Promise<LeadTimeTicker[]> {
-  const cacheKey = `lead_times_${scenario}`;
-  const cached = cacheGet<LeadTimeTicker[]>(cacheKey);
-  if (cached) return cached;
-
-  const data = await fetchJsonWithRetry<{ lead_time_tickers?: LeadTimeTicker[] }>(`/api/v1/ml/lead-times?scenario=${scenario}`);
-  const tickers = data?.lead_time_tickers ?? [];
-  if (tickers.length > 0) {
-    cacheSet(cacheKey, tickers);
-  }
-  return tickers;
-}
-
-export async function fetchROIRankings(): Promise<ROIAnalysis[]> {
-  const cacheKey = 'roi_rankings';
-  const cached = cacheGet<ROIAnalysis[]>(cacheKey);
-  if (cached) return cached;
-
-  // Assuming backend returns it properly aligned with schema now
-  const data = await fetchJsonWithRetry<ROIAnalysis[]>('/api/v1/ml/roi/rankings');
+  // Map from detection status
+  const data = await fetchJsonWithRetry<any[]>('/api/detection/status');
   if (data) {
-    cacheSet(cacheKey, data);
-    return data;
+    return data.map(w => ({
+      zone_id: w.ward_id,
+      hours_until_peak: w.flood_status === 'CRITICAL' ? 0.5 : 2,
+      severity: w.flood_status
+    }));
   }
   return [];
 }
 
-export async function fetchPredictions(scenario: string = '2024_peak'): Promise<ZonePrediction[]> {
-  const cacheKey = `predictions_${scenario}`;
-  const cached = cacheGet<ZonePrediction[]>(cacheKey);
-  if (cached) return cached;
+export async function fetchROIRankings(): Promise<ROIAnalysis[]> {
+  return []; // ROI not yet in new backend
+}
 
-  const data = await fetchJsonWithRetry<PredictionResponse>(`/api/v1/ml/predictions?scenario=${scenario}`, { timeoutMs: SLOW_TIMEOUT_MS });
-  if (data?.predictions) {
-    cacheSet(cacheKey, data.predictions);
-    return data.predictions;
+export async function fetchPredictions(scenario: string = '2024_peak'): Promise<ZonePrediction[]> {
+  const data = await fetchJsonWithRetry<any[]>('/api/detection/status');
+  if (data) {
+    return data.map(w => ({
+      zone_id: w.ward_id,
+      zone_name: w.ward_name,
+      flood_probability: w.flood_status === 'CRITICAL' ? 0.95 : (w.flood_status === 'WARNING' ? 0.75 : 0.2),
+      lead_time_hours: w.flood_status === 'CRITICAL' ? 0.5 : 2
+    }));
   }
   return [];
 }

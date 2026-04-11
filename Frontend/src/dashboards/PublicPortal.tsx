@@ -19,8 +19,8 @@ export function PublicPortal() {
     useEffect(() => {
         async function loadPublicData() {
             const [preds, alerts] = await Promise.all([
-                fetchPredictions('2024_peak'),
-                fetchActiveAlerts('Public', '2024_peak')
+                fetchPredictions(),
+                fetchActiveAlerts('PUBLIC_ADVISORY')
             ]);
             setGlobalRisks(preds);
             setAdvisories(alerts);
@@ -54,7 +54,7 @@ export function PublicPortal() {
                         <span className="text-[14px] font-black uppercase tracking-[0.2em]">Community Defense Network</span>
                     </div>
                     <h1 className="text-4xl sm:text-5xl md:text-7xl font-black text-gray-950 brand-font leading-[0.9]">
-                        Wayanad Flood <span className="text-blue-700 ending-serif">Intelligence</span>
+                        Mumbai Flood <span className="text-blue-700 ending-serif">Intelligence</span>
                     </h1>
                     <p className="max-w-xl mx-auto text-gray-600 font-bold text-lg leading-relaxed">
                         Real-time predictive safety data for your sector. Powered by high-resolution LSTM models.
@@ -66,7 +66,7 @@ export function PublicPortal() {
                     <div className="glass-card p-2 rounded-[2.5rem] flex flex-col sm:flex-row items-stretch sm:items-center gap-2 border border-white/60">
                         <input
                             type="text"
-                            placeholder="Enter sector name (e.g. Kalpetta, Meppadi)"
+                            placeholder="Enter sector name (e.g. Dharavi, BKC, Kurla)"
                             value={pin}
                             onChange={(e) => setPin(e.target.value)}
                             className="bg-transparent border-none focus:ring-0 h-14 sm:h-16 px-6 sm:px-10 flex-1 font-bold text-gray-900 placeholder:text-gray-400"
