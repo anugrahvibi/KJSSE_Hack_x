@@ -5,6 +5,7 @@ import type { VulnerabilityAnalysis } from '@schema';
 import { useGsapAnimations } from '../utils/useGsapAnimations';
 import { MapView } from '../components/MapView';
 import { ProgressBar } from '../components/common/ProgressBar';
+import { Label, LabelButton } from '../components/tactical/TacticalLibrary';
 import { AccountabilityReport } from './AccountabilityReport';
 
 export function AuditDashboard() {
@@ -71,9 +72,12 @@ export function AuditDashboard() {
                 })) || []}
                 onZoneClick={() => {}}
               />
-            <div className="absolute top-6 left-6 z-[1000] glass-card px-4 py-2 rounded-xl text-[10px] font-black text-gray-600 uppercase border border-black/5">
-               STRUCTURAL VULNERABILITY MAP - MUMBAI
-            </div>
+                  <Label
+                     label="Structural Vulnerability Map - Mumbai"
+                     as="div"
+                     variant="block"
+                     className="absolute top-6 left-6 z-[1000] glass-card text-gray-600 border border-black/5 max-w-[280px] leading-tight"
+                  />
             <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-[1000] text-[10px] font-bold text-gray-400 uppercase">
                Node size = cascade multiplier · click for detail
             </div>
@@ -93,7 +97,7 @@ export function AuditDashboard() {
                 ].map((item, idx) => (
                   <div key={idx} className="p-4 bg-white/50 border border-black/5 rounded-2xl flex items-center justify-between">
                      <span className="text-[12px] font-black text-gray-900 uppercase">{item.ward}</span>
-                     <span className={`px-2 py-1 ${item.color} text-white text-[10px] font-black rounded-lg`}>Outfall {item.level}</span>
+                     <Label label={`Outfall ${item.level}`} className={`${item.color} text-white text-[10px]`} />
                   </div>
                 ))}
              </div>
@@ -107,7 +111,7 @@ export function AuditDashboard() {
           <div className="glass-card p-8 rounded-[3rem] border border-white/40 shadow-xl bg-white/40 flex flex-col h-fit">
              <header className="flex justify-between items-center mb-6">
                 <h3 className="text-[11px] font-black text-gray-400 uppercase tracking-widest">AI Vulnerability Narrative</h3>
-                <span className="px-2 py-1 bg-gray-100 rounded-lg text-[10px] font-black text-gray-500 uppercase">GenAI-Croq</span>
+                <Label label="GenAI-Croq" className="bg-gray-100 text-gray-500" />
              </header>
              <div className="p-6 bg-blue-50/50 border border-blue-100 rounded-2xl space-y-4">
                 <span className="text-[10px] font-black text-blue-600 uppercase">Generated Insight</span>
@@ -122,12 +126,13 @@ export function AuditDashboard() {
           <div className="glass-card p-8 rounded-[2.5rem] border border-white/40 shadow-xl bg-white/40 space-y-6">
              <header className="text-[11px] font-black text-gray-400 uppercase tracking-widest">Post-Event Report</header>
              <p className="text-[13px] font-bold text-gray-700 leading-snug">After event closes, RIVA generates a full accountability report: who responded, who failed, what it cost. Suitable for Municipal Commissioner.</p>
-             <button 
+             <LabelButton
                 onClick={() => setShowReport(true)}
-                className="w-full py-4 bg-blue-600 text-white rounded-2xl font-black text-[13px] uppercase hover:scale-95 transition-all shadow-xl shadow-blue-500/20 flex items-center justify-center gap-2"
-             >
-                Generate accountability report <ArrowRight size={14} />
-             </button>
+                tone="primary"
+                label="Generate accountability report"
+                icon={<ArrowRight size={14} />}
+                className="w-full py-4 text-[13px]"
+             />
           </div>
 
           {/* Policy Summary (Bottom Right) */}
