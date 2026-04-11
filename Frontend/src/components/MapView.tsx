@@ -1,15 +1,15 @@
 import React, { useEffect, useRef } from 'react';
 import type { InfrastructureNode, ZonePrediction } from '@schema';
 import { getPredictionAlertLevel, getAlertColor } from '../utils/schemaHelpers';
+import { ProgressBar } from './common/ProgressBar';
 
 // ─── Zone IDs exactly match ZONE_FLOOD_THRESHOLDS in lstm_predictor.py ────────
 const ZONE_COORDS: Record<string, [number, number]> = {
-  "ZONE_KALPETTA": [11.6100, 76.0800],
-  "ZONE_SULTHAN_BATHERY": [11.6600, 76.2500],
-  "ZONE_MANANTHAVADY": [11.8000, 75.9700],
-  "ZONE_VYTHIRI": [11.5500, 76.0200],
-  "ZONE_PANAMARAM": [11.7900, 76.0300],
-  "ZONE_AMBALAVAYAL": [11.7200, 76.1500],
+  "H-East": [19.0478, 72.8465],
+  "G-South": [19.0178, 72.8300],
+  "E": [18.9691, 72.8368],
+  "F-North": [19.0264, 72.8553],
+  "L": [19.0724, 72.8872],
 };
 
 function getZoneCoords(zoneId: string): [number, number] | null {
@@ -110,13 +110,13 @@ export function MapView({ infrastructureNodes, predictions, onZoneClick, selecte
       // Guard against React Strict Mode double-invoking effects
       if ((containerRef.current as any)._leaflet_id) return;
       const map = L.map(containerRef.current!, {
-        center: [11.68, 76.08],
-        zoom: 11,
+        center: [19.0760, 72.8777],
+        zoom: 12,
         zoomControl: true,
       });
       mapRef.current = map;
 
-      // Free OpenStreetMap tiles — no API key required
+      // Free OpenStreetMap tiles - no API key required
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
         maxZoom: 19,
@@ -124,18 +124,6 @@ export function MapView({ infrastructureNodes, predictions, onZoneClick, selecte
 
       map.whenReady(() => {
         queueMapInvalidate();
-        
-        // Wayanad Geo-Spatial GIF Overlay - Adjusted for 0.01 degree margin in Python Renderer
-        const overlayUrl = '/wayanad_cascade.gif';
-        const bounds: [[number, number], [number, number]] = [
-          [11.451361 - 0.01, 75.773149 - 0.01], 
-          [11.9786826 + 0.01, 76.4435318 + 0.01]
-        ];
-        L.imageOverlay(overlayUrl, bounds, {
-          opacity: 0.65,
-          interactive: false,
-          className: 'geospatial-overlay-sync'
-        }).addTo(map);
       });
     });
 
@@ -175,7 +163,7 @@ export function MapView({ infrastructureNodes, predictions, onZoneClick, selecte
 
       try {
         const circle = L.circle(coords, {
-          radius: 1400,          // ~1.4km radius — clearly visible at zoom 12
+          radius: 1400,          // ~1.4km radius - clearly visible at zoom 12
           color,
           fillColor: color,
           fillOpacity: level === 'RED' ? 0.40 : (level === 'ORANGE' ? 0.32 : (level === 'YELLOW' ? 0.24 : 0.12)),
@@ -263,8 +251,10 @@ export function MapView({ infrastructureNodes, predictions, onZoneClick, selecte
         iconAnchor: [12, 12],
       });
       const marker = L.marker([node.lat, node.lon], { icon }).addTo(map);
+      const threshold = (node as InfrastructureNode & { flood_threshold?: number }).flood_threshold;
+      const thresholdLabel = typeof threshold === 'number' ? `${threshold}m` : 'N/A';
       marker.bindTooltip(
-        `<b>${node.name}</b><br/>${node.type.replace(/_/g, ' ')}<br/>Threshold: ${node.flood_threshold}m`,
+        `<b>${node.name}</b><br/>${node.type.replace(/_/g, ' ')}<br/>Threshold: ${thresholdLabel}`,
         { direction: 'top' }
       );
       nodeLayersRef.current.push(marker);
@@ -321,7 +311,7 @@ export function MapView({ infrastructureNodes, predictions, onZoneClick, selecte
           </div>
           <div className="flex justify-between items-center text-[10px] font-bold">
             <span className="text-gray-500 uppercase">Analysis Target</span>
-            <span className="text-gray-950 uppercase">Wayanad Sector</span>
+            <span className="text-gray-950 uppercase">Mumbai Sector</span>
           </div>
           <div className="flex justify-between items-center text-[10px] font-bold">
             <span className="text-gray-500 uppercase">Temporal Sync</span>
@@ -333,9 +323,13 @@ export function MapView({ infrastructureNodes, predictions, onZoneClick, selecte
           
           <div className="pt-3 border-t border-black/5">
              <div className="text-[9px] font-black text-gray-400 uppercase mb-2">Model Confidence Stream</div>
-             <div className="w-full h-1 bg-gray-100 rounded-full overflow-hidden">
-                <div className="h-full bg-blue-600 w-[94%] animate-pulse" />
-             </div>
+             <ProgressBar
+               value={94}
+               className="h-1"
+               trackClassName="bg-gray-100"
+               fillClassName="bg-blue-600"
+               animated
+             />
           </div>
         </div>
       </div>
