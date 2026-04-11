@@ -1,25 +1,38 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Waves, Droplets, Activity, AlertCircle, Clock, MapPin, BrainCircuit, Navigation } from 'lucide-react';
-import { fetchActiveAlerts, fetchSensorReadings } from '../utils/dataFetcher';
-import type { StakeholderAction, SensorReading } from '@schema';
+import { Waves, Droplets, Activity, AlertCircle, Clock, BrainCircuit, Navigation } from 'lucide-react';
+import { fetchActiveAlerts, fetchSensorReadings, fetchZones, fetchInfrastructure, fetchPredictions } from '../utils/dataFetcher';
+import type { StakeholderAction, SensorReading, InfrastructureNode, ZonePrediction } from '@schema';
 import { useGsapAnimations } from '../utils/useGsapAnimations';
 import { AccountabilityBanner } from '../components/AccountabilityBanner';
-import { TacticalCard, TacticalBadge, TacticalMetric } from '../components/tactical/TacticalLibrary';
+import { MapView } from '../components/MapView';
+import { TacticalCard, TacticalBadge, Label } from '../components/tactical/TacticalLibrary';
 
 export function DamOperatorDashboard() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [sensor, setSensor] = useState<SensorReading | null>(null);
   const [alerts, setAlerts] = useState<StakeholderAction[]>([]);
+   const [zones, setZones] = useState<any>(null);
+   const [infra, setInfra] = useState<InfrastructureNode[]>([]);
+   const [predictions, setPredictions] = useState<ZonePrediction[]>([]);
+   const [selectedZone, setSelectedZone] = useState<string | null>('H-East');
 
   useGsapAnimations(containerRef, [sensor, alerts]);
 
   useEffect(() => {
     async function init() {
-      const sData = await fetchSensorReadings('H-East');
-      const aData = await fetchActiveAlerts('BMC_WARD_OFFICER');
+         const [sData, aData, zData, iData, pData] = await Promise.all([
+            fetchSensorReadings('H-East'),
+            fetchActiveAlerts('BMC_WARD_OFFICER'),
+            fetchZones(),
+            fetchInfrastructure(),
+            fetchPredictions(),
+         ]);
 
       if (sData.length > 0) setSensor(sData[0]);
       setAlerts(aData);
+         setZones(zData);
+         setInfra((iData.nodes || []).filter((node: InfrastructureNode) => node.type === 'water_pump' || node.type === 'road'));
+         setPredictions(pData);
     }
     init();
   }, []);
@@ -96,17 +109,26 @@ export function DamOperatorDashboard() {
           {/* RIGHT COLUMN */}
           <div className="space-y-8 flex flex-col">
             
-            {/* Map Pins / Action Points */}
+            {/* Ward Tactical Map */}
             <div className="flex-1 min-h-[350px] overflow-hidden glass-card rounded-[2.5rem] border border-white/40 shadow-xl bg-slate-900/5 relative">
-               <div className="absolute top-6 left-6 z-10 text-[10px] font-black text-gray-400 uppercase">MAP PINS — ACTION POINTS</div>
-               {/* Simplified Tactical Map Visual */}
-               <div className="h-full w-full flex items-center justify-center opacity-40 grayscale flex-col gap-4">
-                  <MapPin size={48} className="text-red-500 animate-bounce" />
-                  <span className="text-[12px] font-black text-gray-400 uppercase tracking-widest">Sion Underpass · Pump 3 · Pump 7</span>
-               </div>
-               <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 text-[10px] font-black text-emerald-600 uppercase italic">
-                  Ward H-East · tap pin to confirm action
-               </div>
+               <MapView
+                 zonesGeoJson={zones}
+                 infrastructureNodes={infra}
+                 predictions={predictions}
+                 onZoneClick={setSelectedZone}
+                 selectedZoneId={selectedZone}
+               />
+               <Label
+                 label="Ward Tactical Map - Pump and Evacuation Nodes"
+                 as="div"
+                 variant="block"
+                 className="absolute top-6 left-6 z-10 glass-card text-gray-500 border border-black/5 max-w-[300px] leading-tight"
+               />
+               <Label
+                 label="H-East focus - tap zones to inspect"
+                 as="div"
+                 className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 bg-emerald-100 text-emerald-700"
+               />
             </div>
 
             {/* Pump Station Status */}
