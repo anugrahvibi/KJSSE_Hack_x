@@ -41,6 +41,11 @@ SEQUENCING RULES — ORDER MATTERS:
 OUTPUT: Return ONLY valid JSON, no other text,
 no markdown, no explanation:
 {
+  "reasoning_steps": [
+    "string — one short sentence of situational reasoning",
+    "string — each step is a distinct observation or decision",
+    "string — 3 to 6 steps total"
+  ],
   "scenario_summary": "1 sentence describing situation",
   "actions": [
     {

@@ -30,3 +30,27 @@ def run_audit_mode(G: nx.DiGraph, ward_data: list[dict]) -> VulnerabilityReport:
         single_points_of_failure=single_points_of_failure,
         permanently_undrained_wards=permanently_undrained_wards
     )
+
+from AI.layer2_actionability.agent import client
+
+def narrate_vulnerability(ranked_nodes: list, G: nx.DiGraph) -> str:
+    top_node = ranked_nodes[0]
+    node_data = G.nodes[top_node.node_id]
+
+    response = client.chat.completions.create(
+        model="llama-3.3-70b-versatile",
+        messages=[
+            {"role": "system", "content": """You are RIVA's vulnerability 
+analyst for Mumbai. You receive infrastructure vulnerability data and write 
+a 3-sentence plain-English explanation of what the top vulnerability means 
+for the city. Write for a Municipal Commissioner, not an engineer. Be 
+specific about consequences. Be urgent. Return only the text, no JSON."""},
+            {"role": "user", "content": f"""
+Top vulnerability: {node_data.get('label')}
+Cascade multiplier: {top_node.cascade_multiplier} people affected
+Downstream failures: {[G.nodes[n].get('label') for n in nx.descendants(G, top_node.node_id)]}
+Write the vulnerability narrative now."""}
+        ],
+        temperature=0.4
+    )
+    return response.choices[0].message.content
