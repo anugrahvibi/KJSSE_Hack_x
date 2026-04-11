@@ -31,7 +31,7 @@ export function NdrfDashboard() {
   }, []);
 
   return (
-    <div ref={containerRef} className="h-full w-full bg-transparent pt-40 sm:pt-44 lg:pt-48 flex flex-col gap-10 p-12 overflow-y-auto custom-scrollbar overflow-visible">
+   <div ref={containerRef} className="h-full w-full bg-transparent pt-40 sm:pt-44 lg:pt-48 px-6 sm:px-8 lg:px-10 py-10 flex flex-col gap-10 overflow-y-auto custom-scrollbar overflow-visible">
       <AccountabilityBanner />
       
       {/* Top Urgent Alert Bar */}

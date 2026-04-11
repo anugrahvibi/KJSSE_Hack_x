@@ -110,7 +110,7 @@ function Navigation() {
         </div>
 
         {/* MAIN TABS */}
-        <div className="hidden md:flex items-center gap-2 p-1 bg-white/40 rounded-2xl border border-white/60">
+        <div className="hidden md:inline-flex items-center gap-1.5 p-1 bg-white/40 rounded-full border border-white/60">
            {[
              { path: '/', label: 'Command Hub' },
              { path: '/agency', label: 'Agency Portal' },
@@ -119,7 +119,7 @@ function Navigation() {
               <button
                 key={nav.path}
                 onClick={() => navigate(nav.path)}
-                className={`px-6 py-2.5 rounded-xl text-[11px] font-black uppercase transition-all ${
+                className={`px-6 py-2 rounded-full text-[11px] font-black uppercase transition-all whitespace-nowrap ${
                   location.pathname === nav.path ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20' : 'text-gray-600 hover:bg-white/60'
                 }`}
               >
@@ -148,7 +148,7 @@ function Navigation() {
       {/* TACTICAL SUB-BAR (Only for Agency Portal) */}
       {isAgencyPortal && (
         <div 
-           className="flex items-center justify-center gap-2 rounded-2xl border border-white/40 p-1.5 shadow-xl animate-in fade-in slide-in-from-top-2 duration-300 pointer-events-auto"
+           className="inline-flex self-center items-center justify-center gap-1.5 w-fit rounded-full border border-white/40 p-1 shadow-xl animate-in fade-in slide-in-from-top-2 duration-300 pointer-events-auto"
            style={{ 
              background: 'rgba(255, 255, 255, 0.15)', 
              backdropFilter: 'blur(40px) saturate(180%)',
@@ -159,7 +159,7 @@ function Navigation() {
               <button
                 key={agency.id}
                 onClick={() => setRoleDirectly(agency.id)}
-                className={`px-8 py-2.5 rounded-xl text-[11px] font-black uppercase transition-all whitespace-nowrap ${
+                className={`px-6 py-2 rounded-full text-[11px] font-black uppercase transition-all whitespace-nowrap ${
                   (role || 'BMC Ward Officer') === agency.id 
                   ? 'bg-gray-950 text-white shadow-lg' 
                   : 'text-gray-500 hover:bg-white/60'

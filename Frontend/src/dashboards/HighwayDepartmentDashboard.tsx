@@ -31,7 +31,7 @@ export function HighwayDepartmentDashboard() {
   }, []);
 
   return (
-    <div ref={containerRef} className="pt-40 sm:pt-44 lg:pt-48 p-12 h-full bg-transparent overflow-y-auto w-full custom-scrollbar overflow-visible">
+   <div ref={containerRef} className="pt-40 sm:pt-44 lg:pt-48 px-6 sm:px-8 lg:px-10 py-10 h-full bg-transparent overflow-y-auto w-full custom-scrollbar overflow-visible">
       <div className="max-w-7xl mx-auto space-y-12 py-10">
         <AccountabilityBanner />
 

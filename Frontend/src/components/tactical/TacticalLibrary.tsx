@@ -60,7 +60,7 @@ interface TacticalCardProps {
 
 export function TacticalCard({ children, title, subtitle, icon, badge, className = "", headerClassName = "", dark = false }: TacticalCardProps) {
   return (
-    <div className={`glass-card rounded-[2.5rem] border border-white/40 shadow-xl overflow-visible flex flex-col ${dark ? 'bg-slate-900 text-white' : 'bg-white/40 text-gray-950'} ${className}`}>
+    <div className={`glass-card rounded-[2.5rem] border border-white/40 shadow-xl overflow-visible flex flex-col ${dark ? 'bg-slate-950/30 text-white backdrop-blur-2xl' : 'bg-white/10 text-gray-950'} ${className}`}>
       {title && (
         <header className={`p-8 border-b border-black/5 flex justify-between items-center ${headerClassName}`}>
           <div className="space-y-1">
