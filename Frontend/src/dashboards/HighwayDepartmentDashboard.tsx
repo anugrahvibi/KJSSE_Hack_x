@@ -1,142 +1,171 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { TrainFront, Activity, Zap, StopCircle, Users, Shield, CheckCircle2 } from 'lucide-react';
+import { TrainFront, Activity, Zap, StopCircle, Clock, AlertCircle, Info } from 'lucide-react';
 import { fetchActiveAlerts, fetchPredictions } from '../utils/dataFetcher';
 import type { StakeholderAction, ZonePrediction } from '@schema';
 import { useGsapAnimations } from '../utils/useGsapAnimations';
-import { ProgressBar } from '../components/common/ProgressBar';
 import { AccountabilityBanner } from '../components/AccountabilityBanner';
-import { AckButton } from '../components/AckButton';
-import { TacticalCard, TacticalAlertRow, TacticalBadge } from '../components/tactical/TacticalLibrary';
+import { TacticalCard, TacticalBadge } from '../components/tactical/TacticalLibrary';
 
 export function HighwayDepartmentDashboard() {
   const [alerts, setAlerts] = useState<StakeholderAction[]>([]);
-  const [predictions, setPredictions] = useState<ZonePrediction[]>([]);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  useGsapAnimations(containerRef, [alerts, predictions]);
+  useGsapAnimations(containerRef, [alerts]);
 
   useEffect(() => {
     async function init() {
       const aData = await fetchActiveAlerts('WESTERN_RAILWAY');
-      const pData = await fetchPredictions();
       setAlerts(aData);
-      setPredictions(pData);
     }
     init();
   }, []);
 
   return (
     <div ref={containerRef} className="pt-28 sm:pt-32 lg:pt-36 p-10 h-full bg-transparent overflow-y-auto w-full custom-scrollbar overflow-visible">
-      <div className="max-w-7xl mx-auto space-y-10 py-6">
+      <div className="max-w-7xl mx-auto space-y-8 py-6">
         <AccountabilityBanner />
 
-        <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8 border-b border-black/5 pb-10">
-          <div className="space-y-4">
-             <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-blue-700 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-500/30">
-                   <TrainFront size={28} className="text-white" />
-                </div>
-                <h1 className="text-3xl sm:text-4xl font-black text-gray-950 brand-font uppercase leading-none">
-                   Western <span className="text-blue-700">Railway</span> Command
-                </h1>
-             </div>
-             <p className="text-gray-700 font-bold uppercase text-[15px] pl-1 flex items-center gap-2">
-                <Activity size={14} className="text-blue-600 animate-pulse" /> Kurla · Sion · Matunga Tactical Grid
-             </p>
-          </div>
-          <div className="flex gap-4">
-             <div className="glass-card px-6 py-4 rounded-[1.8rem] flex items-center gap-4 border border-white/40 shadow-xl">
-                <div className="text-right">
-                   <span className="text-[10px] font-black text-gray-400 uppercase">Track Integrity</span>
-                   <div className="text-[14px] font-black text-red-600 uppercase">Compromised (Kurla)</div>
-                </div>
-                <div className="w-2.5 h-2.5 rounded-full bg-red-600 animate-pulse" />
-             </div>
-          </div>
-        </header>
+        {/* OVERDUE Alert Bar */}
+        <div className="glass-card p-6 rounded-[2.25rem] border border-red-300 bg-red-600 shadow-xl overflow-visible flex flex-col md:flex-row items-center justify-between gap-6 group">
+            <div className="flex-1 space-y-1">
+               <p className="text-[13px] font-black text-white uppercase flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-white animate-pulse" /> OVERDUE — 09:27
+               </p>
+               <p className="text-[16px] font-bold text-white leading-tight uppercase">
+                  Station prep at Kurla + Sion not acknowledged · This silence is logged · Deadline passed
+               </p>
+            </div>
+            <div className="flex gap-4">
+               <button className="px-8 py-3 bg-white text-red-600 rounded-xl font-black text-[13px] uppercase hover:scale-95 transition-all shadow-xl">ACK now</button>
+               <button className="px-8 py-3 border border-white/40 text-white rounded-xl font-black text-[13px] uppercase hover:scale-95 transition-all">Escalate</button>
+            </div>
+        </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
            
-           <section className="lg:col-span-2 space-y-8">
-              <TacticalCard title="Operational Directives" icon={<Zap size={16} className="text-orange-600" />}>
+           {/* LEFT COLUMN */}
+           <div className="space-y-8 flex flex-col">
+              
+              {/* Rail Line Schematic */}
+              <div className="flex-1 min-h-[400px] glass-card rounded-[2.5rem] border border-white/40 shadow-xl bg-slate-900/5 relative overflow-hidden flex flex-col">
+                 <header className="p-8 pb-0">
+                    <h3 className="text-[11px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-3">
+                       <TrainFront size={16} /> RAIL LINE SCHEMATIC — KURLA-DADAR CORRIDOR
+                    </h3>
+                 </header>
+                 <div className="flex-1 flex items-center justify-center p-10 grayscale opacity-40">
+                    {/* Simplified Schematic Visualization */}
+                    <div className="flex items-center gap-12">
+                       <SchematicNode id="KRL" label="Kurla" status="HIGH RISK" color="red" sub="Sub T+60" />
+                       <SchematicNode id="SION" label="Sion" status="MEDIUM" color="orange" sub="Watch T+90" />
+                       <SchematicNode id="MAT" label="Matunga Rd" status="MEDIUM" color="orange" sub="Monitor" />
+                       <SchematicNode id="DDR" label="Dadar" status="LOW" color="emerald" sub="Clear" />
+                    </div>
+                 </div>
+                 <div className="p-8 pt-0 text-[10px] font-bold text-gray-400 uppercase italic">
+                    Western Railway WR main line — Harbour branch — RIVA cascade overlay
+                 </div>
+              </div>
+
+              {/* Station Risk List */}
+              <TacticalCard title="STATION RISK — AT-RISK STATIONS" icon={<Zap size={16} className="text-orange-600" />}>
                  <div className="space-y-4">
-                    {alerts.map((alert, idx) => (
-                       <TacticalAlertRow 
-                         key={idx}
-                         status="ACTIVE"
-                         title={`${alert.alert_level} Protocol`}
-                         description={alert.action}
-                         action={<AckButton alertId={(alert as any).alert_id || `ALT-${idx}`} deptId="WESTERN_RAILWAY" status={(alert as any).status} />}
-                       />
-                    ))}
+                    <RiskRow label="Kurla (WR Main line)" status="HIGH RISK" sub="Submerge T+60" color="red" />
+                    <RiskRow label="Sion station" status="MEDIUM" sub="Watch T+90" color="orange" />
+                    <RiskRow label="Matunga Road" status="MEDIUM" sub="Monitor" color="orange" />
+                    <RiskRow label="Dadar (WR)" status="LOW" sub="Clear" color="emerald" />
+                 </div>
+              </TacticalCard>
+           </div>
+
+           {/* RIGHT COLUMN */}
+           <div className="space-y-8 flex flex-col">
+              
+              {/* Crowd Management Checklist */}
+              <TacticalCard title="Crowd Management Checklist — KURLA" className="flex-[0.6]">
+                 <div className="space-y-2">
+                    <ChecklistRow time="09:07" label="Alert received — station prep required" status="IGNORED" color="red-ghost" />
+                    <ChecklistRow time="09:22" label="Deadline passed — no response logged" status="OVERDUE" color="red-ghost" />
+                    <ChecklistRow time="09:37" label="Halt slow trains Kurla-Sion corridor" status="PENDING" color="gray-ghost" />
+                    <ChecklistRow time="09:45" label="Announce alternate bus routes via PA" status="PENDING" color="gray-ghost" />
                  </div>
               </TacticalCard>
 
-              <TacticalCard title="Service Halt Matrix" icon={<StopCircle size={18} className="text-red-600" />}>
-                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    {[
-                      { sector: "Kurla Slow Track", status: "HALTED", risk: "CRITICAL" },
-                      { sector: "Sion Fast Track", status: "WATCH", risk: "AMBER" },
-                      { sector: "Matunga Corridor", status: "ACTIVE", risk: "GREEN" }
-                    ].map((item, i) => (
-                       <div key={i} className={`p-6 rounded-[2.25rem] border ${item.status === 'HALTED' ? 'bg-red-50 border-red-100' : 'bg-white/50 border-black/5'} transition-all shadow-sm`}>
-                          <p className="text-[11px] font-black text-gray-400 uppercase mb-1">{item.risk} RISK</p>
-                          <p className="text-[14px] font-black text-gray-900 uppercase mb-4">{item.sector}</p>
-                          <TacticalBadge 
-                            label={item.status} 
-                            color={item.status === 'HALTED' ? 'red' : (item.status === 'WATCH' ? 'orange' : 'emerald')} 
-                            variant={item.status === 'HALTED' ? 'filled' : 'outline'} 
-                            className="w-full" 
-                          />
-                       </div>
-                    ))}
+              {/* Service Halt Timeline */}
+              <TacticalCard 
+                 title="Service Halt Timeline" 
+                 icon={<StopCircle size={18} className="text-emerald-600" />}
+                 className="bg-emerald-50/10 border-emerald-200"
+              >
+                 <div className="space-y-4">
+                    <TimelinePoint label="Kurla station track level" value="3.8m" />
+                    <TimelinePoint label="Current water rise" value="0.3m/hr" />
+                    <TimelinePoint label="Estimated submersion" value="T+60 min (10:07)" color="text-orange-600" />
+                    <div className="pt-4 border-t border-emerald-200/50">
+                       <p className="text-[14px] font-black text-emerald-800 uppercase tracking-tighter">Recommended halt: <span className="text-emerald-900">all slow trains by 09:45</span></p>
+                    </div>
                  </div>
               </TacticalCard>
-           </section>
 
-           <section className="space-y-8">
-              <TacticalCard title="Crowd Management" icon={<Users size={18} className="text-blue-600" />}>
+              {/* Accountability Note */}
+              <TacticalCard title="Accountability Note" icon={<Info size={18} className="text-red-600" />} className="bg-red-50/10 border-red-200">
                  <div className="space-y-6">
-                    {[
-                      { station: "Kurla Junction", density: "CRITICAL", count: "14,200", trend: "UP" },
-                      { station: "Dadara Terminus", density: "HIGH", count: "8,900", trend: "STABLE" },
-                      { station: "Churchgate", density: "OPTIMAL", count: "2,400", trend: "DOWN" }
-                    ].map((s, i) => (
-                       <div key={i} className="space-y-2">
-                          <div className="flex justify-between items-center text-[12px] font-black uppercase">
-                             <span>{s.station}</span>
-                             <span className={s.density === 'CRITICAL' ? 'text-red-600' : 'text-blue-600'}>{s.density}</span>
-                          </div>
-                          <div className="flex items-center gap-4">
-                                           <ProgressBar
-                                              value={s.density === 'CRITICAL' ? '95%' : (s.density === 'HIGH' ? '70%' : '30%')}
-                                              className="flex-1 h-1.5"
-                                              trackClassName="bg-gray-100"
-                                              fillClassName={s.density === 'CRITICAL' ? 'bg-red-500' : 'bg-blue-600'}
-                                           />
-                             <span className="text-[12px] font-black text-gray-900">{s.count}</span>
-                          </div>
-                       </div>
-                    ))}
-                 </div>
-                 <div className="pt-6 border-t border-black/5 flex items-center justify-between">
-                    <span className="text-[10px] font-black text-blue-600 uppercase">Panic Vector Analysis</span>
-                    <span className="text-[10px] font-black text-gray-400 uppercase">STABLE</span>
+                    <p className="text-[14px] font-bold text-gray-900 uppercase leading-snug">
+                       Alert sent 09:07. No acknowledgment by 09:27. This non-response is logged with timestamp.
+                    </p>
+                    <p className="text-[14px] font-bold text-gray-700 leading-snug italic uppercase opacity-80">
+                       Post-event report will reference this gap. Silence is a decision and it is on the record.
+                    </p>
                  </div>
               </TacticalCard>
-
-              <TacticalCard title="RPF Deployment" icon={<Shield size={16} className="text-blue-600" />}>
-                 <div className="space-y-3">
-                    {["Platform 1-4 Enforced", "Entry/Exit Filter Active", "Medical Triage Ready"].map((t, i) => (
-                       <div key={i} className="flex items-center gap-3 text-[12px] font-bold text-gray-700 uppercase">
-                          <CheckCircle2 size={14} className="text-emerald-600" /> {t}
-                       </div>
-                    ))}
-                 </div>
-              </TacticalCard>
-           </section>
+           </div>
         </div>
       </div>
+    </div>
+  );
+}
+
+function SchematicNode({ id, label, status, color, sub }: { id: string; label: string; status: string; color: any; sub: string }) {
+  const colorMap = { red: 'border-red-500 text-red-600 bg-red-50', orange: 'border-orange-500 text-orange-600 bg-orange-50', emerald: 'border-emerald-500 text-emerald-600 bg-emerald-50' } as any;
+  return (
+    <div className="flex flex-col items-center gap-3">
+       <span className="text-[10px] font-black text-gray-400 uppercase tracking-tighter">{label}</span>
+       <div className={`w-14 h-14 rounded-full border-4 flex items-center justify-center text-[12px] font-black ${colorMap[color]}`}>
+          {id}
+       </div>
+       <div className={`px-2 py-0.5 rounded-lg text-[8px] font-black border ${colorMap[color]}`}>{status}</div>
+       <span className="text-[9px] font-bold text-gray-400 uppercase">{sub}</span>
+    </div>
+  );
+}
+
+function RiskRow({ label, status, sub, color }: { label: string; status: string; sub: string; color: any }) {
+  return (
+     <div className="flex items-center gap-6 py-4 border-b border-black/5 last:border-0 hover:bg-black/5 px-4 rounded-xl transition-all h-16">
+        <p className="flex-1 text-[13px] font-black text-gray-950 uppercase">{label}</p>
+        <TacticalBadge label={status} color={color} variant="filled" className="shrink-0" />
+        <span className="text-[10px] font-bold text-gray-400 uppercase">{sub}</span>
+     </div>
+  );
+}
+
+function ChecklistRow({ time, label, status, color }: { time: string; label: string; status: string; color: string }) {
+  const badgeColor = color.split('-')[0] as any;
+  const isOutline = color.includes('ghost');
+  return (
+     <div className="flex items-center gap-6 py-4 border-b border-black/5 last:border-0 hover:bg-black/5 px-4 rounded-xl transition-all h-20">
+        <span className="text-[13px] font-black text-gray-400">{time}</span>
+        <p className="flex-1 text-[14px] font-bold text-gray-700 leading-tight uppercase tracking-tighter">{label}</p>
+        <TacticalBadge label={status} color={badgeColor} variant={isOutline ? 'outline' : 'filled'} className="shrink-0 w-24 text-center" />
+     </div>
+  );
+}
+
+function TimelinePoint({ label, value, color = "text-emerald-600" }: { label: string; value: string; color?: string }) {
+  return (
+    <div className="flex justify-between items-center text-[14px] font-bold uppercase tracking-tighter">
+       <span className="text-emerald-800/60">{label}:</span>
+       <span className={`font-black ${color}`}>{value}</span>
     </div>
   );
 }

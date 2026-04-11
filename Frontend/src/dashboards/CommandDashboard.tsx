@@ -52,7 +52,8 @@ export function CommandDashboard() {
            <Label
              label="Mumbai Ward Map - Live Flood Status"
              as="div"
-             className="absolute top-6 left-6 z-[1000] glass-card text-gray-600 border border-black/5"
+             variant="block"
+             className="absolute top-6 left-6 z-[1000] glass-card text-gray-600 border border-black/5 max-w-[260px] leading-tight"
            />
           
            <div className="absolute bottom-6 left-6 z-[1000] flex items-center gap-3 glass-card px-4 py-3 rounded-full border border-white/10">
@@ -64,7 +65,7 @@ export function CommandDashboard() {
 
         {/* Status Ward Panel (Bottom Left) */}
         <TacticalCard 
-          title={`Status — Ward ${selectedZone || 'H-East'} Active Event`}
+          title={`Status - Ward ${selectedZone || 'H-East'} Active Event`}
           icon={<Maximize2 size={16} className="text-gray-400" />}
           className="p-0"
         >
@@ -98,7 +99,7 @@ export function CommandDashboard() {
         
         {/* RIVA Reasoning Panel (Top Right) */}
         <TacticalCard
-          title="Riva Agent — Reasoning"
+          title="Riva Agent - Reasoning"
           subtitle="Active"
           icon={<BrainCircuit size={18} className="text-blue-600" />}
           className="flex-[0.55]"
@@ -115,10 +116,10 @@ export function CommandDashboard() {
            <div className="flex-1 space-y-4 overflow-y-auto custom-scrollbar-dark mb-8 relative z-10 max-h-[200px]">
               {[
                 "Peak commute. 3.5M on WR right now.",
-                "Tide still rising — 4 hrs zero drainage.",
+                "Tide still rising - 4 hrs zero drainage.",
                 "Sion underpass closes in ~15 min. NDRF default route blocked.",
                 "Rerouting Bn4 via 60 Feet Road instead.",
-                "KEM at 65% — surge protocol viable now."
+                "KEM at 65% - surge protocol viable now."
               ].map((text, i) => (
                 <div key={i} className="flex gap-4 items-start group">
                    <div className="w-1.5 h-1.5 rounded-full bg-blue-600 mt-2 shrink-0 group-hover:scale-150 transition-all shadow-glow-blue" />
@@ -141,7 +142,7 @@ export function CommandDashboard() {
 
         {/* Alert Feed Log (Bottom Right) */}
         <TacticalCard 
-          title="Alert Feed — Live Log"
+          title="Alert Feed - Live Log"
           icon={<History size={18} className="text-slate-700" />}
           className="flex-[0.45]"
         >

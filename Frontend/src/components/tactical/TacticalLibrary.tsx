@@ -5,12 +5,17 @@ interface LabelProps {
   icon?: React.ReactNode;
   className?: string;
   as?: 'span' | 'div';
+  variant?: 'pill' | 'block';
 }
 
-export function Label({ label, icon, className = '', as = 'span' }: LabelProps) {
+export function Label({ label, icon, className = '', as = 'span', variant = 'pill' }: LabelProps) {
   const Tag = as;
+  const shapeClasses = variant === 'pill'
+    ? 'pill-badge'
+    : 'rounded-2xl px-4 py-2';
+
   return (
-    <Tag className={`pill-badge inline-flex items-center gap-2 text-[10px] font-black uppercase ${className}`}>
+    <Tag className={`${shapeClasses} inline-flex items-center gap-2 text-[10px] font-black uppercase ${className}`}>
       {icon}
       {label}
     </Tag>
