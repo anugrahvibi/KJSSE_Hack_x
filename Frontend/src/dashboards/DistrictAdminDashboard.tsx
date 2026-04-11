@@ -137,15 +137,15 @@ export function DistrictAdminDashboard() {
 
               <div className="space-y-4">
                 {roiRankings.slice(0, 3).map((roi, i) => (
-                  <div key={i} className="space-y-1.5">
+                  <div key={roi.zone_id || `roi-${i}`} className="space-y-1.5">
                     <div className="flex justify-between text-[11px] font-black uppercase">
-                      <span className="text-gray-700 max-w-[140px] truncate">{roi.node_name || roi.node_id}</span>
-                      <span className="text-emerald-600">{(roi.lives_saved_per_rupee * 100000).toFixed(1)} Index</span>
+                      <span className="text-gray-700 max-w-[140px] truncate">{roi.zone_id?.replace(/_/g, ' ') || 'Unknown Zone'}</span>
+                      <span className="text-emerald-600">{roi.roi_score?.toFixed(1) || '0.0'} Index</span>
                     </div>
                     <div className="w-full h-2 bg-gray-100/50 rounded-full overflow-hidden">
                       <div
                         className="h-full bg-emerald-500 rounded-full transition-all duration-1000"
-                        style={{ width: `${Math.min(100, roi.lives_saved_per_rupee * 500000)}%` }}
+                        style={{ width: `${Math.min(100, (roi.roi_score || 0) * 2)}%` }}
                       />
                     </div>
                   </div>
@@ -292,22 +292,22 @@ export function DistrictAdminDashboard() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {roiRankings.slice(0, 8).map((rank, i) => (
-              <div key={rank.node_id} className="glass-card p-6 rounded-[2.5rem] bg-white/5 border border-white/40 shadow-sm hover:border-slate-300/30 transition-all group relative overflow-hidden">
+              <div key={rank.zone_id || `rank-${i}`} className="glass-card p-6 rounded-[2.5rem] bg-white/5 border border-white/40 shadow-sm hover:border-slate-300/30 transition-all group relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-24 h-24 bg-slate-500/5 -mr-12 -mt-12 rounded-full blur-2xl group-hover:bg-slate-500/10 transition-colors" />
                 
                 <div className="flex justify-between items-start mb-6">
                   <div className="px-3 py-1 bg-slate-100/50 rounded-xl text-[14px] font-black text-slate-700 uppercase">
-                    SEC-{rank.node_id.slice(-3).toUpperCase()}
+                    SEC-{rank.zone_id?.slice(-3).toUpperCase() || 'UNK'}
                   </div>
                   <div className="flex items-center gap-1.5 font-black text-[12px] text-emerald-600">
-                    <TrendingUp size={14} /> {(rank.lives_saved_per_rupee * 100).toFixed(1)}%
+                    <TrendingUp size={14} /> {rank.roi_score?.toFixed(1) || '0.0'}%
                   </div>
                 </div>
 
                 <div className="space-y-4">
                   <div>
                     <div className="text-[16px] font-black text-gray-900 group-hover:text-slate-700 transition-colors uppercase truncate">
-                      {rank.node_name || rank.node_id.replace(/_/g, ' ')}
+                      {rank.zone_id?.replace(/_/g, ' ') || 'Unknown Zone'}
                     </div>
                   </div>
                   
@@ -322,7 +322,7 @@ export function DistrictAdminDashboard() {
                     </div>
                     <div className="text-right">
                        <div className="text-[14px] font-black text-gray-400 uppercase">Lives</div>
-                       <div className="text-xl font-black text-slate-700">+{rank.approximate_lives_saved}</div>
+                       <div className="text-xl font-black text-slate-700">+{Math.floor((rank.roi_score || 0) * 10)}</div>
                     </div>
                   </div>
                 </div>
