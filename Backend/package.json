@@ -1,0 +1,10 @@
+{
+  "name": "riva-mumbai-backend",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Helper npm scripts for running the Python FastAPI backend",
+  "scripts": {
+    "dev": "./.venv/bin/python -m uvicorn main:app --reload --host 0.0.0.0 --port 8000",
+    "start": "./.venv/bin/python -m uvicorn main:app --host 0.0.0.0 --port 8000"
+  }
+}

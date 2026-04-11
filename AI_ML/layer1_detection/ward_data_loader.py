@@ -2,7 +2,7 @@
 import json
 import os
 
-def load_ward_data(path: str = "AI_ML/data/ward_outfalls.json") -> list[dict]:
+def load_ward_data(path: str = "data/ward_outfalls.json") -> list[dict]:
     """
     Reads ward_outfalls.json and returns a list of ward dicts.
     Raises FileNotFoundError with a clear message if file not found.

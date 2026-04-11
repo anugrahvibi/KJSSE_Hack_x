@@ -1,6 +1,6 @@
 import pytest
-from AI_ML.layer1_detection.drain_capacity_engine import compute_ward_status, compute_all_wards, FloodStatus
-from AI_ML.layer1_detection.ward_data_loader import load_ward_data
+from layer1_detection.drain_capacity_engine import compute_ward_status, compute_all_wards, FloodStatus
+from layer1_detection.ward_data_loader import load_ward_data
 import os
 import json
 
