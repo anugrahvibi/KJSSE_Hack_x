@@ -1,56 +1,32 @@
-from pydantic import BaseModel
 import networkx as nx
+from AI.layer1_detection.drain_capacity_engine import NodeRanking, VulnerabilityReport
 
-class NodeVulnerability(BaseModel):
-    node_id: str
-    node_label: str
-    cascade_multiplier: int   # total affected population if this node fails
-    node_type: str
-
-class VulnerabilityReport(BaseModel):
-    ranked_nodes: list[NodeVulnerability]
-    single_points_of_failure: list[NodeVulnerability]  # top 3
-    permanently_undrained_wards: list[str]
-
-def compute_vulnerability_map(G: nx.DiGraph) -> VulnerabilityReport:
-    """
-    Audit Mode — computes cascade multiplier for every node in the graph.
-
-    Cascade multiplier for a node = sum of daily_users of all downstream
-    nodes reachable from it (via nx.descendants).
-
-    Ranks all nodes by cascade_multiplier descending.
-    Top 3 = single points of failure.
-
-    permanently_undrained_wards = nodes where 
-    G.nodes[n].get("permanently_undrained") == True.
-    """
-    multipliers = {}
-
+def run_audit_mode(G: nx.DiGraph, ward_data: list[dict]) -> VulnerabilityReport:
+    ranked_nodes = []
+    
     for node in G.nodes:
-        reachable = nx.descendants(G, node)
-        total_pop = sum(G.nodes[n].get("daily_users", 0) for n in reachable)
-        multipliers[node] = total_pop
-
-    ranked = sorted(multipliers.items(), key=lambda x: x[1], reverse=True)
-
-    ranked_nodes = [
-        NodeVulnerability(
-            node_id=node_id,
-            node_label=G.nodes[node_id].get("label", node_id),
-            cascade_multiplier=score,
-            node_type=G.nodes[node_id].get("type", "unknown")
-        )
-        for node_id, score in ranked
+        descendants = nx.descendants(G, node)
+        cascade_multiplier = sum(G.nodes[d].get("population_served", 0) for d in descendants)
+        node_data = G.nodes[node]
+        
+        ranked_nodes.append(NodeRanking(
+            node_id=node,
+            node_label=node_data["label"],
+            lat=node_data["lat"],
+            lng=node_data["lng"],
+            cascade_multiplier=cascade_multiplier,
+            downstream_node_count=len(descendants)
+        ))
+        
+    ranked_nodes.sort(key=lambda x: x.cascade_multiplier, reverse=True)
+    single_points_of_failure = ranked_nodes[:3]
+    
+    permanently_undrained_wards = [
+        w["ward_id"] for w in ward_data if w.get("permanently_undrained", False)
     ]
-
-    permanently_undrained = [
-        n for n, data in G.nodes(data=True)
-        if data.get("permanently_undrained", False)
-    ]
-
+    
     return VulnerabilityReport(
         ranked_nodes=ranked_nodes,
-        single_points_of_failure=ranked_nodes[:3],
-        permanently_undrained_wards=permanently_undrained
+        single_points_of_failure=single_points_of_failure,
+        permanently_undrained_wards=permanently_undrained_wards
     )

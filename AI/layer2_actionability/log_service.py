@@ -4,7 +4,7 @@ import json
 import os
 from datetime import datetime, timezone
 
-LOG_FILE = "AI_ML/data/accountability.jsonl"
+LOG_FILE = "AI/data/accountability.jsonl"
 
 def ensure_log_exists():
     os.makedirs(os.path.dirname(LOG_FILE), exist_ok=True)

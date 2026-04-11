@@ -68,3 +68,27 @@ def compute_all_wards(tide_data: dict, rainfall_data: dict, ward_data: list) -> 
             permanently_undrained=ward.get("permanently_undrained", False)
         ))
     return results
+
+class CascadeStep(BaseModel):
+    step: int
+    node_id: str
+    node_label: str
+    lat: float
+    lng: float
+    t_plus_minutes: int
+    population_affected: int
+    failure_condition: str
+    cascade_weight: float
+
+class NodeRanking(BaseModel):
+    node_id: str
+    node_label: str
+    lat: float
+    lng: float
+    cascade_multiplier: int
+    downstream_node_count: int
+
+class VulnerabilityReport(BaseModel):
+    ranked_nodes: list[NodeRanking]
+    single_points_of_failure: list[NodeRanking]   # top 3
+    permanently_undrained_wards: list[str]
