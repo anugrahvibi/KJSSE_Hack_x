@@ -1,13 +1,20 @@
 import networkx as nx
 import json
+import os
 
-def build_graph(path: str = "data/dependency_graph.json") -> nx.DiGraph:
+def build_graph(path: str = None) -> nx.DiGraph:
     """
     Loads dependency_graph.json and builds a directed weighted NetworkX graph.
     Each node stores all its attributes (label, type, daily_users, etc).
     Each edge stores: propagation_delay_min, impact_multiplier, failure_condition.
     Returns the fully constructed DiGraph.
     """
+    if path is None:
+        # Get the directory of this file and go up to Backend/data
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        project_root = os.path.dirname(os.path.dirname(current_dir))  # Go up from AI/layer3_cascade to project root
+        path = os.path.join(project_root, "Backend", "data", "dependency_graph.json")
+    
     with open(path) as f:
         data = json.load(f)
     G = nx.DiGraph()

@@ -1,26 +1,20 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { fetchPredictions, fetchActiveAlerts } from '../utils/dataFetcher';
 import type { ZonePrediction, StakeholderAction } from '@schema';
-import { PlusCircle, Activity, Zap, Bed, Ambulance, History, AlertTriangle } from 'lucide-react';
+import { PlusCircle, Bed, Ambulance, AlertTriangle, Activity, Navigation, Clock } from 'lucide-react';
 import { useGsapAnimations } from '../utils/useGsapAnimations';
 import { AccountabilityBanner } from '../components/AccountabilityBanner';
-import { AckButton } from '../components/AckButton';
-import { TacticalCard, TacticalAlertRow, TacticalBadge } from '../components/tactical/TacticalLibrary';
+import { TacticalCard, TacticalBadge } from '../components/tactical/TacticalLibrary';
 
 export function DistrictAdminDashboard() {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [predictions, setPredictions] = useState<ZonePrediction[]>([]);
   const [alerts, setAlerts] = useState<StakeholderAction[]>([]);
 
-  useGsapAnimations(containerRef, [predictions, alerts]);
+  useGsapAnimations(containerRef, [alerts]);
 
   useEffect(() => {
     async function init() {
-      const [pData, aData] = await Promise.all([
-        fetchPredictions(),
-        fetchActiveAlerts('KEM_HOSPITAL'),
-      ]);
-      setPredictions(pData);
+      const aData = await fetchActiveAlerts('KEM_HOSPITAL');
       setAlerts(aData);
     }
     init();
@@ -28,103 +22,132 @@ export function DistrictAdminDashboard() {
 
   return (
     <div ref={containerRef} className="pt-28 sm:pt-32 lg:pt-36 p-10 h-full bg-transparent overflow-y-auto w-full custom-scrollbar overflow-visible">
-      <div className="max-w-7xl mx-auto space-y-10 py-6">
+      <div className="max-w-7xl mx-auto space-y-8 py-6">
         <AccountabilityBanner />
 
-        <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8 border-b border-black/5 pb-10">
-          <div className="space-y-4">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-red-600 rounded-2xl flex items-center justify-center shadow-lg shadow-red-500/30">
-                <PlusCircle size={28} className="text-white" />
-              </div>
-              <h1 className="text-3xl sm:text-4xl font-black text-gray-900 brand-font uppercase leading-none">
-                KEM <span className="text-red-600">Hospital</span> Hub
-              </h1>
+        {/* Alert Bar */}
+        <div className="glass-card p-6 rounded-[2.25rem] border border-orange-200 bg-orange-500/10 shadow-xl overflow-visible flex flex-col md:flex-row items-center justify-between gap-6 group">
+            <div className="flex-1 space-y-1">
+               <p className="text-[13px] font-black text-orange-600 uppercase flex items-center gap-2">
+                  Alert Dispatched 09:07
+               </p>
+               <p className="text-[16px] font-bold text-gray-900 leading-tight uppercase">
+                  Activate surge protocol · Pre-position 4 ambulances at 90 Feet Rd · Deadline: 09:32
+               </p>
             </div>
-            <p className="text-gray-700 font-bold uppercase text-[15px] pl-1 flex items-center gap-2">
-              <Activity size={14} className="text-red-600 animate-pulse" /> Surge Protocol Control & Trauma Logistics
-            </p>
-          </div>
+            <div className="flex gap-4">
+               <button className="px-8 py-3 bg-gray-950 text-white rounded-xl font-black text-[13px] uppercase hover:scale-95 transition-all shadow-xl">ACK + activating</button>
+               <button className="px-8 py-3 bg-white border border-gray-200 text-gray-500 rounded-xl font-black text-[13px] uppercase hover:scale-95 transition-all">Cannot comply</button>
+            </div>
+        </div>
 
-          <div className="flex items-center gap-4">
-             <div className="glass-card px-8 py-4 rounded-[2rem] border border-red-100 bg-red-50/30 shadow-xl flex flex-col items-center">
-                <span className="text-[10px] font-black text-red-600/60 uppercase">Surge Protocol</span>
-                <span className="text-2xl font-black text-red-600 brand-font">ACTIVE (S-4)</span>
-             </div>
-          </div>
-        </header>
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
            
-           <section className="lg:col-span-2 space-y-8">
-              <TacticalCard title="Medical Directives" icon={<Zap size={16} className="text-red-600" />}>
-                 <div className="space-y-4">
-                    {alerts.map((alert, idx) => (
-                       <TacticalAlertRow 
-                         key={idx}
-                         status="ACTIVE"
-                         title={`${alert.alert_level} Protocol`}
-                         description={alert.action}
-                         action={<AckButton alertId={(alert as any).alert_id || `ALT-${idx}`} deptId="KEM_HOSPITAL" status={(alert as any).status} />}
-                       />
-                    ))}
+           {/* LEFT COLUMN */}
+           <div className="space-y-8 flex flex-col">
+              
+              {/* Hospital Capacity */}
+              <TacticalCard title="HOSPITAL CAPACITY" icon={<Bed size={16} className="text-gray-400" />}>
+                 <div className="space-y-8">
+                    <CapacityProgress label="Current occupancy" value={65} color="bg-orange-500" />
+                    <CapacityProgress label="Surge capacity available" value={35} color="bg-emerald-500" sub="approx 140 beds" />
                  </div>
               </TacticalCard>
 
-              <TacticalCard title="Ward Saturation Heatmap" icon={<Bed size={18} className="text-blue-600" />}>
-                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                    {[
-                      { ward: "Trauma ICU", load: 98, status: "CRITICAL" },
-                      { ward: "Pediatric", load: 72, status: "HIGH" },
-                      { ward: "General (M)", load: 85, status: "NEAR-CAP" },
-                      { ward: "Isolation", load: 45, status: "STABLE" }
-                    ].map((w, i) => (
-                       <div key={i} className={`p-6 rounded-[2.25rem] border ${w.load > 90 ? 'bg-red-50 border-red-100 shadow-sm' : 'bg-white/50 border-black/5 shadow-sm'} flex flex-col items-center group hover:scale-105 transition-transform`}>
-                          <span className="text-[10px] font-black text-gray-400 uppercase mb-2 group-hover:text-gray-600">{w.ward}</span>
-                          <div className="text-2xl font-black text-gray-950 brand-font mb-2">{w.load}%</div>
-                          <TacticalBadge 
-                            label={w.status} 
-                            color={w.load > 90 ? 'red' : 'blue'} 
-                            variant={w.load > 90 ? 'filled' : 'outline'} 
-                          />
-                       </div>
-                    ))}
+              {/* Cascade Risk to KEM */}
+              <TacticalCard title="CASCADE RISK TO KEM" icon={<AlertTriangle size={18} className="text-red-600" />}>
+                 <div className="space-y-6">
+                    <p className="text-[16px] font-bold text-gray-700 leading-snug uppercase">
+                       If WR fails at T+60 → roads choke at T+90 → <span className="text-red-600 font-black">KEM unreachable by T+135</span>
+                    </p>
+                    <div className="space-y-2">
+                       <StatusMetric label="Current window" value="125 min remaining" color="text-emerald-600" />
+                       <StatusMetric label="Generator" value="72hr fuel" color="text-gray-950" />
+                       <StatusMetric label="Backup power" value="online" color="text-emerald-600" />
+                    </div>
                  </div>
               </TacticalCard>
-           </section>
+           </div>
 
-           <section className="space-y-8">
-              <TacticalCard title="Ambulance Prepositioning" icon={<Ambulance size={18} className="text-red-600" />}>
-                 <div className="space-y-5">
-                    {[
-                      { loc: "Sion Matrix Point", unit: "Unit 04-A", status: "STAGED", eta: "EST: T-5M" },
-                      { loc: "H-East Ward HQ", unit: "Unit 09-C", status: "READY", eta: "EST: ACTIVE" },
-                      { loc: "Worli Sea Link Mouth", unit: "Unit 02-B", status: "IN-ROUTE", eta: "EST: T-12M" }
-                    ].map((a, i) => (
-                       <div key={i} className="p-5 rounded-2xl bg-white/50 border border-black/5 space-y-2 group hover:border-red-200 transition-all">
-                          <div className="flex justify-between items-center text-[12px] font-black uppercase">
-                             <span className="text-gray-900 group-hover:text-red-700 transition-colors">{a.unit}</span>
-                             <span className={a.status === 'IN-ROUTE' ? 'text-blue-600' : 'text-emerald-600'}>{a.status}</span>
-                          </div>
-                          <p className="text-[11px] font-bold text-gray-500 uppercase">{a.loc}</p>
-                          <div className="text-[10px] font-black text-red-600/80">{a.eta}</div>
-                       </div>
-                    ))}
+           {/* RIGHT COLUMN */}
+           <div className="space-y-8 flex flex-col">
+              
+              {/* Surge Protocol Checklist */}
+              <TacticalCard title="SURGE PROTOCOL CHECKLIST" icon={<Activity size={18} className="text-blue-600" />}>
+                 <div className="space-y-2">
+                    <HospChecklistRow time="09:07" label="Surge protocol alert received" status="ACK" color="emerald" />
+                    <HospChecklistRow time="09:12" label="4 ambulances pre-positioned at 90 Feet Rd" status="DONE" color="emerald" />
+                    <HospChecklistRow time="09:20" label="Generator fuel check — 72hr reserve confirmed" status="DONE" color="emerald" />
+                    <HospChecklistRow time="09:32" label="Ground floor patient shift — flood prep" status="IN PROG" color="orange" />
+                    <HospChecklistRow time="09:45" label="Staff surge team on standby" status="PENDING" color="orange" variant="outline" />
                  </div>
               </TacticalCard>
 
-              <TacticalCard title="Trauma Protocol S-10" icon={<History size={16} className="text-red-600" />}>
-                 <p className="text-[12px] font-bold text-gray-500 leading-relaxed italic">
-                    "Execute secondary bed triage. Redirect non-critical influx to suburban satellite clinics. Maintain 15% trauma reserve."
-                 </p>
-                 <div className="flex items-center gap-2 pt-4 border-t border-black/5">
-                    <AlertTriangle size={14} className="text-red-600" />
-                    <span className="text-[11px] font-black text-gray-900 uppercase">Surge Level: HIGH</span>
+              {/* Ambulance Routing */}
+              <div className="flex-1 glass-card rounded-[2.5rem] border border-white/40 shadow-xl bg-slate-50/50 flex flex-col p-8">
+                 <header className="mb-8">
+                    <h3 className="text-[11px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-3">
+                       <Ambulance size={18} /> AMBULANCE ROUTING
+                    </h3>
+                 </header>
+                 <div className="flex-1 flex flex-col items-center justify-center gap-8">
+                    <div className="flex items-center gap-6">
+                       <TacticalBadge label="KEM base" color="emerald" variant="outline" className="px-6 py-3 rounded-2xl" />
+                       <ArrowIcon />
+                       <TacticalBadge label="90 Feet Rd" color="emerald" variant="outline" className="px-6 py-3 rounded-2xl" />
+                       <ArrowIcon />
+                    </div>
+                    <div className="p-6 bg-red-100 rounded-[2rem] border border-red-200">
+                       <span className="text-[14px] font-black text-red-600 uppercase">Sector B staging</span>
+                    </div>
+                    <span className="text-[11px] font-black text-gray-400 uppercase italic">avoid Sion underpass — closed by BMC</span>
                  </div>
-              </TacticalCard>
-           </section>
+              </div>
+           </div>
         </div>
       </div>
     </div>
+  );
+}
+
+function CapacityProgress({ label, value, color, sub }: { label: string; value: number; color: string; sub?: string }) {
+  return (
+    <div className="space-y-3">
+       <div className="flex justify-between items-center text-[13px] font-black uppercase">
+          <span className="text-gray-900">{label}</span>
+          <span className="text-gray-950">{value}%</span>
+       </div>
+       <div className="w-full h-2.5 bg-gray-100 rounded-full overflow-hidden">
+          <div className={`h-full ${color} transition-all duration-1000`} style={{ width: `${value}%` }} />
+       </div>
+       {sub && <p className="text-[11px] font-black text-emerald-600 uppercase text-right">{sub}</p>}
+    </div>
+  );
+}
+
+function StatusMetric({ label, value, color }: { label: string; value: string; color: string }) {
+  return (
+    <div className="flex items-center gap-4 text-[14px] font-bold uppercase">
+       <span className="text-gray-400 w-32">{label}:</span>
+       <span className={color}>{value}</span>
+    </div>
+  );
+}
+
+function HospChecklistRow({ time, label, status, color, variant = 'filled' }: { time: string; label: string; status: string; color: any; variant?: any }) {
+  return (
+     <div className="flex items-center gap-6 py-4 border-b border-black/5 last:border-0 hover:bg-black/5 px-4 rounded-xl transition-all h-20">
+        <span className="text-[13px] font-black text-gray-400">{time}</span>
+        <p className="flex-1 text-[14px] font-bold text-gray-700 leading-tight uppercase tracking-tighter">{label}</p>
+        <TacticalBadge label={status} color={color} variant={variant} className="shrink-0 w-24 text-center" />
+     </div>
+  );
+}
+
+function ArrowIcon() {
+  return (
+     <div className="text-gray-300">
+        <Navigation size={18} className="rotate-90" />
+     </div>
   );
 }

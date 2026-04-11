@@ -1,12 +1,12 @@
 from __future__ import annotations
 
-from config import DATA_DIR, LOGS_DIR
-from services.agent_service import AgentService
-from services.cascade_service import CascadeService
-from services.demo_service import DemoService
-from services.drain_capacity import DrainCapacityService
-from services.log_service import AccountabilityLogService
-from services.ws_manager import WebSocketManager
+from ..config import DATA_DIR, LOGS_DIR
+from .agent_service import AgentService
+from .cascade_service import CascadeService
+from .demo_service import DemoService
+from .drain_capacity import DrainCapacityService
+from .log_service import AccountabilityLogService
+from .ws_manager import WebSocketManager
 
 
 drain_service = DrainCapacityService(

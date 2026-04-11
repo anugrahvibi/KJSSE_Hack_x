@@ -26,6 +26,7 @@ The React Compiler is not enabled on this template because of its impact on dev 
 - Prefer composing from shared components over duplicating markup, spacing, or interaction patterns.
 - Forms, cards, dropdowns, labels, and compact action buttons must use shared reusable components.
 - Use pill-shaped labels and badges whenever a surface is acting like a status chip, tag, or compact label.
+- If a label wraps to two lines, use a non-pill block label style instead of a full pill.
 - Prefer fully rounded buttons for compact actions when the button reads as a chip, toggle, or quick action.
 - Progress bars must have fully rounded outer tracks and fully rounded inner fills.
 - Progress bars must not use border outlines and should use the shared `ProgressBar` component.

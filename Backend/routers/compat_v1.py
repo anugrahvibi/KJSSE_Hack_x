@@ -4,7 +4,7 @@ from datetime import UTC, datetime
 
 from fastapi import APIRouter, Query
 
-from services.runtime import log_service
+from ..services.runtime import log_service
 
 router = APIRouter(prefix="/api/v1", tags=["compat-v1"])
 

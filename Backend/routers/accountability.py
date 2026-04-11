@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from fastapi import APIRouter
 
-from services.runtime import log_service
+from ..services.runtime import log_service
 
 router = APIRouter(prefix="/api/accountability", tags=["accountability"])
 

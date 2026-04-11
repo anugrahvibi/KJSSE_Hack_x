@@ -2,9 +2,9 @@ from __future__ import annotations
 
 from fastapi import APIRouter, HTTPException
 
-from models.ward import FloodStatus, TriggerScenarioRequest
-from services.orchestration import dispatch_from_ward_status
-from services.runtime import drain_service, ws_manager
+from ..models.ward import FloodStatus, TriggerScenarioRequest
+from ..services.orchestration import dispatch_from_ward_status
+from ..services.runtime import drain_service, ws_manager
 
 router = APIRouter(prefix="/api/detection", tags=["detection"])
 

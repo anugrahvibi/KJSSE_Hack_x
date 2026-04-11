@@ -11,9 +11,9 @@ from fastapi.responses import JSONResponse
 # Add parent directory to Python path to import AI modules
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from config import OVERDUE_CHECK_SECONDS
-from routers import accountability, agent, cascade, compat_v1, demo, detection, websocket
-from services.runtime import log_service, ws_manager
+from .config import OVERDUE_CHECK_SECONDS
+from .routers import accountability, agent, cascade, compat_v1, demo, detection, websocket
+from .services.runtime import log_service, ws_manager
 
 
 overdue_task: asyncio.Task | None = None

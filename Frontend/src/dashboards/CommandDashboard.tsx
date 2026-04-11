@@ -96,25 +96,25 @@ export function CommandDashboard() {
            
            {simulationMode === 'DEMO' ? (
              <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-                <MetricItem 
+                <TacticalMetric 
                   label="Tide height" 
                   value={`${environmentalData?.tide_height_m || 0}m`} 
                   sub={`Outfall: ${environmentalData?.outfall_elevation_m || 4.2}m · ${environmentalData?.drain_capacity_pct === 0 ? 'LOCKED' : 'ACTIVE'}`} 
                   color="text-red-500"
                 />
-                <MetricItem 
+                <TacticalMetric 
                   label="Rainfall" 
                   value={`${environmentalData?.rainfall_mm_hr || 0}mm/hr`} 
                   sub={`IMD extreme threshold: ${environmentalData?.imd_threshold_mm_hr || 65}`} 
                   color={(environmentalData?.rainfall_mm_hr || 0) > (environmentalData?.imd_threshold_mm_hr || 65) ? "text-red-500" : "text-orange-500"}
                 />
-                <MetricItem 
+                <TacticalMetric 
                   label="Drain capacity" 
                   value={`${environmentalData?.drain_capacity_pct || 0}%`} 
                   sub={environmentalData?.drain_capacity_pct === 0 ? "Tidal lock active" : "Drain operational"} 
                   color={environmentalData?.drain_capacity_pct === 0 ? "text-red-500" : "text-green-500"}
                 />
-                <MetricItem 
+                <TacticalMetric 
                   label="Tide direction" 
                   value={environmentalData?.tide_direction || "Unknown"} 
                   sub={`Peak in ~${environmentalData?.peak_tide_hours || 4} hrs`} 
@@ -153,7 +153,7 @@ export function CommandDashboard() {
         
         {/* RIVA Reasoning Panel (Top Right) */}
         <TacticalCard
-          title="Riva Agent — Reasoning"
+          title="Riva Agent - Reasoning"
           subtitle="Active"
           icon={<BrainCircuit size={18} className="text-blue-600" />}
           className="flex-[0.55]"
@@ -170,10 +170,10 @@ export function CommandDashboard() {
            <div className="flex-1 space-y-4 overflow-y-auto custom-scrollbar-dark mb-8 relative z-10 max-h-[200px]">
               {[
                 "Peak commute. 3.5M on WR right now.",
-                "Tide still rising — 4 hrs zero drainage.",
+                "Tide still rising - 4 hrs zero drainage.",
                 "Sion underpass closes in ~15 min. NDRF default route blocked.",
                 "Rerouting Bn4 via 60 Feet Road instead.",
-                "KEM at 65% — surge protocol viable now."
+                "KEM at 65% - surge protocol viable now."
               ].map((text, i) => (
                 <div key={i} className="flex gap-4 items-start group">
                    <div className="w-1.5 h-1.5 rounded-full bg-blue-600 mt-2 shrink-0 group-hover:scale-150 transition-all shadow-glow-blue" />
@@ -196,7 +196,7 @@ export function CommandDashboard() {
 
         {/* Alert Feed Log (Bottom Right) */}
         <TacticalCard 
-          title="Alert Feed — Live Log"
+          title="Alert Feed - Live Log"
           icon={<History size={18} className="text-slate-700" />}
           className="flex-[0.45]"
         >

@@ -4,7 +4,7 @@ import json
 from datetime import datetime
 from pathlib import Path
 
-from models.ward import FloodStatus, WardStatus
+from ..models.ward import FloodStatus, WardStatus
 
 
 WARD_STATION_MAP = {
