@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { TrainFront, Activity, Zap, StopCircle, Clock, AlertCircle, Info } from 'lucide-react';
+import { Zap, StopCircle, Info } from 'lucide-react';
 import { fetchZones, fetchInfrastructure, fetchActiveAlerts, fetchPredictions } from '../utils/dataFetcher';
 import type { StakeholderAction, InfrastructureNode, ZonePrediction } from '@schema';
 import { useGsapAnimations } from '../utils/useGsapAnimations';
@@ -34,15 +34,15 @@ export function HighwayDepartmentDashboard() {
   }, []);
 
   return (
-    <div ref={containerRef} className="pt-28 sm:pt-32 lg:pt-36 p-10 h-full bg-transparent overflow-y-auto w-full custom-scrollbar overflow-visible">
-      <div className="max-w-7xl mx-auto space-y-8 py-6">
+    <div ref={containerRef} className="pt-40 sm:pt-44 lg:pt-48 p-12 h-full bg-transparent overflow-y-auto w-full custom-scrollbar overflow-visible">
+      <div className="max-w-7xl mx-auto space-y-12 py-10">
         <AccountabilityBanner />
 
         {/* OVERDUE Alert Bar */}
         <div className="glass-card p-6 rounded-[2.25rem] border border-red-300 bg-red-600 shadow-xl overflow-visible flex flex-col md:flex-row items-center justify-between gap-6 group">
             <div className="flex-1 space-y-1">
                <p className="text-[13px] font-black text-white uppercase flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-white animate-pulse" /> OVERDUE — 09:27
+                  <span className="w-2 h-2 rounded-full bg-white animate-pulse" /> OVERDUE - 09:27
                </p>
                <p className="text-[16px] font-bold text-white leading-tight uppercase">
                   Station prep at Kurla + Sion not acknowledged · This silence is logged · Deadline passed
@@ -98,8 +98,8 @@ export function HighwayDepartmentDashboard() {
               {/* Crowd Management Checklist */}
               <TacticalCard title="Crowd Management Checklist - Kurla" className="flex-[0.6]">
                  <div className="space-y-2">
-                    <ChecklistRow time="09:07" label="Alert received — station prep required" status="IGNORED" color="red-ghost" />
-                    <ChecklistRow time="09:22" label="Deadline passed — no response logged" status="OVERDUE" color="red-ghost" />
+                    <ChecklistRow time="09:07" label="Alert received - station prep required" status="IGNORED" color="red-ghost" />
+                    <ChecklistRow time="09:22" label="Deadline passed - no response logged" status="OVERDUE" color="red-ghost" />
                     <ChecklistRow time="09:37" label="Halt slow trains Kurla-Sion corridor" status="PENDING" color="gray-ghost" />
                     <ChecklistRow time="09:45" label="Announce alternate bus routes via PA" status="PENDING" color="gray-ghost" />
                  </div>
@@ -135,20 +135,6 @@ export function HighwayDepartmentDashboard() {
            </div>
         </div>
       </div>
-    </div>
-  );
-}
-
-function SchematicNode({ id, label, status, color, sub }: { id: string; label: string; status: string; color: any; sub: string }) {
-  const colorMap = { red: 'border-red-500 text-red-600 bg-red-50', orange: 'border-orange-500 text-orange-600 bg-orange-50', emerald: 'border-emerald-500 text-emerald-600 bg-emerald-50' } as any;
-  return (
-    <div className="flex flex-col items-center gap-3">
-       <span className="text-[10px] font-black text-gray-400 uppercase tracking-tighter">{label}</span>
-       <div className={`w-14 h-14 rounded-full border-4 flex items-center justify-center text-[12px] font-black ${colorMap[color]}`}>
-          {id}
-       </div>
-       <div className={`px-2 py-0.5 rounded-lg text-[8px] font-black border ${colorMap[color]}`}>{status}</div>
-       <span className="text-[9px] font-bold text-gray-400 uppercase">{sub}</span>
     </div>
   );
 }

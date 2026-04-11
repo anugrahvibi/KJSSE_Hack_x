@@ -21,8 +21,8 @@ export function DistrictAdminDashboard() {
   }, []);
 
   return (
-    <div ref={containerRef} className="pt-28 sm:pt-32 lg:pt-36 p-10 h-full bg-transparent overflow-y-auto w-full custom-scrollbar overflow-visible">
-      <div className="max-w-7xl mx-auto space-y-8 py-6">
+    <div ref={containerRef} className="pt-40 sm:pt-44 lg:pt-48 p-12 h-full bg-transparent overflow-y-auto w-full custom-scrollbar overflow-visible">
+      <div className="max-w-7xl mx-auto space-y-12 py-10">
         <AccountabilityBanner />
 
         {/* Alert Bar */}

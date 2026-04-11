@@ -24,11 +24,11 @@ export function AuditDashboard() {
   }, []);
 
   return (
-    <div ref={containerRef} className="pt-28 sm:pt-32 lg:pt-36 p-10 h-full bg-transparent overflow-y-auto w-full custom-scrollbar overflow-visible">
-      <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-5">
+      <div ref={containerRef} className="pt-40 sm:pt-44 lg:pt-48 px-8 sm:px-10 lg:px-12 py-10 h-full bg-transparent overflow-y-auto w-full custom-scrollbar overflow-visible">
+         <div className="w-full flex flex-col lg:flex-row gap-10">
         
         {/* LEFT COLUMN: Insights & Map (65%) */}
-        <div className="flex-[0.65] flex flex-col gap-5">
+        <div className="flex-[0.65] flex flex-col gap-10">
           
           {/* Vulnerability Ranking (Top Left) */}
           <div className="glass-card p-8 rounded-[2.5rem] border border-white/40 shadow-xl space-y-6">

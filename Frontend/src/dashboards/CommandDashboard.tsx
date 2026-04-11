@@ -36,10 +36,9 @@ export function CommandDashboard() {
   }, []);
 
   return (
-    <div ref={containerRef} className="h-full w-full bg-transparent pt-28 sm:pt-32 lg:pt-36 flex flex-col lg:flex-row gap-6 p-8 overflow-y-auto custom-scrollbar overflow-visible">
+    <div ref={containerRef} className="h-full w-full bg-transparent pt-40 sm:pt-44 lg:pt-48 flex flex-col lg:flex-row gap-8 p-10 overflow-y-auto custom-scrollbar overflow-visible">
       
-      {/* LEFT COLUMN (65%) */}
-      <div className="flex-[0.65] flex flex-col gap-6">
+      <div className="flex-[0.65] flex flex-col gap-10">
         {/* Map Panel (Top Left) */}
         <div className="flex-1 relative rounded-[2.5rem] overflow-hidden border border-white/60 shadow-2xl bg-white/30">
           <MapView

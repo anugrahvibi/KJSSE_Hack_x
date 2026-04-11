@@ -35,59 +35,26 @@ const roleToAlertDepartment: Record<Exclude<Role, null>, string> = {
 };
 
 function AgencyPortal() {
-  const { role, setRoleDirectly } = useAuth();
-
-  const agencyRoles: { id: Role; label: string }[] = [
-    { id: 'BMC Ward Officer', label: 'BMC Ward Officer' },
-    { id: 'NDRF', label: 'NDRF Battalion 4' },
-    { id: 'Western Railway', label: 'Western Railway' },
-    { id: 'KEM Hospital', label: 'KEM Hospital' },
-  ];
-
+  const { role } = useAuth();
   const currentRole = role || 'BMC Ward Officer';
 
-  let portalView: React.ReactNode = <DamOperatorDashboard />;
-  if (currentRole === 'NDRF') portalView = <NdrfDashboard />;
-  if (currentRole === 'Western Railway' || currentRole === 'Central Railway') portalView = <HighwayDepartmentDashboard />;
-  if (currentRole === 'KEM Hospital') portalView = <DistrictAdminDashboard />;
-
-  return (
-    <div className="h-full w-full relative">
-      {/* SUB-NAVIGATION FOR AGENCIES */}
-      <div className="fixed top-22 sm:top-24 left-1/2 -translate-x-1/2 z-40 w-full max-w-4xl px-6">
-        <div className="flex items-center justify-center gap-1 sm:gap-4 glass-card rounded-full border border-white/40 p-1.5 shadow-xl">
-          {agencyRoles.map((agency) => (
-            <button
-              key={agency.id}
-              onClick={() => setRoleDirectly(agency.id)}
-              className={`flex-1 px-4 py-2 rounded-full text-[10px] sm:text-[11px] font-black uppercase transition-all whitespace-nowrap ${
-                currentRole === agency.id 
-                ? 'bg-gray-950 text-white shadow-lg' 
-                : 'text-gray-500 hover:bg-white/50'
-              }`}
-            >
-              {agency.label}
-            </button>
-          ))}
-        </div>
-      </div>
-      <div className="h-full w-full">
-         {portalView}
-      </div>
-    </div>
-  );
+  if (currentRole === 'NDRF') return <NdrfDashboard />;
+  if (currentRole === 'Western Railway' || currentRole === 'Central Railway') return <HighwayDepartmentDashboard />;
+  if (currentRole === 'KEM Hospital') return <DistrictAdminDashboard />;
+  return <DamOperatorDashboard />;
 }
 
 function Navigation() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { role, logout, simulationMode, toggleSimulation } = useAuth();
+  const { role, logout, simulationMode, toggleSimulation, setRoleDirectly } = useAuth();
   const [notifications, setNotifications] = useState<StakeholderAction[]>([]);
   const navRef = useRef<HTMLElement>(null);
 
   useGsapAnimations(navRef as any);
 
   const isAuthPage = location.pathname === '/login' || location.pathname === '/signup';
+  const isAgencyPortal = location.pathname === '/agency';
   const departmentKey = role ? roleToAlertDepartment[role] : null;
 
   useEffect(() => {
@@ -103,61 +70,90 @@ function Navigation() {
 
   if (isAuthPage) return null;
 
+  const agencyRoles: { id: Role; label: string }[] = [
+    { id: 'BMC Ward Officer', label: 'BMC Ward Officer' },
+    { id: 'NDRF', label: 'NDRF Battalion 4' },
+    { id: 'Western Railway', label: 'Western Railway' },
+    { id: 'KEM Hospital', label: 'KEM Hospital' },
+  ];
+
   return (
-    <nav ref={navRef} className="fixed top-3 sm:top-5 left-1/2 -translate-x-1/2 w-[96%] max-w-7xl h-16 sm:h-20 rounded-[2rem] flex items-center justify-between px-6 z-50 border border-white/80 glass-card shadow-2xl">
-      <div className="flex items-center gap-8">
-        <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate('/')}>
-           <img src="/logo.svg" alt="Riva logo" className="w-8 h-8" />
-           <h1 className="text-xl font-black text-gray-950 brand-font uppercase tracking-tighter">Riva</h1>
+    <div ref={navRef} className="fixed top-3 sm:top-5 left-1/2 -translate-x-1/2 w-[96%] max-w-7xl z-50 flex flex-col gap-2">
+      {/* PRIMARY NAV BAR */}
+      <nav className="h-16 sm:h-20 rounded-[2rem] flex items-center justify-between px-8 border border-white/80 glass-card shadow-2xl">
+        <div className="flex items-center gap-8">
+          <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate('/')}>
+             <img src="/logo.svg" alt="Riva logo" className="w-8 h-8" />
+             <h1 className="text-xl font-black text-gray-950 brand-font uppercase tracking-tighter">Riva</h1>
+          </div>
+
+          <div className="hidden lg:flex items-center gap-6 border-l border-black/5 pl-8">
+             <div className="flex flex-col items-center">
+                <span className="text-[9px] font-black text-gray-400 uppercase">Rainfall</span>
+                <span className="text-[14px] font-black text-gray-900">87mm/h</span>
+             </div>
+             <div className="flex flex-col items-center">
+                <span className="text-[9px] font-black text-gray-400 uppercase">Tide</span>
+                <span className="text-[14px] font-black text-blue-600">4.6m HIGH</span>
+             </div>
+          </div>
         </div>
 
-        <div className="hidden lg:flex items-center gap-6 border-l border-black/5 pl-8">
-           <div className="flex flex-col items-center">
-              <span className="text-[9px] font-black text-gray-400 uppercase">Rainfall</span>
-              <span className="text-[14px] font-black text-gray-900">87mm/h</span>
-           </div>
-           <div className="flex flex-col items-center">
-              <span className="text-[9px] font-black text-gray-400 uppercase">Tide</span>
-              <span className="text-[14px] font-black text-blue-600">4.6m HIGH</span>
-           </div>
+        {/* MAIN TABS */}
+        <div className="hidden md:flex items-center gap-2 p-1 bg-white/40 rounded-2xl border border-white/60">
+           {[
+             { path: '/', label: 'Command Hub' },
+             { path: '/agency', label: 'Agency Portal' },
+             { path: '/audit', label: 'Audit Map' },
+           ].map((nav) => (
+              <button
+                key={nav.path}
+                onClick={() => navigate(nav.path)}
+                className={`px-6 py-2.5 rounded-xl text-[11px] font-black uppercase transition-all ${
+                  location.pathname === nav.path ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20' : 'text-gray-600 hover:bg-white'
+                }`}
+              >
+                {nav.label}
+              </button>
+           ))}
         </div>
-      </div>
 
-      {/* THREE MAIN VIEWS SPECIFIED */}
-      <div className="hidden md:flex items-center gap-2 p-1 bg-white/40 rounded-2xl border border-white/60">
-         {[
-           { path: '/', label: 'Command Hub' },
-           { path: '/agency', label: 'Agency Portal' },
-           { path: '/audit', label: 'Audit Map' },
-         ].map((nav) => (
-            <button
-              key={nav.path}
-              onClick={() => navigate(nav.path)}
-              className={`px-6 py-2.5 rounded-xl text-[11px] font-black uppercase transition-all ${
-                location.pathname === nav.path ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20' : 'text-gray-600 hover:bg-white'
-              }`}
-            >
-              {nav.label}
-            </button>
-         ))}
-      </div>
+        <div className="flex items-center gap-4">
+          <button
+            onClick={toggleSimulation}
+            className={`px-5 py-2 rounded-xl text-[10px] font-black uppercase flex items-center gap-2 transition-all ${
+              simulationMode === 'FLOOD' ? 'bg-red-600 text-white shadow-xl' : 'bg-emerald-600 text-white shadow-xl'
+            }`}
+          >
+            {simulationMode === 'FLOOD' ? <AlertTriangle size={14} /> : <Activity size={14} />}
+            {simulationMode === 'FLOOD' ? 'Sim Mode' : 'Live Mode'}
+          </button>
+          
+          <button onClick={logout} className="p-3 bg-white rounded-xl border border-black/5 text-gray-900 hover:bg-slate-50 transition-all ml-2">
+             <LogOut size={18} />
+          </button>
+        </div>
+      </nav>
 
-      <div className="flex items-center gap-4">
-        <button
-          onClick={toggleSimulation}
-          className={`px-5 py-2 rounded-xl text-[10px] font-black uppercase flex items-center gap-2 transition-all ${
-            simulationMode === 'FLOOD' ? 'bg-red-600 text-white shadow-xl' : 'bg-emerald-600 text-white shadow-xl'
-          }`}
-        >
-          {simulationMode === 'FLOOD' ? <AlertTriangle size={14} /> : <Activity size={14} />}
-          {simulationMode === 'FLOOD' ? 'Sim Mode' : 'Live Mode'}
-        </button>
-        
-        <button onClick={logout} className="p-3 bg-white rounded-xl border border-black/5 text-gray-900 hover:bg-slate-50 transition-all ml-2">
-           <LogOut size={18} />
-        </button>
-      </div>
-    </nav>
+      {/* TACTICAL SUB-BAR (Only for Agency Portal) */}
+      {isAgencyPortal && (
+        <div className="flex items-center justify-center gap-2 glass-card rounded-2xl border border-white/40 p-1.5 shadow-xl animate-in fade-in slide-in-from-top-2 duration-300">
+           {agencyRoles.map((agency) => (
+              <button
+                key={agency.id}
+                onClick={() => setRoleDirectly(agency.id)}
+                className={`px-8 py-2.5 rounded-xl text-[11px] font-black uppercase transition-all whitespace-nowrap ${
+                  (role || 'BMC Ward Officer') === agency.id 
+                  ? 'bg-gray-950 text-white shadow-lg' 
+                  : 'text-gray-500 hover:bg-white/60'
+                }`}
+              >
+                {agency.label}
+              </button>
+           ))}
+        </div>
+      )}
+    </div>
   );
 }
 
