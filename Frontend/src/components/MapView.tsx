@@ -17,14 +17,15 @@ function getZoneCoords(zoneId: string): [number, number] | null {
 }
 
 interface MapViewProps {
-  zonesGeoJson: any | null;
+  zonesGeoJson?: any | null;
   infrastructureNodes: InfrastructureNode[];
   predictions: ZonePrediction[];
   onZoneClick: (zoneId: string) => void;
   selectedZoneId?: string | null;
+  variant?: 'tactical' | 'emergency' | 'railway' | 'hydro' | 'audit';
 }
 
-export function MapView({ infrastructureNodes, predictions, onZoneClick, selectedZoneId }: MapViewProps) {
+export function MapView({ infrastructureNodes, predictions, onZoneClick, selectedZoneId, variant = 'tactical' }: MapViewProps) {
   const mapRef = useRef<any>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const circleLayersRef = useRef<any[]>([]);
@@ -116,12 +117,6 @@ export function MapView({ infrastructureNodes, predictions, onZoneClick, selecte
       });
       mapRef.current = map;
 
-      // Free OpenStreetMap tiles - no API key required
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-        maxZoom: 19,
-      }).addTo(map);
-
       map.whenReady(() => {
         queueMapInvalidate();
       });
@@ -137,7 +132,36 @@ export function MapView({ infrastructureNodes, predictions, onZoneClick, selecte
 
   useEffect(() => {
     queueMapInvalidate();
-  }, [predictions.length, infrastructureNodes.length, selectedZoneId]);
+  }, [predictions.length, infrastructureNodes.length, selectedZoneId, variant]);
+
+  // ── Update Tile Layer when variant changes ──────────────────────────────────
+  useEffect(() => {
+    const map = mapRef.current;
+    const L = LRef.current;
+    if (!map || !L) return;
+
+    // Remove old tile layers
+    map.eachLayer((layer: any) => {
+      if (layer instanceof L.TileLayer) {
+        map.removeLayer(layer);
+      }
+    });
+
+    const tileConfigs = {
+      tactical: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+      emergency: 'https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png',
+      railway: 'https://{s}.tile.memomaps.de/tilegen/{z}/{x}/{y}.png',
+      hydro: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager_labels_under/{z}/{x}/{y}{r}.png',
+      audit: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
+    } as any;
+
+    const url = tileConfigs[variant] || tileConfigs.tactical;
+    L.tileLayer(url, {
+      attribution: '© CartoDB / OSM',
+      maxZoom: 19,
+    }).addTo(map);
+
+  }, [variant]);
 
   // ── Re-draw zone circles when predictions update ────────────────────────────
   useEffect(() => {
@@ -151,24 +175,35 @@ export function MapView({ infrastructureNodes, predictions, onZoneClick, selecte
     });
     circleLayersRef.current = [];
 
+    const variantStyles: Record<string, { weight: number, dashArray?: string, opacity: number }> = {
+      tactical: { weight: 2, opacity: 0.9 },
+      emergency: { weight: 4, dashArray: '5, 10', opacity: 1 },
+      audit: { weight: 1, opacity: 0.5 },
+      hydro: { weight: 2, opacity: 0.8 },
+      railway: { weight: 3, dashArray: '10, 5', opacity: 0.9 }
+    };
+
+    const vStyle = variantStyles[variant] || variantStyles.tactical;
+
     predictions.forEach((p) => {
       if (!p || !p.zone_id) return;
       const coords = getZoneCoords(p.zone_id);
       if (!coords) return;
       const level = getPredictionAlertLevel(p);
-      const color = getAlertColor(level);
+      const color = (variant === 'audit' && level === 'GREEN') ? '#cbd5e1' : getAlertColor(level);
       const pct = Math.round((p.flood_probability ?? 0) * 100);
       const isSelected = p.zone_id === selectedZoneId;
       const name = (p as any).zone_name || p.zone_id.replace('ZONE_', '').replace(/_/g, ' ');
 
       try {
         const circle = L.circle(coords, {
-          radius: 1400,          // ~1.4km radius - clearly visible at zoom 12
+          radius: 1400,
           color,
           fillColor: color,
           fillOpacity: level === 'RED' ? 0.40 : (level === 'ORANGE' ? 0.32 : (level === 'YELLOW' ? 0.24 : 0.12)),
-          weight: isSelected ? 4 : 2,
-          opacity: 0.9,
+          weight: isSelected ? 5 : vStyle.weight,
+          dashArray: vStyle.dashArray,
+          opacity: vStyle.opacity,
         }).addTo(map);
 
         // Permanent, high-fidelity card for non-GREEN zones
@@ -232,7 +267,14 @@ export function MapView({ infrastructureNodes, predictions, onZoneClick, selecte
       comm_tower: { color: '#8b5cf6', label: 'SIG' },
     };
 
-    infrastructureNodes.forEach((node) => {
+    const getFilteredNodes = () => {
+       if (variant === 'railway') return infrastructureNodes.filter(n => n.type === 'road'); // Assuming road for railway context if no rail type
+       if (variant === 'hydro') return infrastructureNodes.filter(n => n.type === 'water_pump');
+       if (variant === 'emergency') return infrastructureNodes.filter(n => n.type === 'hospital' || n.type === 'comm_tower');
+       return infrastructureNodes;
+    };
+
+    getFilteredNodes().forEach((node) => {
       if (!node.lat || !node.lon) return;
       const c = cfg[node.type] ?? { color: '#64748b', label: 'LOC' };
       const icon = L.divIcon({

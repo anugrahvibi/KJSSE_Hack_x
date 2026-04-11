@@ -71,6 +71,7 @@ export function AuditDashboard() {
                   zone_name: z.zone_id
                 })) || []}
                 onZoneClick={() => {}}
+                variant="audit"
               />
                   <Label
                      label="Structural Vulnerability Map - Mumbai"
