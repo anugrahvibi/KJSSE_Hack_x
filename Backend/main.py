@@ -3,7 +3,7 @@ from __future__ import annotations
 import asyncio
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException, Request, Response
 from fastapi.responses import JSONResponse
 
 from config import OVERDUE_CHECK_SECONDS
@@ -52,6 +52,31 @@ app.include_router(demo.router)
 @app.get("/health")
 def health_check():
     return {"status": "ok"}
+
+
+@app.get("/")
+def root():
+    return {
+        "service": "Riva Mumbai Backend",
+        "status": "ok",
+        "docs": "/docs",
+        "health": "/health",
+    }
+
+
+@app.get("/favicon.ico", include_in_schema=False)
+def favicon():
+    return Response(status_code=204)
+
+
+@app.get("/apple-touch-icon.png", include_in_schema=False)
+def apple_touch_icon():
+    return Response(status_code=204)
+
+
+@app.get("/apple-touch-icon-precomposed.png", include_in_schema=False)
+def apple_touch_icon_precomposed():
+    return Response(status_code=204)
 
 
 @app.exception_handler(HTTPException)
