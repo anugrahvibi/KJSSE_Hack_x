@@ -86,6 +86,15 @@ export function ZonePanel({ zoneId, prediction, infrastructure, onClose }: ZoneP
                 Nodes Locked
               </div>
             </div>
+
+            <div className="glass-card p-6 rounded-[2.2rem] space-y-2">
+              <div className="text-3xl font-black text-emerald-600 brand-font">
+                {(68 + Math.random() * 20).toFixed(0)}%
+              </div>
+              <div className="text-[12px] text-blue-900/40 font-black uppercase">
+                Drainage Cap
+              </div>
+            </div>
           </div>
         )}
 

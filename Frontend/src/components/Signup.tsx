@@ -5,7 +5,8 @@ import { useAuth } from '../AuthContext';
 import { useGsapAnimations } from '../utils/useGsapAnimations';
 import { useRef } from 'react';
 import type { Role } from '../AuthContext';
-import { CustomSelect } from './CustomSelect';
+import { FormCard, FormField, FormInput, FormSelectField } from './forms/FormPrimitives';
+import { LabelButton } from './tactical/TacticalLibrary';
 
 export function Signup() {
   const navigate = useNavigate();
@@ -27,7 +28,7 @@ export function Signup() {
     navigate('/', { replace: true });
   };
 
-  const roles = ['Dam Controller', 'NDRF', 'District Collector', 'Highway Department', 'Developer', 'Public'];
+  const roles = ['BMC Ward Officer', 'NDRF', 'Western Railway', 'Central Railway', 'KEM Hospital', 'Public Advisory', 'Developer'];
 
   return (
     <div ref={containerRef} className="min-h-screen w-full flex items-center justify-center p-6 relative bg-[#f8fafc] overflow-hidden">
@@ -43,60 +44,50 @@ export function Signup() {
             <img src="/logo.svg" alt="Riva logo" className="w-12 h-12 group-hover:scale-110 transition-transform" />
           </div>
           <div>
-            <h1 className="text-5xl font-black text-gray-900 brand-fonter leading-none">
+            <h1 className="type-priority-1 text-gray-900 brand-fonter">
               Cascade<span className="text-blue-600 ending-serif">Net</span>
             </h1>
-            <p className="text-gray-400 text-[13px] font-black uppercase mt-3">Advanced Intelligence &amp; Response</p>
+            <p className="type-priority-5 text-gray-400 mt-3">Advanced Intelligence &amp; Response</p>
           </div>
         </header>
 
-        <form onSubmit={handleSignup} className="glass-card p-10 rounded-[3rem] space-y-6 premium-shadow">
+        <FormCard className="space-y-6">
+        <form onSubmit={handleSignup} className="space-y-6">
           <div className="space-y-5">
-            <div className="space-y-2">
-              <label className="text-xs font-semibold text-gray-500 tracking-normal ml-1">Departmental profile</label>
-              <div className="relative z-50">
-                <CustomSelect
-                  value={role}
-                  onChange={(val) => setRole(val)}
-                  options={roles.map(r => ({ value: r, label: r }))}
-                />
-              </div>
-            </div>
+            <FormSelectField
+              label="Departmental profile"
+              value={role}
+              onChange={(val) => setRole(val)}
+              options={roles.map(r => ({ value: r, label: r }))}
+            />
 
-            <div className="space-y-2">
-              <label className="text-xs font-semibold text-gray-500 tracking-normal ml-1">Tactical ID (Mobile)</label>
-              <div className="relative">
-                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
-                  <Phone size={16} />
-                </div>
-                <input
-                  type="tel"
-                  placeholder="99XX-XXX-XXX"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  className="glass-input pl-12"
-                />
-              </div>
-            </div>
+            <FormField label="Tactical ID (Mobile)">
+              <FormInput
+                type="tel"
+                placeholder="99XX-XXX-XXX"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                icon={<Phone size={16} />}
+              />
+            </FormField>
 
-            <div className="space-y-2">
-              <label className="text-xs font-semibold text-gray-500 tracking-normal ml-1">Secure keyphrase</label>
-              <input
+            <FormField label="Secure keyphrase">
+              <FormInput
                 type="password"
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="glass-input"
               />
-            </div>
+            </FormField>
           </div>
 
-          <button
+          <LabelButton
             type="submit"
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-2xl font-black uppercase text-[11px] transition-all duration-300 shadow-xl shadow-blue-500/20 active:scale-[0.98] flex items-center justify-center gap-3 group"
-          >
-            Create Clearance <ChevronRight size={18} className="group-hover:translate-x-1 transition-transform" />
-          </button>
+            tone="primary"
+            label="Create Clearance"
+            icon={<ChevronRight size={18} />}
+            className="w-full py-4 text-[11px]"
+          />
 
           <div className="text-center pt-2">
             <Link to="/" className="text-[10px] font-black text-gray-400 hover:text-blue-600 transition-colors uppercase">
@@ -104,6 +95,7 @@ export function Signup() {
             </Link>
           </div>
         </form>
+        </FormCard>
 
         <div className="flex items-center justify-center gap-4">
           <div className="h-px w-8 bg-gray-200" />

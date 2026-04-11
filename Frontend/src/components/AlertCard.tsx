@@ -60,7 +60,7 @@ export function AlertCard({ prediction }: AlertCardProps) {
           <h3 className="font-black text-2xl text-gray-950 brand-font">{zone_name}</h3>
           <div className="flex items-center gap-3">
              <div className={`w-2.5 h-2.5 rounded-full ${theme.pill} animate-pulse shadow-glow`} />
-             <span className={`text-[15px] font-black uppercase opacity-80`}>{theme.label} VECTOR</span>
+             <span className={`pill-badge bg-white/60 text-[11px] font-black uppercase opacity-80`}>{theme.label} VECTOR</span>
           </div>
         </div>
         <div className="flex flex-col items-end">
