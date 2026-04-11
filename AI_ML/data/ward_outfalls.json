@@ -1,0 +1,10 @@
+{
+  "wards": [
+    {"ward_id": "H-East", "ward_name": "Dharavi", "outfall_elevation_m": 4.2,
+     "mean_sea_level_m": 0.9, "permanently_undrained": false,
+     "lat": 19.0330, "lng": 72.8597},
+    {"ward_id": "G-South", "ward_name": "Bandra-Kurla Complex",
+     "outfall_elevation_m": 3.8, "mean_sea_level_m": 1.1,
+     "permanently_undrained": true, "lat": 19.0660, "lng": 72.8673}
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "stations": [
+    {"STATION": "DHARAVI", "DATE": "2024-07-15", "TIME": "09:00:00",
+     "RAINFALL_MM_HR": 87, "Latitude": "19.0330", "Longitude": "72.8597",
+     "WEATHER_CODE": "65"},
+    {"STATION": "BKC", "DATE": "2024-07-15", "TIME": "09:00:00",
+     "RAINFALL_MM_HR": 65, "Latitude": "19.0660", "Longitude": "72.8673",
+     "WEATHER_CODE": "65"}
+  ]
+}
