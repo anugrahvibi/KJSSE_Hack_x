@@ -176,3 +176,68 @@ export function TacticalAlertRow({ status, title, description, time, action }: T
     </div>
   );
 }
+
+/**
+ * TacticalSparkline - A lightweight SVG trend visualization
+ */
+export function TacticalSparkline({ data, color = "#2563eb", height = 40 }: { data: number[], color?: string, height?: number }) {
+  if (!data.length) return null;
+  const max = Math.max(...data, 1);
+  const min = Math.min(...data, 0);
+  const range = max - min;
+  const step = 100 / (data.length - 1);
+  
+  const points = data.map((val, i) => {
+    const x = i * step;
+    const y = height - ((val - min) / range) * height;
+    return `${x},${y}`;
+  }).join(' ');
+
+  return (
+    <div className="w-full" style={{ height }}>
+      <svg viewBox={`0 0 100 ${height}`} className="w-full h-full overflow-visible">
+        <defs>
+          <linearGradient id={`grad-${color}`} x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stopColor={color} stopOpacity="0.2" />
+            <stop offset="100%" stopColor={color} stopOpacity="0" />
+          </linearGradient>
+        </defs>
+        <path
+          d={`M 0,${height} L ${points} L 100,${height} Z`}
+          fill={`url(#grad-${color})`}
+          className="transition-all duration-1000"
+        />
+        <polyline
+          fill="none"
+          stroke={color}
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          points={points}
+          className="transition-all duration-1000"
+        />
+      </svg>
+    </div>
+  );
+}
+
+/**
+ * TacticalBarChart - A vertical distribution visualization
+ */
+export function TacticalBarChart({ items }: { items: { label: string, value: number, color: string }[] }) {
+  return (
+    <div className="flex items-end gap-3 h-32 w-full px-2">
+      {items.map((item, i) => (
+        <div key={i} className="flex-1 flex flex-col items-center gap-2 group">
+          <div 
+            className={`w-full ${item.color} rounded-t-lg transition-all duration-1000 group-hover:brightness-110 shadow-lg`} 
+            style={{ height: `${item.value}%` }} 
+          />
+          <span className="text-[8px] font-black text-gray-400 uppercase text-center rotate-[-45deg] origin-top-left mt-1 whitespace-nowrap">
+            {item.label}
+          </span>
+        </div>
+      ))}
+    </div>
+  );
+}

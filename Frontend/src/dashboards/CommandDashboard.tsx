@@ -1,9 +1,9 @@
-﻿import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { fetchZones, fetchPredictions, fetchActiveAlerts, fetchInfrastructure, fetchEnvironmentalData } from '../utils/dataFetcher';
 import type { ZonePrediction, StakeholderAction, InfrastructureNode } from '@schema';
 import { MapView } from '../components/MapView';
 import { ProgressBar } from '../components/common/ProgressBar';
-import { TacticalCard, TacticalMetric, TacticalAlertRow, TacticalBadge, Label, LabelButton } from '../components/tactical/TacticalLibrary';
+import { TacticalCard, TacticalMetric, TacticalAlertRow, TacticalBadge, Label, LabelButton, TacticalSparkline, TacticalBarChart } from '../components/tactical/TacticalLibrary';
 import { BrainCircuit, Maximize2, ChevronUp, History, AlertTriangle } from 'lucide-react';
 import { useGsapAnimations } from '../utils/useGsapAnimations';
 import { useAuth } from '../AuthContext';
@@ -54,7 +54,7 @@ export function CommandDashboard() {
   }, [simulationMode]);
 
   return (
-    <div ref={containerRef} className="h-full w-full bg-transparent pt-40 sm:pt-44 lg:pt-48 px-6 sm:px-8 lg:px-10 py-10 flex flex-col lg:flex-row gap-8 overflow-y-auto custom-scrollbar overflow-visible">
+    <div ref={containerRef} className="h-full w-full bg-transparent pt-40 sm:pt-44 lg:pt-48 px-3 sm:px-4 lg:px-6 py-10 flex flex-col lg:flex-row gap-8 overflow-y-auto custom-scrollbar overflow-visible">
       
       <div className="flex-[0.65] flex flex-col gap-10">
         {/* Map Panel (Top Left) */}
@@ -95,28 +95,44 @@ export function CommandDashboard() {
            
            {simulationMode === 'DEMO' ? (
              <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-                <TacticalMetric 
-                  label="Tide height" 
-                  value={`${environmentalData?.tide_height_m || 0}m`} 
-                  sub={`Outfall: ${environmentalData?.outfall_elevation_m || 4.2}m Â· ${environmentalData?.drain_capacity_pct === 0 ? 'LOCKED' : 'ACTIVE'}`} 
-                  color="text-red-500"
-                />
-                <TacticalMetric 
-                  label="Rainfall" 
-                  value={`${environmentalData?.rainfall_mm_hr || 0}mm/hr`} 
-                  sub={`IMD extreme threshold: ${environmentalData?.imd_threshold_mm_hr || 65}`} 
-                  color={(environmentalData?.rainfall_mm_hr || 0) > (environmentalData?.imd_threshold_mm_hr || 65) ? "text-red-500" : "text-orange-500"}
-                />
-                <TacticalMetric 
-                  label="Drain capacity" 
-                  value={`${environmentalData?.drain_capacity_pct || 0}%`} 
-                  sub={environmentalData?.drain_capacity_pct === 0 ? "Tidal lock active" : "Drain operational"} 
-                  color={environmentalData?.drain_capacity_pct === 0 ? "text-red-500" : "text-green-500"}
-                />
+                <div className="space-y-4">
+                  <TacticalMetric 
+                    label="Tide height" 
+                    value={`${environmentalData?.tide_height_m || 0}m`} 
+                    sub={`Outfall: ${environmentalData?.outfall_elevation_m || 4.2}m`} 
+                    color="text-red-500"
+                  />
+                  <TacticalSparkline data={[2.1, 2.8, 3.5, 4.2, 4.8, 5.2]} color="#ef4444" height={30} />
+                </div>
+
+                <div className="space-y-4">
+                  <TacticalMetric 
+                    label="Rainfall" 
+                    value={`${environmentalData?.rainfall_mm_hr || 0}mm/hr`} 
+                    sub={`IMD Threshold: 65`} 
+                    color={(environmentalData?.rainfall_mm_hr || 0) > 65 ? "text-red-500" : "text-orange-500"}
+                  />
+                  <TacticalSparkline data={[5, 12, 28, 45, 68, 85]} color="#f97316" height={30} />
+                </div>
+
+                <div className="space-y-4">
+                  <TacticalMetric 
+                    label="Drain capacity" 
+                    value={`${environmentalData?.drain_capacity_pct || 0}%`} 
+                    sub="System load" 
+                    color={environmentalData?.drain_capacity_pct === 0 ? "text-red-500" : "text-green-500"}
+                  />
+                  <TacticalBarChart items={[
+                    { label: 'SION', value: 92, color: 'bg-red-500' },
+                    { label: 'KURLA', value: 85, color: 'bg-orange-500' },
+                    { label: 'MAHIM', value: 40, color: 'bg-emerald-500' }
+                  ]} />
+                </div>
+
                 <TacticalMetric 
                   label="Tide direction" 
-                  value={environmentalData?.tide_direction || "Unknown"} 
-                  sub={`Peak in ~${environmentalData?.peak_tide_hours || 4} hrs`} 
+                  value={environmentalData?.tide_direction || "Incoming"} 
+                  sub={`Peak in ~4 hrs`} 
                   icon={<ChevronUp size={28} className="text-orange-500" />}
                   color="text-orange-500"
                 />
