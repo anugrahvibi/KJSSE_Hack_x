@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import type { InfrastructureNode, ZonePrediction } from '@schema';
 import { getPredictionAlertLevel, getAlertColor } from '../utils/schemaHelpers';
+import { ProgressBar } from './common/ProgressBar';
 
 // ─── Zone IDs exactly match ZONE_FLOOD_THRESHOLDS in lstm_predictor.py ────────
 const ZONE_COORDS: Record<string, [number, number]> = {
@@ -115,7 +116,7 @@ export function MapView({ infrastructureNodes, predictions, onZoneClick, selecte
       });
       mapRef.current = map;
 
-      // Free OpenStreetMap tiles — no API key required
+      // Free OpenStreetMap tiles - no API key required
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
         maxZoom: 19,
@@ -162,7 +163,7 @@ export function MapView({ infrastructureNodes, predictions, onZoneClick, selecte
 
       try {
         const circle = L.circle(coords, {
-          radius: 1400,          // ~1.4km radius — clearly visible at zoom 12
+          radius: 1400,          // ~1.4km radius - clearly visible at zoom 12
           color,
           fillColor: color,
           fillOpacity: level === 'RED' ? 0.40 : (level === 'ORANGE' ? 0.32 : (level === 'YELLOW' ? 0.24 : 0.12)),
@@ -322,9 +323,13 @@ export function MapView({ infrastructureNodes, predictions, onZoneClick, selecte
           
           <div className="pt-3 border-t border-black/5">
              <div className="text-[9px] font-black text-gray-400 uppercase mb-2">Model Confidence Stream</div>
-             <div className="w-full h-1 bg-gray-100 rounded-full overflow-hidden">
-                <div className="h-full bg-blue-600 w-[94%] animate-pulse" />
-             </div>
+             <ProgressBar
+               value={94}
+               className="h-1"
+               trackClassName="bg-gray-100"
+               fillClassName="bg-blue-600"
+               animated
+             />
           </div>
         </div>
       </div>

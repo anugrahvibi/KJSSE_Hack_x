@@ -4,6 +4,8 @@ import { ChevronRight, AlertCircle, Phone, Lock, Fingerprint } from 'lucide-reac
 import { useAuth } from '../AuthContext';
 import { useGsapAnimations } from '../utils/useGsapAnimations';
 import { useRef } from 'react';
+import { FormCard, FormField, FormInput } from './forms/FormPrimitives';
+import { LabelButton } from './tactical/TacticalLibrary';
 
 export function Login() {
   const navigate = useNavigate();
@@ -110,18 +112,18 @@ export function Login() {
           >
             <img src="/logo.svg" alt="Riva" className="w-12 h-12 group-hover:rotate-[360deg] transition-transform duration-700" />
           </button>
-          <h1 className="text-5xl font-black text-gray-900 brand-fonter leading-none">
+          <h1 className="type-priority-1 text-gray-900 brand-fonter">
             Cascade<span className="text-blue-600 ending-serif">Net</span>
           </h1>
-          <p className="text-gray-400 text-[13px] font-black uppercase mt-3">Advanced Intelligence &amp; Response</p>
+          <p className="type-priority-5 text-gray-400 mt-3">Advanced Intelligence &amp; Response</p>
         </div>
 
-        <div className="glass-card p-10 rounded-[3rem] space-y-8 premium-shadow">
+        <FormCard>
           <div className="space-y-2">
-            <h2 className="text-2xl font-black text-slate-900 uppercase">
+            <h2 className="type-priority-2 text-slate-900 uppercase">
               {step === 'phone' ? 'Operator Access' : 'Security Check'}
             </h2>
-            <p className="text-sm text-slate-500 font-medium">
+            <p className="type-priority-3 text-slate-500">
               {step === 'phone' ? 'Enter tactical mobile number to receive clearance.' : 'Clearance code dispatched via encrypted SMS.'}
             </p>
           </div>
@@ -129,40 +131,29 @@ export function Login() {
           <form onSubmit={step === 'phone' ? requestOtp : verifyOtp} className="space-y-6">
             <div className="space-y-4">
               {step === 'phone' ? (
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Tactical ID (Mobile)</label>
-                  <div className="relative">
-                    <div className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400">
-                      <Phone size={18} />
-                    </div>
-                    <input
-                      type="tel"
-                      placeholder="99XX-XXX-XXX"
-                      value={phoneNumber}
-                      onChange={(e) => setPhoneNumber(e.target.value)}
-                      disabled={loading}
-                      className="glass-input pl-14"
-                    />
-                  </div>
-                </div>
+                <FormField label="Tactical ID (Mobile)">
+                  <FormInput
+                    type="tel"
+                    placeholder="99XX-XXX-XXX"
+                    value={phoneNumber}
+                    onChange={(e) => setPhoneNumber(e.target.value)}
+                    disabled={loading}
+                    icon={<Phone size={18} />}
+                  />
+                </FormField>
               ) : (
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Authentication Code</label>
-                  <div className="relative">
-                    <div className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400">
-                      <Lock size={18} />
-                    </div>
-                    <input
-                      type="text"
-                      placeholder="XXXX"
-                      maxLength={4}
-                      value={otp}
-                      onChange={(e) => setOtp(e.target.value)}
-                      disabled={loading}
-                      className="glass-input pl-14 tracking-[0.5em] text-center font-black text-lg"
-                    />
-                  </div>
-                </div>
+                <FormField label="Authentication Code">
+                  <FormInput
+                    type="text"
+                    placeholder="XXXX"
+                    maxLength={4}
+                    value={otp}
+                    onChange={(e) => setOtp(e.target.value)}
+                    disabled={loading}
+                    icon={<Lock size={18} />}
+                    inputClassName="tracking-[0.5em] text-center font-black text-lg"
+                  />
+                </FormField>
               )}
             </div>
 
@@ -172,20 +163,19 @@ export function Login() {
               </div>
             )}
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white h-16 rounded-2xl font-black uppercase text-[12px] transition-all duration-300 shadow-xl shadow-blue-500/20 active:scale-[0.98] flex items-center justify-center gap-3 group"
-            >
-              {loading ? (
+            {loading ? (
+              <div className="w-full h-16 bg-blue-600 text-white rounded-full flex items-center justify-center shadow-xl shadow-blue-500/20">
                 <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-              ) : (
-                <>
-                  {step === 'phone' ? 'Request Clearance' : 'Authorize Deployment'}
-                  <ChevronRight size={18} className="group-hover:translate-x-1 transition-transform" />
-                </>
-              )}
-            </button>
+              </div>
+            ) : (
+              <LabelButton
+                type="submit"
+                tone="primary"
+                label={step === 'phone' ? 'Request Clearance' : 'Authorize Deployment'}
+                icon={<ChevronRight size={18} className="transition-transform" />}
+                className="w-full h-16 text-[12px]"
+              />
+            )}
 
             {step === 'otp' && (
               <button
@@ -203,7 +193,7 @@ export function Login() {
               Request Official Credentials
             </Link>
           </div>
-        </div>
+        </FormCard>
 
         <p className="mt-10 text-center text-slate-300 text-[10px] font-black uppercase tracking-[0.3em] flex items-center justify-center gap-2">
           <Fingerprint size={14} /> Biometric &amp; Terminal Secured

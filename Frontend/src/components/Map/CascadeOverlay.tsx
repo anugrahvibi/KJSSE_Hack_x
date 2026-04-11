@@ -20,14 +20,15 @@ interface CascadeOverlayProps {
 
 export const CascadeOverlay: React.FC<CascadeOverlayProps> = ({ map, isActive }) => {
   const wsRef = useRef<WebSocket | null>(null);
-  const layerGroupRef = useRef<L.LayerGroup>(() => L.layerGroup());
+  const layerGroupRef = useRef<L.LayerGroup | null>(null);
 
   useEffect(() => {
     if (!map) return;
     
     if (isActive) {
-      if (!layerGroupRef.current) layerGroupRef.current = L.layerGroup();
-      layerGroupRef.current.addTo(map);
+      const layerGroup = layerGroupRef.current ?? L.layerGroup();
+      layerGroupRef.current = layerGroup;
+      layerGroup.addTo(map);
       
       const wsUrl = `ws://${window.location.hostname}:8000/ws/cascade`;
       const socket = new WebSocket(wsUrl);
@@ -57,15 +58,15 @@ export const CascadeOverlay: React.FC<CascadeOverlayProps> = ({ map, isActive })
             weight: 2
           });
 
-          circle.bindPopup(`<b>${step.node_label}</b> — fails at T+${step.t_plus_minutes} min<br/>(${step.population_affected.toLocaleString()} affected)`);
-          circle.addTo(layerGroupRef.current);
+          circle.bindPopup(`<b>${step.node_label}</b> - fails at T+${step.t_plus_minutes} min<br/>(${step.population_affected.toLocaleString()} affected)`);
+          circle.addTo(layerGroup);
 
           if (prevStep) {
             const polyline = L.polyline(
               [[prevStep.lat, prevStep.lng], [step.lat, step.lng]], 
               { color: '#ef4444', dashArray: '5, 10', weight: 2, className: 'animated-dash' }
             );
-            polyline.addTo(layerGroupRef.current);
+            polyline.addTo(layerGroup);
           }
           prevStep = step;
         }
