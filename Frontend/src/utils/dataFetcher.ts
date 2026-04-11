@@ -127,8 +127,8 @@ export async function fetchSensorReadings(zoneId: string): Promise<SensorReading
   return [];
 }
 
-export async function fetchCascadeAnalysis(zoneId: string): Promise<any> {
-  return await fetchJsonWithRetry<any>(`/api/cascade/event/${zoneId}`);
+export async function fetchEnvironmentalData(): Promise<any> {
+  return await fetchJsonWithRetry<any>('/api/detection/environmental');
 }
 
 export async function fetchVulnerabilities(): Promise<VulnerabilityAnalysis | null> {

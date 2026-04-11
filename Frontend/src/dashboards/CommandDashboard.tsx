@@ -1,39 +1,57 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { fetchZones, fetchPredictions, fetchActiveAlerts, fetchInfrastructure } from '../utils/dataFetcher';
+import { fetchZones, fetchPredictions, fetchActiveAlerts, fetchInfrastructure, fetchEnvironmentalData } from '../utils/dataFetcher';
 import type { ZonePrediction, StakeholderAction, InfrastructureNode } from '@schema';
 import { MapView } from '../components/MapView';
 import { ProgressBar } from '../components/common/ProgressBar';
 import { TacticalCard, TacticalMetric, TacticalAlertRow, TacticalBadge, Label, LabelButton } from '../components/tactical/TacticalLibrary';
-import { BrainCircuit, Maximize2, ChevronUp, History } from 'lucide-react';
+import { BrainCircuit, Maximize2, ChevronUp, History, AlertTriangle } from 'lucide-react';
 import { useGsapAnimations } from '../utils/useGsapAnimations';
+import { useAuth } from '../AuthContext';
 
 export function CommandDashboard() {
+  const { simulationMode } = useAuth();
   const containerRef = useRef<HTMLDivElement>(null);
   const [zones, setZones] = useState<any>(null);
   const [infra, setInfra] = useState<InfrastructureNode[]>([]);
   const [predictions, setPredictions] = useState<ZonePrediction[]>([]);
   const [alerts, setAlerts] = useState<StakeholderAction[]>([]);
   const [selectedZone, setSelectedZone] = useState<string | null>("H-East");
+  const [lastUpdated, setLastUpdated] = useState<string>('');
+  const [environmentalData, setEnvironmentalData] = useState<any>(null);
 
   useGsapAnimations(containerRef, [predictions, alerts]);
 
   useEffect(() => {
+    // Fetch data when in demo mode (live simulation)
+    if (simulationMode !== 'DEMO') {
+      setZones(null);
+      setInfra([]);
+      setPredictions([]);
+      setAlerts([]);
+      setEnvironmentalData(null);
+      setLastUpdated('');
+      return;
+    }
+
     async function init() {
-      const [zData, iData, pData, aData] = await Promise.all([
+      const [zData, iData, pData, aData, eData] = await Promise.all([
         fetchZones(),
         fetchInfrastructure(),
         fetchPredictions(),
         fetchActiveAlerts('NDRF'),
+        fetchEnvironmentalData(),
       ]);
       setZones(zData);
       setInfra(iData.nodes);
       setPredictions(pData);
       setAlerts(aData);
+      setEnvironmentalData(eData);
+      setLastUpdated(new Date().toLocaleTimeString());
     }
     init();
     const interval = setInterval(init, 5000);
     return () => clearInterval(interval);
-  }, []);
+  }, [simulationMode]);
 
   return (
     <div ref={containerRef} className="h-full w-full bg-transparent pt-40 sm:pt-44 lg:pt-48 flex flex-col lg:flex-row gap-8 p-10 overflow-y-auto custom-scrollbar overflow-visible">
@@ -48,12 +66,18 @@ export function CommandDashboard() {
             onZoneClick={setSelectedZone}
             selectedZoneId={selectedZone}
           />
-           <Label
-             label="Mumbai Ward Map - Live Flood Status"
-             as="div"
-             variant="block"
-             className="absolute top-6 left-6 z-[1000] glass-card text-gray-600 border border-black/5 max-w-[260px] leading-tight"
-           />
+          {simulationMode !== 'DEMO' && (
+            <div className="absolute inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[2000] rounded-[2.5rem]">
+              <div className="text-center text-white">
+                <AlertTriangle size={48} className="mx-auto mb-4 opacity-80" />
+                <h3 className="text-xl font-black uppercase mb-2">System Offline</h3>
+                <p className="text-sm opacity-80">Click "Live Mode" to activate real-time flood monitoring</p>
+              </div>
+            </div>
+          )}
+          <div className="absolute top-6 left-6 z-[1000] glass-card px-4 py-2 rounded-xl text-[10px] font-black text-white/80 uppercase border border-white/10 flex items-center gap-2">
+             MUMBAI WARD MAP — {simulationMode === 'DEMO' ? 'DEMO MODE ACTIVE' : 'SYSTEM OFFLINE'}
+          </div>
           
            <div className="absolute bottom-6 left-6 z-[1000] flex items-center gap-3 glass-card px-4 py-3 rounded-full border border-white/10">
              <LegendItem color="bg-red-600" label="Critical (0%)" />
@@ -63,18 +87,48 @@ export function CommandDashboard() {
         </div>
 
         {/* Status Ward Panel (Bottom Left) */}
-        <TacticalCard 
-          title={`Status - Ward ${selectedZone || 'H-East'} Active Event`}
-          icon={<Maximize2 size={16} className="text-gray-400" />}
-          className="p-0"
-        >
-           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-              <TacticalMetric label="Tide height" value="4.6m" sub="Outfall: 4.2m · LOCKED" color="text-red-600" />
-              <TacticalMetric label="Rainfall" value="87mm/hr" sub="IMD extreme threshold: 65" color="text-red-600" />
-              <TacticalMetric label="Drain capacity" value="0%" sub="Tidal lock active" color="text-red-600" />
-              <TacticalMetric label="Tide direction" value="Rising" sub="Peak in ~4 hrs" color="text-orange-500" icon={<ChevronUp size={28} className="text-orange-500" />} />
-           </div>
-        </TacticalCard>
+        <div className="glass-card p-8 rounded-[3rem] border border-white/40 shadow-xl space-y-6">
+           <header className="flex justify-between items-center text-[11px] font-black text-gray-400 uppercase tracking-widest">
+              <span>Status — Ward {selectedZone || 'H-East (Dharavi)'} {simulationMode === 'DEMO' ? 'Demo Active' : 'System Offline'}</span>
+              <Maximize2 size={14} className="opacity-40" />
+           </header>
+           
+           {simulationMode === 'DEMO' ? (
+             <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+                <TacticalMetric 
+                  label="Tide height" 
+                  value={`${environmentalData?.tide_height_m || 0}m`} 
+                  sub={`Outfall: ${environmentalData?.outfall_elevation_m || 4.2}m · ${environmentalData?.drain_capacity_pct === 0 ? 'LOCKED' : 'ACTIVE'}`} 
+                  color="text-red-500"
+                />
+                <TacticalMetric 
+                  label="Rainfall" 
+                  value={`${environmentalData?.rainfall_mm_hr || 0}mm/hr`} 
+                  sub={`IMD extreme threshold: ${environmentalData?.imd_threshold_mm_hr || 65}`} 
+                  color={(environmentalData?.rainfall_mm_hr || 0) > (environmentalData?.imd_threshold_mm_hr || 65) ? "text-red-500" : "text-orange-500"}
+                />
+                <TacticalMetric 
+                  label="Drain capacity" 
+                  value={`${environmentalData?.drain_capacity_pct || 0}%`} 
+                  sub={environmentalData?.drain_capacity_pct === 0 ? "Tidal lock active" : "Drain operational"} 
+                  color={environmentalData?.drain_capacity_pct === 0 ? "text-red-500" : "text-green-500"}
+                />
+                <TacticalMetric 
+                  label="Tide direction" 
+                  value={environmentalData?.tide_direction || "Unknown"} 
+                  sub={`Peak in ~${environmentalData?.peak_tide_hours || 4} hrs`} 
+                  icon={<ChevronUp size={28} className="text-orange-500" />}
+                  color="text-orange-500"
+                />
+             </div>
+           ) : (
+             <div className="text-center py-8">
+               <AlertTriangle size={48} className="mx-auto mb-4 text-gray-400" />
+               <h3 className="text-lg font-black text-gray-400 uppercase mb-2">Real-time Data Unavailable</h3>
+               <p className="text-sm text-gray-500">Activate Live Mode to view current flood status and sensor readings</p>
+             </div>
+           )}
+        </div>
 
         {/* Deadline Footer (Footer Left) */}
           <div className="glass-card p-6 rounded-full border border-red-200/50 bg-red-50/10 flex items-center justify-between px-10 shadow-xl overflow-visible">

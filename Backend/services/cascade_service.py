@@ -6,7 +6,7 @@ from pathlib import Path
 
 import networkx as nx
 
-from models.cascade import CascadeStep, VulnerabilityNode, VulnerabilityReport
+from ..models.cascade import CascadeStep, VulnerabilityNode, VulnerabilityReport
 
 
 class CascadeService:

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from services.runtime import agent_service, log_service, ws_manager
+from .runtime import agent_service, log_service, ws_manager
 
 
 async def dispatch_from_ward_status(ward_status, context: dict | None = None, dispatched_at: str | None = None):

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 
-from services.runtime import ws_manager
+from ..services.runtime import ws_manager
 
 router = APIRouter(tags=["websocket"])
 

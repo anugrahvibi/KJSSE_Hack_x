@@ -49,16 +49,19 @@ function Navigation() {
   const navigate = useNavigate();
   const { role, logout, simulationMode, toggleSimulation, setRoleDirectly } = useAuth();
   const [notifications, setNotifications] = useState<StakeholderAction[]>([]);
-  const navRef = useRef<HTMLElement>(null);
+  const navRef = useRef<HTMLDivElement>(null);
 
-  useGsapAnimations(navRef as any);
+  useGsapAnimations(navRef);
 
   const isAuthPage = location.pathname === '/login' || location.pathname === '/signup';
   const isAgencyPortal = location.pathname === '/agency';
   const departmentKey = role ? roleToAlertDepartment[role] : null;
 
   useEffect(() => {
-    if (!departmentKey || isAuthPage) return;
+    if (!departmentKey || isAuthPage || simulationMode !== 'DEMO') {
+      setNotifications([]);
+      return;
+    }
     const syncNotifications = async () => {
       const items = await fetchActiveAlerts(departmentKey);
       setNotifications(items);
@@ -66,7 +69,7 @@ function Navigation() {
     syncNotifications();
     const interval = setInterval(syncNotifications, 5000);
     return () => clearInterval(interval);
-  }, [departmentKey, isAuthPage]);
+  }, [departmentKey, isAuthPage, simulationMode]);
 
   if (isAuthPage) return null;
 
@@ -122,11 +125,11 @@ function Navigation() {
           <button
             onClick={toggleSimulation}
             className={`px-5 py-2 rounded-xl text-[10px] font-black uppercase flex items-center gap-2 transition-all ${
-              simulationMode === 'FLOOD' ? 'bg-red-600 text-white shadow-xl' : 'bg-emerald-600 text-white shadow-xl'
+              simulationMode === 'DEMO' ? 'bg-emerald-600 text-white shadow-xl' : 'bg-gray-600 text-white shadow-xl'
             }`}
           >
-            {simulationMode === 'FLOOD' ? <AlertTriangle size={14} /> : <Activity size={14} />}
-            {simulationMode === 'FLOOD' ? 'Sim Mode' : 'Live Mode'}
+            {simulationMode === 'DEMO' ? <Activity size={14} /> : <AlertTriangle size={14} />}
+            {simulationMode === 'DEMO' ? 'Live Mode' : 'Offline Mode'}
           </button>
           
           <button onClick={logout} className="p-3 bg-white rounded-xl border border-black/5 text-gray-900 hover:bg-slate-50 transition-all ml-2">
@@ -134,7 +137,6 @@ function Navigation() {
           </button>
         </div>
       </nav>
-
       {/* TACTICAL SUB-BAR (Only for Agency Portal) */}
       {isAgencyPortal && (
         <div className="flex items-center justify-center gap-2 glass-card rounded-2xl border border-white/40 p-1.5 shadow-xl animate-in fade-in slide-in-from-top-2 duration-300">

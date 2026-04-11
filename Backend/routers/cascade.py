@@ -10,8 +10,8 @@ router = APIRouter(tags=["cascade"])
 
 @router.get("/api/cascade/event/{ward_id}")
 async def cascade_event(ward_id: str):
-    # Map ward_id to graph trigger node (H-East -> WARD_H_EAST)
-    trigger_node = f"WARD_{ward_id.replace('-', '_').upper()}"
+    # Map ward_id to graph trigger node (H-East -> ward_h_east)
+    trigger_node = f"ward_{ward_id.lower().replace('-', '_')}"
     if trigger_node not in G.nodes:
         trigger_node = ward_id
 

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -51,6 +51,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [simulationMode, setSimulationMode] = useState<'NORMAL' | 'FLOOD' | 'DEMO'>('NORMAL');
   const [affectedZone, setAffectedZone] = useState<string>('H-East');
 
+  // Handle demo mode activation/deactivation
+  useEffect(() => {
+    const updateDemoMode = async () => {
+      try {
+        if (simulationMode === 'DEMO') {
+          await fetch('/api/detection/demo/start', { method: 'POST' });
+        } else {
+          await fetch('/api/detection/demo/stop', { method: 'POST' });
+        }
+      } catch (error) {
+        console.error('Failed to update demo mode:', error);
+      }
+    };
+    updateDemoMode();
+  }, [simulationMode]);
+
   const setRoleDirectly = (r: Role) => {
     setRole(r);
     if (r) localStorage.setItem('cascade_role', r);
@@ -58,11 +74,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const toggleSimulation = () => {
-    setSimulationMode(prev => {
-      if (prev === 'NORMAL') return 'FLOOD';
-      if (prev === 'FLOOD') return 'DEMO';
-      return 'NORMAL';
-    });
+    setSimulationMode(prev => prev === 'DEMO' ? 'NORMAL' : 'DEMO');
   };
 
   const logout = () => {

@@ -3,3 +3,4 @@ uvicorn[standard]==0.44.0
 pydantic==2.12.5
 networkx==3.6.1
 anthropic==0.94.0
+groq==0.18.0
