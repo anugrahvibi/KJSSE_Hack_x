@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+﻿import React, { useEffect, useState, useRef } from 'react';
 import { MapView } from '../components/MapView';
 import { fetchInfrastructure, fetchPredictions, fetchActiveAlerts } from '../utils/dataFetcher';
 import type { StakeholderAction, InfrastructureNode, ZonePrediction } from '@schema';
@@ -41,7 +41,7 @@ export function NdrfDashboard() {
                <AlertTriangle size={16} /> Alert Dispatched 09:07
             </p>
             <p className="text-[15px] font-bold text-gray-900 leading-tight">
-               Deploy Battalion 4 to Dharavi Sector B via 60 Feet Road · Deadline: 09:37 · Response logged — action required now
+               Deploy Battalion 4 to Dharavi Sector B via 60 Feet Road Â· Deadline: 09:37 Â· Response logged  -  action required now
             </p>
          </div>
          <div className="flex gap-4">
@@ -63,26 +63,26 @@ export function NdrfDashboard() {
             >
                <div className="space-y-4">
                   <p className="text-[18px] font-black text-emerald-700 leading-snug">Deploy Battalion 4 immediately to Dharavi Sector B.</p>
-                  <p className="text-[15px] font-bold text-orange-600 uppercase">Avoid Sion underpass — BMC closing it now.</p>
+                  <p className="text-[15px] font-bold text-orange-600 uppercase">Avoid Sion underpass  -  BMC closing it now.</p>
                   <p className="text-[15px] font-bold text-emerald-800">Use 60 Feet Road northbound approach only.</p>
                   <p className="text-[15px] font-bold text-gray-700">Estimated travel: <span className="font-black">18 min</span>.</p>
-                  <p className="text-[15px] font-black text-emerald-600">Flood peak T+90 min — you have time.</p>
+                  <p className="text-[15px] font-black text-emerald-600">Flood peak T+90 min  -  you have time.</p>
                </div>
             </TacticalCard>
 
-            <TacticalCard title="Sector Assessment — H-East" icon={<ShieldAlert size={18} className="text-blue-600" />}>
+            <TacticalCard title="Sector Assessment  -  H-East" icon={<ShieldAlert size={18} className="text-blue-600" />}>
                <div className="grid grid-cols-2 gap-4">
-                  <SectorBlock label="Sector B — RED" desc="Dharavi near 90 Feet Rd · Water rising · 1,200 at risk · Evacuate priority" color="red" />
-                  <SectorBlock label="Sector A — AMBER" desc="Dharavi north · Monitor only · 340 residents" color="orange" />
-                  <SectorBlock label="Sector C — CLEAR" desc="Mahim side · No action needed" color="emerald" />
-                  <SectorBlock label="Sector D — WATCH" desc="Near Sion border · Monitor if rain persists" color="blue" />
+                  <SectorBlock label="Sector B  -  RED" desc="Dharavi near 90 Feet Rd Â· Water rising Â· 1,200 at risk Â· Evacuate priority" color="red" />
+                  <SectorBlock label="Sector A  -  AMBER" desc="Dharavi north Â· Monitor only Â· 340 residents" color="orange" />
+                  <SectorBlock label="Sector C  -  CLEAR" desc="Mahim side Â· No action needed" color="emerald" />
+                  <SectorBlock label="Sector D  -  WATCH" desc="Near Sion border Â· Monitor if rain persists" color="blue" />
                </div>
             </TacticalCard>
           </div>
 
           {/* Route Map (LIVE MapView) */}
           <div className="flex-1 min-h-[450px] glass-card rounded-[2.5rem] border border-white/40 shadow-xl relative overflow-hidden bg-slate-50/50">
-             <div className="absolute top-6 left-6 z-[1000] glass-card px-4 py-2 rounded-xl text-[10px] font-black text-gray-400 uppercase">ROUTE MAP — LIVE AVOIDANCES</div>
+             <div className="absolute top-6 left-6 z-[1000] glass-card px-4 py-2 rounded-xl text-[10px] font-black text-gray-400 uppercase">ROUTE MAP  -  LIVE AVOIDANCES</div>
              <MapView
                infrastructureNodes={infra}
                predictions={predictions}
@@ -91,7 +91,7 @@ export function NdrfDashboard() {
                variant="emergency"
              />
              <div className="absolute bottom-6 left-6 z-[1000] text-[10px] font-bold text-red-600 uppercase italic">
-                18 min ETA — avoid Sion underpass (closed)
+                18 min ETA  -  avoid Sion underpass (closed)
              </div>
           </div>
         </div>
@@ -101,9 +101,9 @@ export function NdrfDashboard() {
           
           <TacticalCard title="Casualty Estimate IF Delayed" icon={<Clock size={16} className="text-gray-400" />}>
              <div className="space-y-6">
-                <EstimateRow time="T+0" label="Deploy now — 340 people evacuated safely" badge="TARGET" badgeColor="emerald" />
-                <EstimateRow time="T+30" label="60 Feet Rd starts flooding — route compromised" badge="RISK" badgeColor="orange" />
-                <EstimateRow time="T+90" label="Sector B fully submerged — rescue only, no evac" badge="CRITICAL" badgeColor="red" />
+                <EstimateRow time="T+0" label="Deploy now  -  340 people evacuated safely" badge="TARGET" badgeColor="emerald" />
+                <EstimateRow time="T+30" label="60 Feet Rd starts flooding  -  route compromised" badge="RISK" badgeColor="orange" />
+                <EstimateRow time="T+90" label="Sector B fully submerged  -  rescue only, no evac" badge="CRITICAL" badgeColor="red" />
              </div>
           </TacticalCard>
 
@@ -146,3 +146,4 @@ function EstimateRow({ time, label, badge, badgeColor }: { time: string; label: 
     </div>
   );
 }
+

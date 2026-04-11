@@ -94,17 +94,17 @@ function Navigation() {
         <div className="flex items-center gap-8">
           <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate('/')}>
              <img src="/logo.svg" alt="Riva logo" className="w-8 h-8" />
-             <h1 className="text-xl font-black text-gray-950 brand-font uppercase tracking-tighter">Riva</h1>
+             <h1 className="text-xl font-black brand-font uppercase tracking-tighter text-gradient-primary">Riva</h1>
           </div>
 
           <div className="hidden lg:flex items-center gap-6 border-l border-black/5 pl-8">
              <div className="flex flex-col items-center">
-                <span className="text-[9px] font-black text-gray-400 uppercase">Rainfall</span>
-                <span className="text-[14px] font-black text-gray-900">87mm/h</span>
+                <span className="text-[9px] font-semibold text-gray-400 uppercase">Rainfall</span>
+                <span className="text-[14px] font-bold text-gray-900">87mm/h</span>
              </div>
              <div className="flex flex-col items-center">
-                <span className="text-[9px] font-black text-gray-400 uppercase">Tide</span>
-                <span className="text-[14px] font-black text-blue-600">4.6m HIGH</span>
+                <span className="text-[9px] font-semibold text-gray-400 uppercase">Tide</span>
+                <span className="text-[14px] font-bold text-blue-600">4.6m HIGH</span>
              </div>
           </div>
         </div>
@@ -119,7 +119,7 @@ function Navigation() {
               <button
                 key={nav.path}
                 onClick={() => navigate(nav.path)}
-                className={`px-6 py-2 rounded-full text-[11px] font-black uppercase transition-all whitespace-nowrap ${
+                className={`px-6 py-2 rounded-full text-[11px] font-semibold uppercase transition-all whitespace-nowrap ${
                   location.pathname === nav.path ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20' : 'text-gray-600 hover:bg-white/60'
                 }`}
               >
@@ -131,7 +131,7 @@ function Navigation() {
         <div className="flex items-center gap-4">
           <button
             onClick={toggleSimulation}
-            className={`px-5 py-2 rounded-xl text-[10px] font-black uppercase flex items-center gap-2 transition-all ${
+            className={`px-5 py-2 rounded-xl text-[10px] font-semibold uppercase flex items-center gap-2 transition-all ${
               simulationMode === 'DEMO' ? 'bg-emerald-600 text-white shadow-xl' : 'bg-gray-600 text-white shadow-xl'
             }`}
           >
@@ -159,7 +159,7 @@ function Navigation() {
               <button
                 key={agency.id}
                 onClick={() => setRoleDirectly(agency.id)}
-                className={`px-6 py-2 rounded-full text-[11px] font-black uppercase transition-all whitespace-nowrap ${
+                className={`px-6 py-2 rounded-full text-[11px] font-semibold uppercase transition-all whitespace-nowrap ${
                   (role || 'BMC Ward Officer') === agency.id 
                   ? 'bg-gray-950 text-white shadow-lg' 
                   : 'text-gray-500 hover:bg-white/60'

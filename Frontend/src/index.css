@@ -68,10 +68,11 @@
     font-family: var(--font-sans);
     font-weight: 400;
     line-height: 1.6;
-    letter-spacing: 0.005em;
+    letter-spacing: -0.01em;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    font-feature-settings: 'kern' 1, 'liga' 1, 'calt' 1;
+    text-shadow: 0 0 1px rgba(0,0,0,0.01); /* Softening edges */
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'ss01';
     overflow-x: hidden;
     min-height: 100dvh;
   }
@@ -104,43 +105,66 @@
 
   .type-priority-1 {
     font-family: var(--font-heading);
+    background: linear-gradient(135deg, #0f172a 0%, #334155 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
     font-size: clamp(2.125rem, 4.5vw, 3.5rem);
-    line-height: 1.02;
+    line-height: 1.05;
     font-weight: 800;
-    letter-spacing: -0.04em;
+    letter-spacing: -0.06em; /* Even tighter for architectural beauty */
+  }
+
+  .text-gradient-primary {
+    background: linear-gradient(135deg, #0f172a 0%, #334155 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .text-glass-light {
+    text-shadow: 0 1px 2px rgba(255, 255, 255, 0.4), 0 0 20px rgba(255, 255, 255, 0.1);
+  }
+
+  .text-glass-dark {
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
   }
 
   .type-priority-2 {
     font-family: var(--font-heading);
     font-size: clamp(1.5rem, 2.6vw, 2.25rem);
-    line-height: 1.1;
-    font-weight: 800;
+    line-height: 1.15;
+    font-weight: 700;
     letter-spacing: -0.03em;
   }
 
   .type-priority-3 {
     font-family: var(--font-sans);
     font-size: 1rem;
-    line-height: 1.65;
-    font-weight: 500;
-    letter-spacing: 0;
+    line-height: 1.7; /* Increased for better readability */
+    font-weight: 400;
+    letter-spacing: -0.01em; /* Subtly tighter for Inter */
   }
 
   .type-priority-4 {
     font-family: var(--font-sans);
     font-size: 0.875rem;
-    line-height: 1.5;
-    font-weight: 600;
-    letter-spacing: 0.01em;
+    line-height: 1.6;
+    font-weight: 500;
+    letter-spacing: -0.015em;
   }
 
   .type-priority-5 {
     font-family: var(--font-sans);
-    font-size: 0.75rem;
-    line-height: 1.35;
-    font-weight: 800;
-    letter-spacing: 0.12em;
+    font-size: 0.7rem;
+    line-height: 1.4;
+    font-weight: 600;
+    letter-spacing: 0.12em; /* Wider tracking for technical labels */
     text-transform: uppercase;
+  }
+
+  .metadata-label {
+    @apply text-[10px] font-semibold text-gray-400 italic uppercase tracking-wider uppercase;
   }
 
   .pill-badge {
@@ -336,7 +360,7 @@
     backdrop-filter: blur(var(--glass-blur)) saturate(210%);
     border: 1px solid var(--glass-border);
     box-shadow: var(--glass-shadow);
-    @apply w-full rounded-2xl px-6 py-4 text-[15px] font-bold text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-blue-500/30 focus:ring-4 focus:ring-blue-500/5 transition-all;
+    @apply w-full rounded-2xl px-6 py-4 text-[15px] font-medium text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-blue-500/30 focus:ring-4 focus:ring-blue-500/5 transition-all;
   }
 
   .glass-select {
@@ -344,14 +368,14 @@
     backdrop-filter: blur(var(--glass-blur)) saturate(210%);
     border: 1px solid var(--glass-border);
     box-shadow: var(--glass-shadow);
-    @apply w-full rounded-2xl px-6 py-4 text-[15px] font-bold text-gray-900 focus:outline-none focus:border-blue-500/30 focus:ring-4 focus:ring-blue-500/5 transition-all appearance-none cursor-pointer;
+    @apply w-full rounded-2xl px-6 py-4 text-[15px] font-medium text-gray-900 focus:outline-none focus:border-blue-500/30 focus:ring-4 focus:ring-blue-500/5 transition-all appearance-none cursor-pointer;
   }
 
   .glass-select-compact {
     background: rgba(37, 99, 235, 0.05);
     backdrop-filter: blur(var(--glass-blur)) saturate(210%);
     border: 1px solid rgba(37, 99, 235, 0.1);
-    @apply rounded-xl px-4 py-2 text-[15px] font-black text-blue-700 focus:outline-none focus:border-blue-500/30 focus:ring-4 focus:ring-blue-500/5 transition-all appearance-none cursor-pointer;
+    @apply rounded-xl px-4 py-2 text-[15px] font-bold text-blue-700 focus:outline-none focus:border-blue-500/30 focus:ring-4 focus:ring-blue-500/5 transition-all appearance-none cursor-pointer;
   }
 }
 

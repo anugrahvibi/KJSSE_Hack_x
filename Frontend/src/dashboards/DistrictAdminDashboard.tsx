@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+﻿import React, { useEffect, useState, useRef } from 'react';
 import { fetchPredictions, fetchActiveAlerts } from '../utils/dataFetcher';
 import type { ZonePrediction, StakeholderAction } from '@schema';
 import { PlusCircle, Bed, Ambulance, AlertTriangle, Activity, Navigation, Clock } from 'lucide-react';
@@ -32,7 +32,7 @@ export function DistrictAdminDashboard() {
                   Alert Dispatched 09:07
                </p>
                <p className="text-[16px] font-bold text-gray-900 leading-tight uppercase">
-                  Activate surge protocol · Pre-position 4 ambulances at 90 Feet Rd · Deadline: 09:32
+                  Activate surge protocol Â· Pre-position 4 ambulances at 90 Feet Rd Â· Deadline: 09:32
                </p>
             </div>
             <div className="flex gap-4">
@@ -58,7 +58,7 @@ export function DistrictAdminDashboard() {
               <TacticalCard title="CASCADE RISK TO KEM" icon={<AlertTriangle size={18} className="text-red-600" />}>
                  <div className="space-y-6">
                     <p className="text-[16px] font-bold text-gray-700 leading-snug uppercase">
-                       If WR fails at T+60 → roads choke at T+90 → <span className="text-red-600 font-black">KEM unreachable by T+135</span>
+                       If WR fails at T+60 â†’ roads choke at T+90 â†’ <span className="text-red-600 font-black">KEM unreachable by T+135</span>
                     </p>
                     <div className="space-y-2">
                        <StatusMetric label="Current window" value="125 min remaining" color="text-emerald-600" />
@@ -77,8 +77,8 @@ export function DistrictAdminDashboard() {
                  <div className="space-y-2">
                     <HospChecklistRow time="09:07" label="Surge protocol alert received" status="ACK" color="emerald" />
                     <HospChecklistRow time="09:12" label="4 ambulances pre-positioned at 90 Feet Rd" status="DONE" color="emerald" />
-                    <HospChecklistRow time="09:20" label="Generator fuel check — 72hr reserve confirmed" status="DONE" color="emerald" />
-                    <HospChecklistRow time="09:32" label="Ground floor patient shift — flood prep" status="IN PROG" color="orange" />
+                    <HospChecklistRow time="09:20" label="Generator fuel check  -  72hr reserve confirmed" status="DONE" color="emerald" />
+                    <HospChecklistRow time="09:32" label="Ground floor patient shift  -  flood prep" status="IN PROG" color="orange" />
                     <HospChecklistRow time="09:45" label="Staff surge team on standby" status="PENDING" color="orange" variant="outline" />
                  </div>
               </TacticalCard>
@@ -100,7 +100,7 @@ export function DistrictAdminDashboard() {
                     <div className="p-6 bg-red-100 rounded-[2rem] border border-red-200">
                        <span className="text-[14px] font-black text-red-600 uppercase">Sector B staging</span>
                     </div>
-                    <span className="text-[11px] font-black text-gray-400 uppercase italic">avoid Sion underpass — closed by BMC</span>
+                    <span className="text-[11px] font-black text-gray-400 uppercase italic">avoid Sion underpass  -  closed by BMC</span>
                  </div>
               </div>
            </div>
@@ -151,3 +151,4 @@ function ArrowIcon() {
      </div>
   );
 }
+

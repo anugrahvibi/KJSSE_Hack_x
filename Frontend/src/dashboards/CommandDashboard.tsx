@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+﻿import React, { useEffect, useState, useRef } from 'react';
 import { fetchZones, fetchPredictions, fetchActiveAlerts, fetchInfrastructure, fetchEnvironmentalData } from '../utils/dataFetcher';
 import type { ZonePrediction, StakeholderAction, InfrastructureNode } from '@schema';
 import { MapView } from '../components/MapView';
@@ -76,7 +76,7 @@ export function CommandDashboard() {
             </div>
           )}
           <div className="absolute top-6 left-6 z-[1000] glass-card px-4 py-2 rounded-xl text-[10px] font-black text-white/80 uppercase border border-white/10 flex items-center gap-2">
-             MUMBAI WARD MAP — {simulationMode === 'DEMO' ? 'DEMO MODE ACTIVE' : 'SYSTEM OFFLINE'}
+             MUMBAI WARD MAP  -  {simulationMode === 'DEMO' ? 'DEMO MODE ACTIVE' : 'SYSTEM OFFLINE'}
           </div>
           
            <div className="absolute bottom-6 left-6 z-[1000] flex items-center gap-3 glass-card px-4 py-3 rounded-full border border-white/10">
@@ -88,8 +88,8 @@ export function CommandDashboard() {
 
         {/* Status Ward Panel (Bottom Left) */}
         <div className="glass-card p-8 rounded-[3rem] border border-white/40 shadow-xl space-y-6">
-           <header className="flex justify-between items-center text-[11px] font-black text-gray-400 uppercase tracking-widest">
-              <span>Status — Ward {selectedZone || 'H-East (Dharavi)'} {simulationMode === 'DEMO' ? 'Demo Active' : 'System Offline'}</span>
+           <header className="flex justify-between items-center text-[11px] font-bold text-gray-400 uppercase tracking-widest">
+              <span>Status  -  Ward {selectedZone || 'H-East (Dharavi)'} {simulationMode === 'DEMO' ? 'Demo Active' : 'System Offline'}</span>
               <Maximize2 size={14} className="opacity-40" />
            </header>
            
@@ -98,7 +98,7 @@ export function CommandDashboard() {
                 <TacticalMetric 
                   label="Tide height" 
                   value={`${environmentalData?.tide_height_m || 0}m`} 
-                  sub={`Outfall: ${environmentalData?.outfall_elevation_m || 4.2}m · ${environmentalData?.drain_capacity_pct === 0 ? 'LOCKED' : 'ACTIVE'}`} 
+                  sub={`Outfall: ${environmentalData?.outfall_elevation_m || 4.2}m Â· ${environmentalData?.drain_capacity_pct === 0 ? 'LOCKED' : 'ACTIVE'}`} 
                   color="text-red-500"
                 />
                 <TacticalMetric 
@@ -124,7 +124,7 @@ export function CommandDashboard() {
            ) : (
              <div className="text-center py-8">
                <AlertTriangle size={48} className="mx-auto mb-4 text-gray-400" />
-               <h3 className="text-lg font-black text-gray-400 uppercase mb-2">Real-time Data Unavailable</h3>
+               <h3 className="text-lg font-bold text-gray-400 uppercase mb-2">Real-time Data Unavailable</h3>
                <p className="text-sm text-gray-500">Activate Live Mode to view current flood status and sensor readings</p>
              </div>
            )}
@@ -141,7 +141,7 @@ export function CommandDashboard() {
                   fillClassName="bg-red-600"
                   animated
                 />
-              <span className="text-[12px] font-black text-gray-900 brand-font">06:12 REMAINING</span>
+              <span className="text-[12px] font-bold text-gray-900 brand-font">06:12 REMAINING</span>
            </div>
             <Label label="Dispatched" as="div" className="bg-red-600 text-[10px] text-white ml-10 shadow-lg shadow-red-500/20" />
         </div>
@@ -162,8 +162,8 @@ export function CommandDashboard() {
            
            <div className="flex flex-wrap gap-2 mb-8 relative z-10">
               <TacticalBadge label="Critical" color="red" variant="filled" />
-              <TacticalBadge label="Tide ↑ Rising" color="orange" variant="outline" />
-              <TacticalBadge label="09:07 · Peak Hour" color="gray" variant="outline" />
+              <TacticalBadge label="Tide â†‘ Rising" color="orange" variant="outline" />
+              <TacticalBadge label="09:07 Â· Peak Hour" color="gray" variant="outline" />
            </div>
 
            <div className="flex-1 space-y-4 overflow-y-auto custom-scrollbar-dark mb-8 relative z-10 max-h-[200px]">
@@ -183,7 +183,7 @@ export function CommandDashboard() {
 
            <div className="pt-6 border-t border-black/5 flex flex-col gap-5 relative z-10">
               <div className="flex justify-between items-center text-[10px] font-black text-gray-400 uppercase">
-                 <span>5 DISPATCHED · 1.8S · LLAMA-3.3-70B</span>
+                 <span>5 DISPATCHED Â· 1.8S Â· LLAMA-3.3-70B</span>
                  <span className="text-blue-600">DISPATCHED</span>
               </div>
               <div className="grid grid-cols-2 gap-4">
@@ -224,4 +224,5 @@ function LegendItem({ color, label }: { color: string; label: string }) {
     </div>
   );
 }
+
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+﻿import React, { useState, useEffect, useRef } from 'react';
 import { MapView } from '../components/MapView';
 import { fetchActiveAlerts, fetchSensorReadings, fetchInfrastructure, fetchPredictions } from '../utils/dataFetcher';
 import type { StakeholderAction, SensorReading, InfrastructureNode, ZonePrediction } from '@schema';
@@ -46,7 +46,7 @@ export function DamOperatorDashboard() {
                  <AlertCircle size={16} /> Alert Dispatched 09:07
               </p>
               <p className="text-[15px] font-bold text-gray-900 leading-tight uppercase">
-                 Close Sion underpass + activate pump stations 3 and 7 · Deadline: 09:22 · Response logged — action required now
+                 Close Sion underpass + activate pump stations 3 and 7 Â· Deadline: 09:22 Â· Response logged  -  action required now
               </p>
            </div>
            <div className="flex gap-4">
@@ -59,7 +59,7 @@ export function DamOperatorDashboard() {
           
           <div className="space-y-8 flex flex-col">
             <TacticalCard 
-               title="Ward Alert — H-East Dharavi" 
+               title="Ward Alert  -  H-East Dharavi" 
                icon={<AlertCircle size={18} className="text-red-600" />}
                className="bg-red-50/10 border-red-200"
             >
@@ -68,18 +68,18 @@ export function DamOperatorDashboard() {
                      <span className="text-red-600">Tidal lock confirmed.</span> Drainage capacity 0%. Rainfall <span className="text-red-600">87mm/hr</span>.
                   </p>
                   <p className="text-[16px] font-bold text-gray-700 leading-relaxed uppercase">
-                     Close Sion underpass immediately — NDRF vehicle route depends on this. Pumps 3 and 7 at 90 Feet Rd must activate within 15 min window.
+                     Close Sion underpass immediately  -  NDRF vehicle route depends on this. Pumps 3 and 7 at 90 Feet Rd must activate within 15 min window.
                   </p>
                   <div className="p-4 bg-red-600 text-white rounded-2xl">
-                     <p className="text-[16px] font-black uppercase">Evacuation notice for Sector B — 1,200 at risk near 90 Feet Rd.</p>
+                     <p className="text-[16px] font-black uppercase">Evacuation notice for Sector B  -  1,200 at risk near 90 Feet Rd.</p>
                   </div>
                </div>
             </TacticalCard>
 
             <TacticalCard title="Road Closure Status" icon={<Navigation size={18} className="text-blue-600" />}>
                <div className="space-y-2">
-                  <StatusRow time="09:09" label="Sion underpass closed — barriers deployed" status="DONE" color="emerald" />
-                  <StatusRow time="09:11" label="Pumps 3+7 activated — 87% capacity" status="DONE" color="emerald" />
+                  <StatusRow time="09:09" label="Sion underpass closed  -  barriers deployed" status="DONE" color="emerald" />
+                  <StatusRow time="09:11" label="Pumps 3+7 activated  -  87% capacity" status="DONE" color="emerald" />
                   <StatusRow time="09:22" label="Dharavi Sector B evacuation notice" status="PENDING" color="orange" />
                </div>
             </TacticalCard>
@@ -100,7 +100,7 @@ export function DamOperatorDashboard() {
 
           <div className="space-y-8 flex flex-col">
             <div className="flex-1 min-h-[450px] overflow-hidden glass-card rounded-[2.5rem] border border-white/40 shadow-xl bg-slate-900/5 relative">
-               <div className="absolute top-6 left-6 z-[1000] text-[10px] font-black text-gray-400 uppercase">MAP PINS — HYDROMETRIC OVERLAY</div>
+               <div className="absolute top-6 left-6 z-[1000] text-[10px] font-black text-gray-400 uppercase">MAP PINS  -  HYDROMETRIC OVERLAY</div>
                <MapView
                  infrastructureNodes={infra}
                  predictions={predictions}
@@ -109,23 +109,23 @@ export function DamOperatorDashboard() {
                  variant="hydro"
                />
                <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-[1000] text-[10px] font-black text-emerald-600 uppercase italic">
-                  Ward H-East · focus on pump station metrics
+                  Ward H-East Â· focus on pump station metrics
                </div>
             </div>
 
             <TacticalCard title="Pump Station Status" icon={<Droplets size={18} className="text-blue-600" />}>
                <div className="grid grid-cols-2 gap-4">
-                  <PumpBlock name="Pump 3 — 90 Feet Rd" status="ON" color="emerald" />
-                  <PumpBlock name="Pump 7 — 90 Feet Rd" status="ON" color="emerald" />
-                  <PumpBlock name="Pump 1 — Mahim" status="STANDBY" color="orange" />
-                  <PumpBlock name="Pump 5 — Sion" status="OFFLINE" color="red" />
+                  <PumpBlock name="Pump 3  -  90 Feet Rd" status="ON" color="emerald" />
+                  <PumpBlock name="Pump 7  -  90 Feet Rd" status="ON" color="emerald" />
+                  <PumpBlock name="Pump 1  -  Mahim" status="STANDBY" color="orange" />
+                  <PumpBlock name="Pump 5  -  Sion" status="OFFLINE" color="red" />
                </div>
             </TacticalCard>
 
             <TacticalCard title="Agent Reasoning" icon={<BrainCircuit size={18} className="text-blue-600" />}>
                <div className="space-y-4">
-                  <ReasoningLine text="Sion underpass is the only NDRF route — close before Bn4 deploys" />
-                  <ReasoningLine text="Pumps 3+7 at 90 Feet Rd — highest capacity in H-East" />
+                  <ReasoningLine text="Sion underpass is the only NDRF route  -  close before Bn4 deploys" />
+                  <ReasoningLine text="Pumps 3+7 at 90 Feet Rd  -  highest capacity in H-East" />
                </div>
             </TacticalCard>
           </div>
@@ -163,3 +163,4 @@ function ReasoningLine({ text }: { text: string }) {
     </div>
   );
 }
+

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+﻿import React, { useState, useEffect, useRef } from 'react';
 import { MapView } from '../components/MapView';
 import { fetchActiveAlerts, fetchInfrastructure, fetchPredictions } from '../utils/dataFetcher';
 import type { StakeholderAction, InfrastructureNode, ZonePrediction } from '@schema';
@@ -39,10 +39,10 @@ export function HighwayDepartmentDashboard() {
         <div className="glass-card p-6 rounded-[2.25rem] border border-red-300 bg-red-600 shadow-xl overflow-visible flex flex-col md:flex-row items-center justify-between gap-6 group">
             <div className="flex-1 space-y-1">
                <p className="text-[13px] font-black text-white uppercase flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-white animate-pulse" /> OVERDUE — 09:27
+                  <span className="w-2 h-2 rounded-full bg-white animate-pulse" /> OVERDUE  -  09:27
                </p>
                <p className="text-[16px] font-bold text-white leading-tight uppercase">
-                  Station prep at Kurla + Sion not acknowledged · This silence is logged · Deadline passed
+                  Station prep at Kurla + Sion not acknowledged Â· This silence is logged Â· Deadline passed
                </p>
             </div>
             <div className="flex gap-4">
@@ -60,7 +60,7 @@ export function HighwayDepartmentDashboard() {
               <div className="flex-1 min-h-[450px] glass-card rounded-[2.5rem] border border-white/40 shadow-xl bg-slate-900/5 relative overflow-hidden flex flex-col">
                  <header className="p-8 pb-0 z-[1000] relative pointer-events-none">
                     <h3 className="text-[11px] font-black text-gray-900 uppercase tracking-widest flex items-center gap-3">
-                       <TrainFront size={16} className="text-blue-600" /> LIVE RAILWAY COMMAND — CORRIDOR OVERSIGHT
+                       <TrainFront size={16} className="text-blue-600" /> LIVE RAILWAY COMMAND  -  CORRIDOR OVERSIGHT
                     </h3>
                  </header>
                  <div className="absolute inset-0">
@@ -73,11 +73,11 @@ export function HighwayDepartmentDashboard() {
                     />
                  </div>
                  <div className="absolute bottom-6 left-8 z-[1000] text-[10px] font-bold text-gray-900 bg-white/60 px-2 py-1 rounded-lg backdrop-blur-md uppercase italic">
-                    Transit-optimized relay · focusing on track-level telemetry
+                    Transit-optimized relay Â· focusing on track-level telemetry
                  </div>
               </div>
 
-              <TacticalCard title="STATION RISK — AT-RISK STATIONS" icon={<Zap size={16} className="text-orange-600" />}>
+              <TacticalCard title="STATION RISK  -  AT-RISK STATIONS" icon={<Zap size={16} className="text-orange-600" />}>
                  <div className="space-y-4">
                     <RiskRow label="Kurla (WR Main line)" status="HIGH RISK" sub="Submerge T+60" color="red" />
                     <RiskRow label="Sion station" status="MEDIUM" sub="Watch T+90" color="orange" />
@@ -90,10 +90,10 @@ export function HighwayDepartmentDashboard() {
            {/* RIGHT COLUMN */}
            <div className="space-y-8 flex flex-col">
               
-              <TacticalCard title="Crowd Management Checklist — KURLA" className="flex-[0.6]">
+              <TacticalCard title="Crowd Management Checklist  -  KURLA" className="flex-[0.6]">
                  <div className="space-y-2">
-                    <ChecklistRow time="09:07" label="Alert received — station prep required" status="IGNORED" color="red-ghost" />
-                    <ChecklistRow time="09:22" label="Deadline passed — no response logged" status="OVERDUE" color="red-ghost" />
+                    <ChecklistRow time="09:07" label="Alert received  -  station prep required" status="IGNORED" color="red-ghost" />
+                    <ChecklistRow time="09:22" label="Deadline passed  -  no response logged" status="OVERDUE" color="red-ghost" />
                     <ChecklistRow time="09:37" label="Halt slow trains Kurla-Sion corridor" status="PENDING" color="gray-ghost" />
                     <ChecklistRow time="09:45" label="Announce alternate bus routes via PA" status="PENDING" color="gray-ghost" />
                  </div>
@@ -161,3 +161,4 @@ function TimelinePoint({ label, value, color = "text-emerald-600" }: { label: st
     </div>
   );
 }
+
