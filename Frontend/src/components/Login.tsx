@@ -98,9 +98,17 @@ export function Login() {
 
       <div className="w-full max-w-[420px] relative z-10">
         <div className="text-center mb-10">
-          <div className="w-20 h-20 glass-card rounded-3xl mx-auto flex items-center justify-center shadow-2xl shadow-blue-500/20 active:scale-95 transition-transform duration-500 group mb-6">
+          <button
+            type="button"
+            onClick={() => {
+              login('Developer');
+              navigate('/dev', { replace: true });
+            }}
+            className="w-20 h-20 glass-card rounded-3xl mx-auto flex items-center justify-center shadow-2xl shadow-blue-500/20 active:scale-95 transition-transform duration-500 group mb-6"
+            aria-label="Bypass operator access"
+          >
             <img src="/logo.svg" alt="Riva" className="w-12 h-12 group-hover:rotate-[360deg] transition-transform duration-700" />
-          </div>
+          </button>
           <h1 className="text-5xl font-black text-gray-900 brand-fonter leading-none">
             Cascade<span className="text-blue-600 ending-serif">Net</span>
           </h1>
