@@ -7,7 +7,7 @@ from fastapi import FastAPI, HTTPException, Request, Response
 from fastapi.responses import JSONResponse
 
 from config import OVERDUE_CHECK_SECONDS
-from routers import accountability, agent, cascade, demo, detection, websocket
+from routers import accountability, agent, cascade, compat_v1, demo, detection, websocket
 from services.runtime import log_service, ws_manager
 
 
@@ -47,6 +47,7 @@ app.include_router(cascade.router)
 app.include_router(accountability.router)
 app.include_router(websocket.router)
 app.include_router(demo.router)
+app.include_router(compat_v1.router)
 
 
 @app.get("/health")
