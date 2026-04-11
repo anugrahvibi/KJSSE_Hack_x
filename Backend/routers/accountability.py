@@ -10,3 +10,10 @@ router = APIRouter(prefix="/api/accountability", tags=["accountability"])
 @router.get("/log")
 def get_accountability_log():
     return log_service.list_log_entries()
+
+
+@router.get("/generate")
+def generate_accountability_report(ward_id: str = "ward_h_east"):
+    from AI.layer2_actionability.report_generator import generate_report
+
+    return generate_report(ward_id)

@@ -1,61 +1,137 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { MapView } from '../components/MapView';
-import { fetchInfrastructure, fetchPredictions, fetchActiveAlerts } from '../utils/dataFetcher';
-import type { StakeholderAction, InfrastructureNode, ZonePrediction } from '@schema';
+import { fetchZones, fetchInfrastructure, fetchPredictions, fetchActiveAlerts } from '../utils/dataFetcher';
+import type { StakeholderAction, InfrastructureNode, ZonePrediction, AlertRecord } from '@schema';
 import { Navigation, ShieldAlert, Target, Clock, AlertTriangle } from 'lucide-react';
 import { useGsapAnimations } from '../utils/useGsapAnimations';
 import { AccountabilityBanner } from '../components/AccountabilityBanner';
-import { TacticalCard, TacticalBadge } from '../components/tactical/TacticalLibrary';
+import { MapView } from '../components/MapView';
+import { TacticalCard, TacticalBadge, Label } from '../components/tactical/TacticalLibrary';
+import { useAuth } from '../AuthContext';
 
 export function NdrfDashboard() {
+  const { simulationMode } = useAuth();
   const containerRef = useRef<HTMLDivElement>(null);
-  const [alerts, setAlerts] = useState<StakeholderAction[]>([]);
-  const [infra, setInfra] = useState<InfrastructureNode[]>([]);
-  const [predictions, setPredictions] = useState<ZonePrediction[]>([]);
-  const [selectedZone, setSelectedZone] = useState<string | null>('H-East');
+   const [zones, setZones] = useState<any>(null);
+   const [infra, setInfra] = useState<InfrastructureNode[]>([]);
+   const [predictions, setPredictions] = useState<ZonePrediction[]>([]);
+  const [alerts, setAlerts] = useState<AlertRecord[]>([]);
+   const [selectedZone, setSelectedZone] = useState<string | null>('H-East');
+  const [acknowledgingAlert, setAcknowledgingAlert] = useState<string | null>(null);
+  const [alertAction, setAlertAction] = useState<'ack' | 'cannot' | null>(null);
+  const [deploymentStatus, setDeploymentStatus] = useState<'SUCCESS' | 'REJECTED' | null>(null);
 
-  useGsapAnimations(containerRef, [alerts, predictions]);
+  useGsapAnimations(containerRef, [alerts]);
 
   useEffect(() => {
     async function init() {
-      const [aData, iData, pData] = await Promise.all([
-        fetchActiveAlerts('NDRF'),
-        fetchInfrastructure(),
-        fetchPredictions(),
-      ]);
+         const [zData, iData, pData, aData] = await Promise.all([
+            fetchZones(),
+            fetchInfrastructure(),
+            fetchPredictions(),
+            fetchActiveAlerts('NDRF'),
+         ]);
+         setZones(zData);
+         setInfra((iData.nodes || []).filter((node: InfrastructureNode) => node.type === 'road' || node.type === 'comm_tower'));
+         setPredictions(pData);
       setAlerts(aData);
-      setInfra(iData.nodes);
-      setPredictions(pData);
     }
     init();
   }, []);
 
+  const handleAcknowledgeAlert = async (alertId: string, status: 'ACKNOWLEDGED' | 'OVERDUE') => {
+    setAcknowledgingAlert(alertId);
+    setAlertAction(status === 'ACKNOWLEDGED' ? 'ack' : 'cannot');
+    
+    try {
+      const response = await fetch(`/api/agent/acknowledge/${alertId}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          dept_id: 'NDRF',
+          status: status
+        }),
+      });
+      
+      if (response.ok) {
+        setDeploymentStatus(status === 'ACKNOWLEDGED' ? 'SUCCESS' : 'REJECTED');
+        // Refresh alerts
+        const aData = await fetchActiveAlerts('NDRF');
+        setAlerts(aData);
+      } else {
+        console.error('Failed to acknowledge alert');
+      }
+    } catch (error) {
+      console.error('Error acknowledging alert:', error);
+    } finally {
+      setAcknowledgingAlert(null);
+      setAlertAction(null);
+    }
+  };
+
   return (
     <div ref={containerRef} className="h-full w-full bg-transparent pt-40 sm:pt-44 lg:pt-48 flex flex-col gap-10 p-12 overflow-y-auto custom-scrollbar overflow-visible">
+      {simulationMode !== 'DEMO' && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center">
+          <div className="bg-white p-8 rounded-2xl shadow-2xl max-w-md text-center">
+            <div className="text-6xl mb-4">⚠️</div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">Offline Mode</h2>
+            <p className="text-gray-600">Switch to DEMO mode to view live data and interact with the dashboard.</p>
+          </div>
+        </div>
+      )}
       <AccountabilityBanner />
       
       {/* Top Urgent Alert Bar */}
-      <div className="glass-card p-6 rounded-[2rem] border border-red-200 bg-red-50/20 flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl overflow-visible">
-         <div className="flex-1 space-y-1">
-            <p className="text-[13px] font-black text-red-600 uppercase flex items-center gap-2">
-               <AlertTriangle size={16} /> Alert Dispatched 09:07
-            </p>
-            <p className="text-[15px] font-bold text-gray-900 leading-tight">
-               Deploy Battalion 4 to Dharavi Sector B via 60 Feet Road · Deadline: 09:37 · Response logged — action required now
-            </p>
-         </div>
-         <div className="flex gap-4">
-            <button className="px-8 py-3 bg-gray-950 text-white rounded-xl font-black text-[13px] uppercase hover:scale-95 transition-all shadow-xl shadow-black/20">ACK + deploying</button>
-            <button className="px-8 py-3 bg-white border border-red-200 text-red-600 rounded-xl font-black text-[13px] uppercase hover:scale-95 transition-all">Cannot deploy</button>
-         </div>
-      </div>
+      {deploymentStatus === null ? (
+        <div className="glass-card p-6 rounded-[2rem] border border-red-200 bg-red-50/20 flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl overflow-visible">
+           <div className="flex-1 space-y-1">
+              <p className="text-[13px] font-black text-red-600 uppercase flex items-center gap-2">
+                 <AlertTriangle size={16} /> Alert Dispatched 09:07
+              </p>
+              <p className="text-[15px] font-bold text-gray-900 leading-tight">
+                 Deploy Battalion 4 to Dharavi Sector B via 60 Feet Road · Deadline: 09:37 · Response logged — action required now
+              </p>
+           </div>
+           <div className="flex gap-4">
+              <button 
+                onClick={() => alerts.length > 0 && handleAcknowledgeAlert(alerts[0].alert_id, 'ACKNOWLEDGED')}
+                disabled={acknowledgingAlert === alerts[0]?.alert_id && alertAction === 'ack'}
+                className="px-8 py-3 bg-gray-950 text-white rounded-xl font-black text-[13px] uppercase hover:scale-95 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-xl shadow-black/20 flex items-center gap-2"
+              >
+                {acknowledgingAlert === alerts[0]?.alert_id && alertAction === 'ack' ? (
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                ) : null}
+                ACK + deploying
+              </button>
+              <button 
+                onClick={() => alerts.length > 0 && handleAcknowledgeAlert(alerts[0].alert_id, 'OVERDUE')}
+                disabled={acknowledgingAlert === alerts[0]?.alert_id && alertAction === 'cannot'}
+                className="px-8 py-3 bg-white border border-red-200 text-red-600 rounded-xl font-black text-[13px] uppercase hover:scale-95 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-2"
+              >
+                {acknowledgingAlert === alerts[0]?.alert_id && alertAction === 'cannot' ? (
+                  <div className="w-4 h-4 border-2 border-red-600 border-t-transparent rounded-full animate-spin"></div>
+                ) : null}
+                Cannot deploy
+              </button>
+           </div>
+        </div>
+      ) : (
+        <div className={`glass-card p-6 rounded-[2rem] border ${deploymentStatus === 'SUCCESS' ? 'border-emerald-200 bg-emerald-50/20' : 'border-red-200 bg-red-50/20'} flex items-center justify-center shadow-xl`}>
+           <p className={`text-xl font-black uppercase ${deploymentStatus === 'SUCCESS' ? 'text-emerald-700' : 'text-red-700'}`}>
+              {deploymentStatus === 'SUCCESS' ? 'Deployment Successful' : 'Deployment Rejected'}
+           </p>
+        </div>
+      )}
 
-      <div className="flex flex-col lg:flex-row gap-10">
+      <div className="flex flex-col lg:flex-row gap-6">
         
         {/* LEFT COLUMN: Mission Context (65%) */}
-        <div className="flex-[0.65] flex flex-col gap-10">
+        <div className="flex-[0.65] flex flex-col gap-6">
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Deployment Order (Green Card Content) */}
             <TacticalCard 
                title="Deployment Order" 
                icon={<Target size={18} className="text-emerald-600" />}
@@ -63,50 +139,60 @@ export function NdrfDashboard() {
             >
                <div className="space-y-4">
                   <p className="text-[18px] font-black text-emerald-700 leading-snug">Deploy Battalion 4 immediately to Dharavi Sector B.</p>
-                  <p className="text-[15px] font-bold text-orange-600 uppercase">Avoid Sion underpass — BMC closing it now.</p>
+                  <p className="text-[15px] font-bold text-orange-600 uppercase">Avoid Sion underpass - BMC closing it now.</p>
                   <p className="text-[15px] font-bold text-emerald-800">Use 60 Feet Road northbound approach only.</p>
                   <p className="text-[15px] font-bold text-gray-700">Estimated travel: <span className="font-black">18 min</span>.</p>
-                  <p className="text-[15px] font-black text-emerald-600">Flood peak T+90 min — you have time.</p>
+                  <p className="text-[15px] font-black text-emerald-600">Flood peak T+90 min - you have time.</p>
                </div>
             </TacticalCard>
 
-            <TacticalCard title="Sector Assessment — H-East" icon={<ShieldAlert size={18} className="text-blue-600" />}>
+            {/* Sector Assessment (Status Grid) */}
+            <TacticalCard title="Sector Assessment - H-East" icon={<ShieldAlert size={18} className="text-blue-600" />}>
                <div className="grid grid-cols-2 gap-4">
-                  <SectorBlock label="Sector B — RED" desc="Dharavi near 90 Feet Rd · Water rising · 1,200 at risk · Evacuate priority" color="red" />
-                  <SectorBlock label="Sector A — AMBER" desc="Dharavi north · Monitor only · 340 residents" color="orange" />
-                  <SectorBlock label="Sector C — CLEAR" desc="Mahim side · No action needed" color="emerald" />
-                  <SectorBlock label="Sector D — WATCH" desc="Near Sion border · Monitor if rain persists" color="blue" />
+                  <SectorBlock label="Sector B - RED" desc="Dharavi near 90 Feet Rd · Water rising · 1,200 at risk · Evacuate priority" color="red" />
+                  <SectorBlock label="Sector A - AMBER" desc="Dharavi north · Monitor only · 340 residents" color="orange" />
+                  <SectorBlock label="Sector C - CLEAR" desc="Mahim side · No action needed" color="emerald" />
+                  <SectorBlock label="Sector D - WATCH" desc="Near Sion border · Monitor if rain persists" color="blue" />
                </div>
             </TacticalCard>
           </div>
 
-          {/* Route Map (LIVE MapView) */}
-          <div className="flex-1 min-h-[450px] glass-card rounded-[2.5rem] border border-white/40 shadow-xl relative overflow-hidden bg-slate-50/50">
-             <div className="absolute top-6 left-6 z-[1000] glass-card px-4 py-2 rounded-xl text-[10px] font-black text-gray-400 uppercase">ROUTE MAP — LIVE AVOIDANCES</div>
+          {/* Route Map */}
+          <div className="flex-1 min-h-[400px] glass-card rounded-[2.5rem] border border-white/40 shadow-xl relative overflow-hidden bg-slate-50/50">
              <MapView
+               zonesGeoJson={zones}
                infrastructureNodes={infra}
                predictions={predictions}
                onZoneClick={setSelectedZone}
                selectedZoneId={selectedZone}
-               variant="emergency"
              />
-             <div className="absolute bottom-6 left-6 z-[1000] text-[10px] font-bold text-red-600 uppercase italic">
-                18 min ETA — avoid Sion underpass (closed)
-             </div>
+             <Label
+               label="Route Map - Live Avoidances"
+               as="div"
+               variant="block"
+               className="absolute top-6 left-6 z-10 glass-card text-gray-500 border border-black/5"
+             />
+             <Label
+               label="18 min ETA - avoid Sion underpass (closed)"
+               as="div"
+               className="absolute bottom-6 left-6 z-10 bg-red-100 text-red-600"
+             />
           </div>
         </div>
 
         {/* RIGHT COLUMN: Estimates & Deadlines (35%) */}
-        <div className="flex-[0.35] flex flex-col gap-10">
+        <div className="flex-[0.35] flex flex-col gap-6">
           
+          {/* Casualty Estimate */}
           <TacticalCard title="Casualty Estimate IF Delayed" icon={<Clock size={16} className="text-gray-400" />}>
              <div className="space-y-6">
-                <EstimateRow time="T+0" label="Deploy now — 340 people evacuated safely" badge="TARGET" badgeColor="emerald" />
-                <EstimateRow time="T+30" label="60 Feet Rd starts flooding — route compromised" badge="RISK" badgeColor="orange" />
-                <EstimateRow time="T+90" label="Sector B fully submerged — rescue only, no evac" badge="CRITICAL" badgeColor="red" />
+                <EstimateRow time="T+0" label="Deploy now - 340 people evacuated safely" badge="TARGET" badgeColor="emerald" />
+                <EstimateRow time="T+30" label="60 Feet Rd starts flooding - route compromised" badge="RISK" badgeColor="orange" />
+                <EstimateRow time="T+90" label="Sector B fully submerged - rescue only, no evac" badge="CRITICAL" badgeColor="red" />
              </div>
           </TacticalCard>
 
+          {/* Response Deadline */}
           <TacticalCard title="Response Deadline" className="flex-1">
              <div className="space-y-8 flex flex-col justify-between h-full">
                 <div className="space-y-2">
@@ -127,8 +213,20 @@ export function NdrfDashboard() {
 }
 
 function SectorBlock({ label, desc, color }: { label: string; desc: string; color: 'red' | 'orange' | 'emerald' | 'blue' | 'gray' }) {
-  const borderColors = { red: 'border-red-500/30 bg-red-50/50', orange: 'border-orange-500/30 bg-orange-50/50', emerald: 'border-emerald-500/30 bg-emerald-50/50', blue: 'border-blue-500/30 bg-blue-50/50', gray: 'border-gray-500/30 bg-gray-50/50' };
-  const textColors = { red: 'text-red-700', orange: 'text-orange-700', emerald: 'text-emerald-700', blue: 'text-blue-700', gray: 'text-gray-700' };
+  const borderColors = {
+    red: 'border-red-500/30 bg-red-50/50',
+    orange: 'border-orange-500/30 bg-orange-50/50',
+    emerald: 'border-emerald-500/30 bg-emerald-50/50',
+    blue: 'border-blue-500/30 bg-blue-50/50',
+    gray: 'border-gray-500/30 bg-gray-50/50'
+  };
+  const textColors = {
+    red: 'text-red-700',
+    orange: 'text-orange-700',
+    emerald: 'text-emerald-700',
+    blue: 'text-blue-700',
+    gray: 'text-gray-700'
+  };
   return (
     <div className={`p-4 rounded-2xl border ${borderColors[color]}`}>
        <p className={`text-[11px] font-black uppercase mb-1 ${textColors[color]}`}>{label}</p>

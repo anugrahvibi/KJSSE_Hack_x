@@ -7,7 +7,8 @@ import type {
   PredictionResponse,
   AlertsResponse,
   LeadTimeTicker,
-  SensorReading
+  SensorReading,
+  AlertRecord
 } from '@schema';
 
 // ─── Fetch Robustness ─────────────────────────────────────────────────────────
@@ -94,17 +95,17 @@ export async function fetchInfrastructure(): Promise<GraphResponse> {
 }
 
 
-export async function fetchActiveAlerts(role: string, scenario: string = '2024_peak'): Promise<StakeholderAction[]> {
+export async function fetchActiveAlerts(role: string, scenario: string = '2024_peak'): Promise<AlertRecord[]> {
   const cacheKey = `alerts_${role}_${scenario}`;
-  const cached = cacheGet<StakeholderAction[]>(cacheKey);
+  const cached = cacheGet<AlertRecord[]>(cacheKey);
   if (cached) return cached;
 
   // Use new agent alerts endpoint
-  const data = await fetchJsonWithRetry<StakeholderAction[]>('/api/agent/alerts');
+  const data = await fetchJsonWithRetry<AlertRecord[]>('/api/agent/alerts');
   if (data) {
-    const filteredActions = data.filter(action => !role || action.department.toLowerCase() === role.toLowerCase());
-    cacheSet(cacheKey, filteredActions);
-    return filteredActions;
+    const filteredAlerts = data.filter(alert => !role || alert.dept.toLowerCase() === role.toLowerCase());
+    cacheSet(cacheKey, filteredAlerts);
+    return filteredAlerts;
   }
   return [];
 }

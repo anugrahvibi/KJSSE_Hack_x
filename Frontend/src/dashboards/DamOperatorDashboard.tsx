@@ -1,41 +1,97 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { MapView } from '../components/MapView';
-import { fetchActiveAlerts, fetchSensorReadings, fetchInfrastructure, fetchPredictions } from '../utils/dataFetcher';
-import type { StakeholderAction, SensorReading, InfrastructureNode, ZonePrediction } from '@schema';
-import { Waves, Droplets, Activity, AlertCircle, Clock, MapPin, BrainCircuit, Navigation } from 'lucide-react';
+import { Waves, Droplets, Activity, AlertCircle, Clock, BrainCircuit, Navigation } from 'lucide-react';
+import { fetchActiveAlerts, fetchSensorReadings, fetchZones, fetchInfrastructure, fetchPredictions } from '../utils/dataFetcher';
+import type { StakeholderAction, SensorReading, InfrastructureNode, ZonePrediction, AlertRecord } from '@schema';
 import { useGsapAnimations } from '../utils/useGsapAnimations';
 import { AccountabilityBanner } from '../components/AccountabilityBanner';
-import { TacticalCard, TacticalBadge } from '../components/tactical/TacticalLibrary';
+import { MapView } from '../components/MapView';
+import { TacticalCard, TacticalBadge, Label } from '../components/tactical/TacticalLibrary';
+import { useAuth } from '../AuthContext';
 
 export function DamOperatorDashboard() {
+  const { simulationMode } = useAuth();
   const containerRef = useRef<HTMLDivElement>(null);
   const [sensor, setSensor] = useState<SensorReading | null>(null);
-  const [alerts, setAlerts] = useState<StakeholderAction[]>([]);
-  const [infra, setInfra] = useState<InfrastructureNode[]>([]);
-  const [predictions, setPredictions] = useState<ZonePrediction[]>([]);
-  const [selectedZone, setSelectedZone] = useState<string | null>('H-East');
+  const [alerts, setAlerts] = useState<AlertRecord[]>([]);
+   const [zones, setZones] = useState<any>(null);
+   const [infra, setInfra] = useState<InfrastructureNode[]>([]);
+   const [predictions, setPredictions] = useState<ZonePrediction[]>([]);
+   const [selectedZone, setSelectedZone] = useState<string | null>('H-East');
+  const [acknowledgingAlert, setAcknowledgingAlert] = useState<string | null>(null);
+  const [alertAction, setAlertAction] = useState<'ack' | 'cannot' | null>(null);
 
-  useGsapAnimations(containerRef, [sensor, alerts, predictions]);
+  useGsapAnimations(containerRef, [sensor, alerts]);
 
   useEffect(() => {
     async function init() {
-      const [sData, aData, iData, pData] = await Promise.all([
-        fetchSensorReadings('H-East'),
-        fetchActiveAlerts('BMC_WARD_OFFICER'),
-        fetchInfrastructure(),
-        fetchPredictions(),
-      ]);
+         const [sData, aData, zData, iData, pData] = await Promise.all([
+            fetchSensorReadings('H-East'),
+            fetchActiveAlerts('BMC_WARD_H_EAST'),
+            fetchZones(),
+            fetchInfrastructure(),
+            fetchPredictions(),
+         ]);
 
       if (sData.length > 0) setSensor(sData[0]);
       setAlerts(aData);
-      setInfra(iData.nodes);
-      setPredictions(pData);
+         setZones(zData);
+         setInfra((iData.nodes || []).filter((node: InfrastructureNode) => node.type === 'water_pump' || node.type === 'road'));
+         setPredictions(pData);
     }
     init();
   }, []);
 
+  const handleAcknowledgeAlert = async (alertId: string, status: 'ACKNOWLEDGED' | 'OVERDUE') => {
+    setAcknowledgingAlert(alertId);
+    setAlertAction(status === 'ACKNOWLEDGED' ? 'ack' : 'cannot');
+    
+    // Find the alert to get the correct department
+    const alert = alerts.find(a => a.alert_id === alertId);
+    if (!alert) {
+      console.error('Alert not found');
+      setAcknowledgingAlert(null);
+      setAlertAction(null);
+      return;
+    }
+    
+    try {
+      const response = await fetch(`/api/agent/acknowledge/${alertId}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          dept_id: alert.dept,
+          status: status
+        }),
+      });
+      
+      if (response.ok) {
+        // Refresh alerts
+        const aData = await fetchActiveAlerts('BMC_WARD_H_EAST');
+        setAlerts(aData);
+      } else {
+        console.error('Failed to acknowledge alert');
+      }
+    } catch (error) {
+      console.error('Error acknowledging alert:', error);
+    } finally {
+      setAcknowledgingAlert(null);
+      setAlertAction(null);
+    }
+  };
+
   return (
     <div ref={containerRef} className="pt-40 sm:pt-44 lg:pt-48 p-12 h-full bg-transparent overflow-y-auto w-full custom-scrollbar overflow-visible">
+      {simulationMode !== 'DEMO' && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center">
+          <div className="bg-white p-8 rounded-2xl shadow-2xl max-w-md text-center">
+            <div className="text-6xl mb-4">⚠️</div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">Offline Mode</h2>
+            <p className="text-gray-600">Switch to DEMO mode to view live data and interact with the dashboard.</p>
+          </div>
+        </div>
+      )}
       <div className="max-w-7xl mx-auto space-y-12 py-10">
         <AccountabilityBanner />
 
@@ -50,14 +106,35 @@ export function DamOperatorDashboard() {
               </p>
            </div>
            <div className="flex gap-4">
-              <button className="px-8 py-3 bg-gray-950 text-white rounded-xl font-black text-[13px] uppercase hover:scale-95 transition-all shadow-xl shadow-black/20">ACK + acting</button>
-              <button className="px-8 py-3 bg-white border border-red-200 text-red-600 rounded-xl font-black text-[13px] uppercase hover:scale-95 transition-all">Cannot comply</button>
+              <button 
+                onClick={() => alerts.length > 0 && handleAcknowledgeAlert(alerts[0].alert_id, 'ACKNOWLEDGED')}
+                disabled={acknowledgingAlert === alerts[0]?.alert_id && alertAction === 'ack'}
+                className="px-8 py-3 bg-gray-950 text-white rounded-xl font-black text-[13px] uppercase hover:scale-95 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-xl shadow-black/20 flex items-center gap-2"
+              >
+                {acknowledgingAlert === alerts[0]?.alert_id && alertAction === 'ack' ? (
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                ) : null}
+                ACK + acting
+              </button>
+              <button 
+                onClick={() => alerts.length > 0 && handleAcknowledgeAlert(alerts[0].alert_id, 'OVERDUE')}
+                disabled={acknowledgingAlert === alerts[0]?.alert_id && alertAction === 'cannot'}
+                className="px-8 py-3 bg-white border border-red-200 text-red-600 rounded-xl font-black text-[13px] uppercase hover:scale-95 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-2"
+              >
+                {acknowledgingAlert === alerts[0]?.alert_id && alertAction === 'cannot' ? (
+                  <div className="w-4 h-4 border-2 border-red-600 border-t-transparent rounded-full animate-spin"></div>
+                ) : null}
+                Cannot comply
+              </button>
            </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           
+          {/* LEFT COLUMN */}
           <div className="space-y-8 flex flex-col">
+            
+            {/* Ward Alert Narrative */}
             <TacticalCard 
                title="Ward Alert — H-East Dharavi" 
                icon={<AlertCircle size={18} className="text-red-600" />}
@@ -76,6 +153,7 @@ export function DamOperatorDashboard() {
                </div>
             </TacticalCard>
 
+            {/* Road Closure Status */}
             <TacticalCard title="Road Closure Status" icon={<Navigation size={18} className="text-blue-600" />}>
                <div className="space-y-2">
                   <StatusRow time="09:09" label="Sion underpass closed — barriers deployed" status="DONE" color="emerald" />
@@ -84,6 +162,7 @@ export function DamOperatorDashboard() {
                </div>
             </TacticalCard>
             
+            {/* Escalation Window */}
             <TacticalCard title="Escalation Window" className="flex-1">
                <div className="flex items-center justify-between gap-10 h-full py-4">
                   <div className="space-y-1">
@@ -98,21 +177,32 @@ export function DamOperatorDashboard() {
             </TacticalCard>
           </div>
 
+          {/* RIGHT COLUMN */}
           <div className="space-y-8 flex flex-col">
-            <div className="flex-1 min-h-[450px] overflow-hidden glass-card rounded-[2.5rem] border border-white/40 shadow-xl bg-slate-900/5 relative">
-               <div className="absolute top-6 left-6 z-[1000] text-[10px] font-black text-gray-400 uppercase">MAP PINS — HYDROMETRIC OVERLAY</div>
+            
+            {/* Ward Tactical Map */}
+            <div className="flex-1 min-h-[350px] overflow-hidden glass-card rounded-[2.5rem] border border-white/40 shadow-xl bg-slate-900/5 relative">
                <MapView
+                 zonesGeoJson={zones}
                  infrastructureNodes={infra}
                  predictions={predictions}
                  onZoneClick={setSelectedZone}
                  selectedZoneId={selectedZone}
-                 variant="hydro"
                />
-               <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-[1000] text-[10px] font-black text-emerald-600 uppercase italic">
-                  Ward H-East · focus on pump station metrics
-               </div>
+               <Label
+                 label="Ward Tactical Map - Pump and Evacuation Nodes"
+                 as="div"
+                 variant="block"
+                 className="absolute top-6 left-6 z-10 glass-card text-gray-500 border border-black/5 max-w-[300px] leading-tight"
+               />
+               <Label
+                 label="H-East focus - tap zones to inspect"
+                 as="div"
+                 className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 bg-emerald-100 text-emerald-700"
+               />
             </div>
 
+            {/* Pump Station Status */}
             <TacticalCard title="Pump Station Status" icon={<Droplets size={18} className="text-blue-600" />}>
                <div className="grid grid-cols-2 gap-4">
                   <PumpBlock name="Pump 3 — 90 Feet Rd" status="ON" color="emerald" />
@@ -122,10 +212,12 @@ export function DamOperatorDashboard() {
                </div>
             </TacticalCard>
 
-            <TacticalCard title="Agent Reasoning" icon={<BrainCircuit size={18} className="text-blue-600" />}>
+            {/* Agent Reasoning */}
+            <TacticalCard title="Agent Reasoning — WHY THIS ACTION" icon={<BrainCircuit size={18} className="text-blue-600" />}>
                <div className="space-y-4">
                   <ReasoningLine text="Sion underpass is the only NDRF route — close before Bn4 deploys" />
                   <ReasoningLine text="Pumps 3+7 at 90 Feet Rd — highest capacity in H-East" />
+                  <ReasoningLine text="Sector B: 1,200 residents, elevation lowest, evac window 40 min" />
                </div>
             </TacticalCard>
           </div>
@@ -146,7 +238,11 @@ function StatusRow({ time, label, status, color }: { time: string; label: string
 }
 
 function PumpBlock({ name, status, color }: { name: string; status: string; color: any }) {
-  const colorMap = { emerald: 'text-emerald-600', orange: 'text-orange-500', red: 'text-red-600' } as any;
+  const colorMap = {
+     emerald: 'text-emerald-600',
+     orange: 'text-orange-500',
+     red: 'text-red-600'
+  } as any;
   return (
     <div className="p-5 rounded-2xl bg-white/50 border border-black/5 hover:border-blue-200 transition-all flex flex-col gap-2">
        <p className="text-[12px] font-black text-gray-950 uppercase leading-none">{name}</p>

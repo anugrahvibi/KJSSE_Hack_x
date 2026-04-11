@@ -1,14 +1,18 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { fetchPredictions, fetchActiveAlerts } from '../utils/dataFetcher';
-import type { ZonePrediction, StakeholderAction } from '@schema';
+import type { ZonePrediction, StakeholderAction, AlertRecord } from '@schema';
 import { PlusCircle, Bed, Ambulance, AlertTriangle, Activity, Navigation, Clock } from 'lucide-react';
 import { useGsapAnimations } from '../utils/useGsapAnimations';
 import { AccountabilityBanner } from '../components/AccountabilityBanner';
 import { TacticalCard, TacticalBadge } from '../components/tactical/TacticalLibrary';
+import { useAuth } from '../AuthContext';
 
 export function DistrictAdminDashboard() {
+  const { simulationMode } = useAuth();
   const containerRef = useRef<HTMLDivElement>(null);
-  const [alerts, setAlerts] = useState<StakeholderAction[]>([]);
+  const [alerts, setAlerts] = useState<AlertRecord[]>([]);
+  const [acknowledgingAlert, setAcknowledgingAlert] = useState<string | null>(null);
+  const [alertAction, setAlertAction] = useState<'ack' | 'cannot' | null>(null);
 
   useGsapAnimations(containerRef, [alerts]);
 
@@ -20,8 +24,48 @@ export function DistrictAdminDashboard() {
     init();
   }, []);
 
+  const handleAcknowledgeAlert = async (alertId: string, status: 'ACKNOWLEDGED' | 'OVERDUE') => {
+    setAcknowledgingAlert(alertId);
+    setAlertAction(status === 'ACKNOWLEDGED' ? 'ack' : 'cannot');
+    
+    try {
+      const response = await fetch(`/api/agent/acknowledge/${alertId}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          dept_id: 'KEM_HOSPITAL',
+          status: status
+        }),
+      });
+      
+      if (response.ok) {
+        // Refresh alerts
+        const aData = await fetchActiveAlerts('KEM_HOSPITAL');
+        setAlerts(aData);
+      } else {
+        console.error('Failed to acknowledge alert');
+      }
+    } catch (error) {
+      console.error('Error acknowledging alert:', error);
+    } finally {
+      setAcknowledgingAlert(null);
+      setAlertAction(null);
+    }
+  };
+
   return (
     <div ref={containerRef} className="pt-40 sm:pt-44 lg:pt-48 p-12 h-full bg-transparent overflow-y-auto w-full custom-scrollbar overflow-visible">
+      {simulationMode !== 'DEMO' && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center">
+          <div className="bg-white p-8 rounded-2xl shadow-2xl max-w-md text-center">
+            <div className="text-6xl mb-4">⚠️</div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">Offline Mode</h2>
+            <p className="text-gray-600">Switch to DEMO mode to view live data and interact with the dashboard.</p>
+          </div>
+        </div>
+      )}
       <div className="max-w-7xl mx-auto space-y-12 py-10">
         <AccountabilityBanner />
 
@@ -36,8 +80,26 @@ export function DistrictAdminDashboard() {
                </p>
             </div>
             <div className="flex gap-4">
-               <button className="px-8 py-3 bg-gray-950 text-white rounded-xl font-black text-[13px] uppercase hover:scale-95 transition-all shadow-xl">ACK + activating</button>
-               <button className="px-8 py-3 bg-white border border-gray-200 text-gray-500 rounded-xl font-black text-[13px] uppercase hover:scale-95 transition-all">Cannot comply</button>
+               <button 
+                 onClick={() => alerts.length > 0 && handleAcknowledgeAlert(alerts[0].alert_id, 'ACKNOWLEDGED')}
+                 disabled={acknowledgingAlert === alerts[0]?.alert_id && alertAction === 'ack'}
+                 className="px-8 py-3 bg-gray-950 text-white rounded-xl font-black text-[13px] uppercase hover:scale-95 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-xl flex items-center gap-2"
+               >
+                 {acknowledgingAlert === alerts[0]?.alert_id && alertAction === 'ack' ? (
+                   <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                 ) : null}
+                 ACK + activating
+               </button>
+               <button 
+                 onClick={() => alerts.length > 0 && handleAcknowledgeAlert(alerts[0].alert_id, 'OVERDUE')}
+                 disabled={acknowledgingAlert === alerts[0]?.alert_id && alertAction === 'cannot'}
+                 className="px-8 py-3 bg-white border border-gray-200 text-gray-500 rounded-xl font-black text-[13px] uppercase hover:scale-95 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-2"
+               >
+                 {acknowledgingAlert === alerts[0]?.alert_id && alertAction === 'cannot' ? (
+                   <div className="w-4 h-4 border-2 border-gray-500 border-t-transparent rounded-full animate-spin"></div>
+                 ) : null}
+                 Cannot comply
+               </button>
             </div>
         </div>
 

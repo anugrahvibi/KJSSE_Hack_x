@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import type { InfrastructureNode, ZonePrediction } from '@schema';
 import { getPredictionAlertLevel, getAlertColor } from '../utils/schemaHelpers';
 import { ProgressBar } from './common/ProgressBar';
+import 'leaflet/dist/leaflet.css'; // Add missing CSS
 
 // ─── Zone IDs exactly match ZONE_FLOOD_THRESHOLDS in lstm_predictor.py ────────
 const ZONE_COORDS: Record<string, [number, number]> = {

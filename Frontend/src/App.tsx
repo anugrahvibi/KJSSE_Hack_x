@@ -125,11 +125,11 @@ function Navigation() {
           <button
             onClick={toggleSimulation}
             className={`px-5 py-2 rounded-xl text-[10px] font-black uppercase flex items-center gap-2 transition-all ${
-              simulationMode === 'DEMO' ? 'bg-emerald-600 text-white shadow-xl' : 'bg-gray-600 text-white shadow-xl'
+              simulationMode === 'DEMO' ? 'bg-emerald-600 text-white shadow-xl animate-pulse' : 'bg-red-600 text-white shadow-xl'
             }`}
           >
             {simulationMode === 'DEMO' ? <Activity size={14} /> : <AlertTriangle size={14} />}
-            {simulationMode === 'DEMO' ? 'Live Mode' : 'Offline Mode'}
+            {simulationMode === 'DEMO' ? 'DEMO MODE' : 'OFFLINE MODE'}
           </button>
           
           <button onClick={logout} className="p-3 bg-white rounded-xl border border-black/5 text-gray-900 hover:bg-slate-50 transition-all ml-2">

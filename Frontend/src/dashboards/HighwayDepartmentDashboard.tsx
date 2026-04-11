@@ -1,37 +1,100 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { MapView } from '../components/MapView';
-import { fetchActiveAlerts, fetchInfrastructure, fetchPredictions } from '../utils/dataFetcher';
-import type { StakeholderAction, InfrastructureNode, ZonePrediction } from '@schema';
-import { TrainFront, Zap, StopCircle, Info } from 'lucide-react';
+import { Zap, StopCircle, Info } from 'lucide-react';
+import { fetchZones, fetchInfrastructure, fetchActiveAlerts, fetchPredictions } from '../utils/dataFetcher';
+import type { StakeholderAction, InfrastructureNode, ZonePrediction, AlertRecord } from '@schema';
 import { useGsapAnimations } from '../utils/useGsapAnimations';
 import { AccountabilityBanner } from '../components/AccountabilityBanner';
-import { TacticalCard, TacticalBadge } from '../components/tactical/TacticalLibrary';
+import { MapView } from '../components/MapView';
+import { TacticalCard, TacticalBadge, Label } from '../components/tactical/TacticalLibrary';
+import { useAuth } from '../AuthContext';
 
 export function HighwayDepartmentDashboard() {
-  const [alerts, setAlerts] = useState<StakeholderAction[]>([]);
-  const [infra, setInfra] = useState<InfrastructureNode[]>([]);
-  const [predictions, setPredictions] = useState<ZonePrediction[]>([]);
-  const [selectedZone, setSelectedZone] = useState<string | null>('H-East');
+  const { simulationMode, role } = useAuth();
+  
+  // Get the correct department based on role
+  const getDepartment = () => {
+    if (role === 'Western Railway') return 'WESTERN_RAILWAY';
+    if (role === 'Central Railway') return 'CENTRAL_RAILWAY';
+    return 'WESTERN_RAILWAY'; // default
+  };
+   const [zones, setZones] = useState<any>(null);
+   const [infra, setInfra] = useState<InfrastructureNode[]>([]);
+   const [predictions, setPredictions] = useState<ZonePrediction[]>([]);
+  const [alerts, setAlerts] = useState<AlertRecord[]>([]);
+   const [selectedZone, setSelectedZone] = useState<string | null>('H-East');
+  const [acknowledgingAlert, setAcknowledgingAlert] = useState<string | null>(null);
+  const [alertAction, setAlertAction] = useState<'ack' | 'escalate' | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  useGsapAnimations(containerRef, [alerts, predictions]);
+  useGsapAnimations(containerRef, [alerts]);
 
   useEffect(() => {
     async function init() {
-      const [aData, iData, pData] = await Promise.all([
-        fetchActiveAlerts('WESTERN_RAILWAY'),
-        fetchInfrastructure(),
-        fetchPredictions(),
-      ]);
+         const [zData, iData, pData, aData] = await Promise.all([
+            fetchZones(),
+            fetchInfrastructure(),
+            fetchPredictions(),
+            fetchActiveAlerts(getDepartment()),
+         ]);
+         setZones(zData);
+         setInfra((iData.nodes || []).filter((node: InfrastructureNode) => node.type === 'road' || node.type === 'comm_tower'));
+         setPredictions(pData);
       setAlerts(aData);
-      setInfra(iData.nodes);
-      setPredictions(pData);
     }
     init();
   }, []);
 
+  const handleAcknowledgeAlert = async (alertId: string, status: 'ACKNOWLEDGED' | 'OVERDUE') => {
+    setAcknowledgingAlert(alertId);
+    setAlertAction(status === 'ACKNOWLEDGED' ? 'ack' : 'escalate');
+    
+    // Find the alert to get the correct department
+    const alert = alerts.find(a => a.alert_id === alertId);
+    if (!alert) {
+      console.error('Alert not found');
+      setAcknowledgingAlert(null);
+      setAlertAction(null);
+      return;
+    }
+    
+    try {
+      const response = await fetch(`/api/agent/acknowledge/${alertId}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          dept_id: alert.dept,
+          status: status
+        }),
+      });
+      
+      if (response.ok) {
+        // Refresh alerts
+        const aData = await fetchActiveAlerts(getDepartment());
+        setAlerts(aData);
+      } else {
+        console.error('Failed to acknowledge alert');
+      }
+    } catch (error) {
+      console.error('Error acknowledging alert:', error);
+    } finally {
+      setAcknowledgingAlert(null);
+      setAlertAction(null);
+    }
+  };
+
   return (
     <div ref={containerRef} className="pt-40 sm:pt-44 lg:pt-48 p-12 h-full bg-transparent overflow-y-auto w-full custom-scrollbar overflow-visible">
+      {simulationMode !== 'DEMO' && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center">
+          <div className="bg-white p-8 rounded-2xl shadow-2xl max-w-md text-center">
+            <div className="text-6xl mb-4">⚠️</div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">Offline Mode</h2>
+            <p className="text-gray-600">Switch to DEMO mode to view live data and interact with the dashboard.</p>
+          </div>
+        </div>
+      )}
       <div className="max-w-7xl mx-auto space-y-12 py-10">
         <AccountabilityBanner />
 
@@ -39,15 +102,33 @@ export function HighwayDepartmentDashboard() {
         <div className="glass-card p-6 rounded-[2.25rem] border border-red-300 bg-red-600 shadow-xl overflow-visible flex flex-col md:flex-row items-center justify-between gap-6 group">
             <div className="flex-1 space-y-1">
                <p className="text-[13px] font-black text-white uppercase flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-white animate-pulse" /> OVERDUE — 09:27
+                  <span className="w-2 h-2 rounded-full bg-white animate-pulse" /> OVERDUE - 09:27
                </p>
                <p className="text-[16px] font-bold text-white leading-tight uppercase">
                   Station prep at Kurla + Sion not acknowledged · This silence is logged · Deadline passed
                </p>
             </div>
             <div className="flex gap-4">
-               <button className="px-8 py-3 bg-white text-red-600 rounded-xl font-black text-[13px] uppercase hover:scale-95 transition-all shadow-xl">ACK now</button>
-               <button className="px-8 py-3 border border-white/40 text-white rounded-xl font-black text-[13px] uppercase hover:scale-95 transition-all">Escalate</button>
+               <button 
+                 onClick={() => alerts.length > 0 && handleAcknowledgeAlert(alerts[0].alert_id, 'ACKNOWLEDGED')}
+                 disabled={acknowledgingAlert === alerts[0]?.alert_id && alertAction === 'ack'}
+                 className="px-8 py-3 bg-white text-red-600 rounded-xl font-black text-[13px] uppercase hover:scale-95 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-xl flex items-center gap-2"
+               >
+                 {acknowledgingAlert === alerts[0]?.alert_id && alertAction === 'ack' ? (
+                   <div className="w-4 h-4 border-2 border-red-600 border-t-transparent rounded-full animate-spin"></div>
+                 ) : null}
+                 ACK now
+               </button>
+               <button 
+                 onClick={() => alerts.length > 0 && handleAcknowledgeAlert(alerts[0].alert_id, 'OVERDUE')}
+                 disabled={acknowledgingAlert === alerts[0]?.alert_id && alertAction === 'escalate'}
+                 className="px-8 py-3 border border-white/40 text-white rounded-xl font-black text-[13px] uppercase hover:scale-95 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-2"
+               >
+                 {acknowledgingAlert === alerts[0]?.alert_id && alertAction === 'escalate' ? (
+                   <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                 ) : null}
+                 Escalate
+               </button>
             </div>
         </div>
 
@@ -56,28 +137,30 @@ export function HighwayDepartmentDashboard() {
            {/* LEFT COLUMN */}
            <div className="space-y-8 flex flex-col">
               
-              {/* Live Railway Map */}
-              <div className="flex-1 min-h-[450px] glass-card rounded-[2.5rem] border border-white/40 shadow-xl bg-slate-900/5 relative overflow-hidden flex flex-col">
-                 <header className="p-8 pb-0 z-[1000] relative pointer-events-none">
-                    <h3 className="text-[11px] font-black text-gray-900 uppercase tracking-widest flex items-center gap-3">
-                       <TrainFront size={16} className="text-blue-600" /> LIVE RAILWAY COMMAND — CORRIDOR OVERSIGHT
-                    </h3>
-                 </header>
-                 <div className="absolute inset-0">
-                    <MapView 
-                      infrastructureNodes={infra}
-                      predictions={predictions}
-                      onZoneClick={setSelectedZone}
-                      selectedZoneId={selectedZone}
-                      variant="railway"
-                    />
-                 </div>
-                 <div className="absolute bottom-6 left-8 z-[1000] text-[10px] font-bold text-gray-900 bg-white/60 px-2 py-1 rounded-lg backdrop-blur-md uppercase italic">
-                    Transit-optimized relay · focusing on track-level telemetry
-                 </div>
+            {/* Rail Route Risk Map */}
+              <div className="flex-1 min-h-[400px] glass-card rounded-[2.5rem] border border-white/40 shadow-xl bg-slate-900/5 relative overflow-hidden flex flex-col">
+                 <MapView
+                   zonesGeoJson={zones}
+                   infrastructureNodes={infra}
+                   predictions={predictions}
+                   onZoneClick={setSelectedZone}
+                   selectedZoneId={selectedZone}
+                 />
+                 <Label
+                   label="Rail Route Risk Map - Kurla to Dadar Corridor"
+                   as="div"
+                   variant="block"
+                   className="absolute top-6 left-6 z-10 glass-card text-gray-500 border border-black/5 max-w-[320px]"
+                 />
+                 <Label
+                   label="Western Railway main line - Harbour branch - RIVA overlay"
+                   as="div"
+                   className="absolute bottom-6 left-6 z-10 bg-white/80 text-gray-500"
+                 />
               </div>
 
-              <TacticalCard title="STATION RISK — AT-RISK STATIONS" icon={<Zap size={16} className="text-orange-600" />}>
+              {/* Station Risk List */}
+              <TacticalCard title="Station Risk - At-Risk Stations" icon={<Zap size={16} className="text-orange-600" />}>
                  <div className="space-y-4">
                     <RiskRow label="Kurla (WR Main line)" status="HIGH RISK" sub="Submerge T+60" color="red" />
                     <RiskRow label="Sion station" status="MEDIUM" sub="Watch T+90" color="orange" />
@@ -90,15 +173,17 @@ export function HighwayDepartmentDashboard() {
            {/* RIGHT COLUMN */}
            <div className="space-y-8 flex flex-col">
               
-              <TacticalCard title="Crowd Management Checklist — KURLA" className="flex-[0.6]">
+              {/* Crowd Management Checklist */}
+              <TacticalCard title="Crowd Management Checklist - Kurla" className="flex-[0.6]">
                  <div className="space-y-2">
-                    <ChecklistRow time="09:07" label="Alert received — station prep required" status="IGNORED" color="red-ghost" />
-                    <ChecklistRow time="09:22" label="Deadline passed — no response logged" status="OVERDUE" color="red-ghost" />
+                    <ChecklistRow time="09:07" label="Alert received - station prep required" status="IGNORED" color="red-ghost" />
+                    <ChecklistRow time="09:22" label="Deadline passed - no response logged" status="OVERDUE" color="red-ghost" />
                     <ChecklistRow time="09:37" label="Halt slow trains Kurla-Sion corridor" status="PENDING" color="gray-ghost" />
                     <ChecklistRow time="09:45" label="Announce alternate bus routes via PA" status="PENDING" color="gray-ghost" />
                  </div>
               </TacticalCard>
 
+              {/* Service Halt Timeline */}
               <TacticalCard 
                  title="Service Halt Timeline" 
                  icon={<StopCircle size={18} className="text-emerald-600" />}
@@ -114,6 +199,7 @@ export function HighwayDepartmentDashboard() {
                  </div>
               </TacticalCard>
 
+              {/* Accountability Note */}
               <TacticalCard title="Accountability Note" icon={<Info size={18} className="text-red-600" />} className="bg-red-50/10 border-red-200">
                  <div className="space-y-6">
                     <p className="text-[14px] font-bold text-gray-900 uppercase leading-snug">
