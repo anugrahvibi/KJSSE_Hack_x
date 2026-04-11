@@ -46,7 +46,7 @@ function AgencyPortal() {
 function Navigation() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { role, logout, simulationMode, toggleSimulation } = useAuth();
+  const { role, logout, simulationMode, toggleSimulation, setRoleDirectly } = useAuth();
   const [notifications, setNotifications] = useState<StakeholderAction[]>([]);
   const navRef = useRef<HTMLElement>(null);
 
@@ -118,7 +118,23 @@ function Navigation() {
           {simulationMode === 'FLOOD' ? 'Sim Mode' : 'Live Mode'}
         </button>
         
-        <button onClick={logout} className="p-3 bg-white rounded-xl border border-black/5 text-gray-900 hover:bg-slate-50 transition-all">
+        <div className="hidden xl:flex items-center gap-2 px-4 border-l border-black/5 ml-4">
+           <select 
+             value={role || ''} 
+             onChange={(e) => {
+                const newRole = e.target.value as Role;
+                setRoleDirectly(newRole);
+             }}
+             className="glass-select-compact text-[10px] font-black"
+           >
+              <option value="BMC Ward Officer">BMC Hub</option>
+              <option value="NDRF">NDRF Tactical</option>
+              <option value="Western Railway">Western Railway</option>
+              <option value="KEM Hospital">KEM Hospital</option>
+           </select>
+        </div>
+
+        <button onClick={logout} className="p-3 bg-white rounded-xl border border-black/5 text-gray-900 hover:bg-slate-50 transition-all ml-2">
            <LogOut size={18} />
         </button>
       </div>
