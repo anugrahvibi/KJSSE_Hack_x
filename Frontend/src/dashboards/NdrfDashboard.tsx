@@ -6,8 +6,10 @@ import { Shield, Zap, Target, Clock, CheckCircle2, Navigation, MapPin, Activity,
 import { useGsapAnimations } from '../utils/useGsapAnimations';
 import { AccountabilityBanner } from '../components/AccountabilityBanner';
 import { AckButton } from '../components/AckButton';
+import { useAuth } from '../AuthContext';
 
 export function NdrfDashboard() {
+  const { simulationMode } = useAuth();
   const containerRef = useRef<HTMLDivElement>(null);
   const [zones, setZones] = useState<any>(null);
   const [infra, setInfra] = useState<InfrastructureNode[]>([]);
@@ -18,6 +20,15 @@ export function NdrfDashboard() {
   useGsapAnimations(containerRef, [predictions, alerts]);
 
   useEffect(() => {
+    // Only fetch data when in live mode (DEMO)
+    if (simulationMode !== 'DEMO') {
+      setZones(null);
+      setInfra([]);
+      setPredictions([]);
+      setAlerts([]);
+      return;
+    }
+
     async function init() {
       const [zData, iData, pData, aData] = await Promise.all([
         fetchZones(),
@@ -33,7 +44,7 @@ export function NdrfDashboard() {
     init();
     const interval = setInterval(init, 5000);
     return () => clearInterval(interval);
-  }, []);
+  }, [simulationMode]);
 
   return (
     <div ref={containerRef} className="h-full w-full bg-transparent pt-16 sm:pt-20 lg:pt-24 flex flex-col lg:flex-row gap-6 p-8 overflow-y-auto custom-scrollbar">

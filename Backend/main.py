@@ -1,10 +1,15 @@
 from __future__ import annotations
 
 import asyncio
+import os
+import sys
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, HTTPException, Request, Response
 from fastapi.responses import JSONResponse
+
+# Add parent directory to Python path to import AI modules
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from config import OVERDUE_CHECK_SECONDS
 from routers import accountability, agent, cascade, compat_v1, demo, detection, websocket

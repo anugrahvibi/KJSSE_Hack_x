@@ -18,17 +18,28 @@ def _parse_dt(value: str) -> datetime:
 
 
 class DrainCapacityService:
-    def __init__(self, tide_path: Path, rainfall_path: Path, outfalls_path: Path):
+    def __init__(self, tide_path: Path, rainfall_path: Path, outfalls_path: Path, mock_tide_path: Path = None, mock_rainfall_path: Path = None):
         self.tide_path = tide_path
         self.rainfall_path = rainfall_path
         self.outfalls_path = outfalls_path
+        self.mock_tide_path = mock_tide_path or tide_path.parent / "mock_tide.json"
+        self.mock_rainfall_path = mock_rainfall_path or rainfall_path.parent / "mock_rainfall.json"
+        self.demo_mode = False
 
     def _load_json(self, path: Path) -> dict:
         with path.open("r", encoding="utf-8") as f:
             return json.load(f)
 
+    def _load_demo_data(self):
+        """Load mock data for demo mode"""
+        self.demo_mode = True
+
     def get_current_tide_height(self) -> float:
-        tide_data = self._load_json(self.tide_path)
+        if self.demo_mode and self.mock_tide_path.exists():
+            tide_data = self._load_json(self.mock_tide_path)
+        else:
+            tide_data = self._load_json(self.tide_path)
+        
         heights = tide_data.get("heights", [])
         if not heights:
             return 0.0
@@ -36,7 +47,11 @@ class DrainCapacityService:
         return float(latest.get("height_m", 0.0))
 
     def get_current_rainfall_map(self) -> dict[str, float]:
-        rain_data = self._load_json(self.rainfall_path)
+        if self.demo_mode and self.mock_rainfall_path.exists():
+            rain_data = self._load_json(self.mock_rainfall_path)
+        else:
+            rain_data = self._load_json(self.rainfall_path)
+            
         station_rows = rain_data.get("stations", [])
         return {
             str(row.get("STATION", "")).upper(): float(row.get("RAINFALL_MM_HR", 0.0))

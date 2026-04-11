@@ -56,7 +56,10 @@ function Navigation() {
   const departmentKey = role ? roleToAlertDepartment[role] : null;
 
   useEffect(() => {
-    if (!departmentKey || isAuthPage) return;
+    if (!departmentKey || isAuthPage || simulationMode !== 'DEMO') {
+      setNotifications([]);
+      return;
+    }
     const syncNotifications = async () => {
       const items = await fetchActiveAlerts(departmentKey);
       setNotifications(items);
@@ -64,7 +67,7 @@ function Navigation() {
     syncNotifications();
     const interval = setInterval(syncNotifications, 5000);
     return () => clearInterval(interval);
-  }, [departmentKey, isAuthPage]);
+  }, [departmentKey, isAuthPage, simulationMode]);
 
   if (isAuthPage) return null;
 
@@ -111,11 +114,11 @@ function Navigation() {
         <button
           onClick={toggleSimulation}
           className={`px-5 py-2 rounded-xl text-[10px] font-black uppercase flex items-center gap-2 transition-all ${
-            simulationMode === 'FLOOD' ? 'bg-red-600 text-white shadow-xl' : 'bg-emerald-600 text-white shadow-xl'
+            simulationMode === 'DEMO' ? 'bg-emerald-600 text-white shadow-xl' : 'bg-gray-600 text-white shadow-xl'
           }`}
         >
-          {simulationMode === 'FLOOD' ? <AlertTriangle size={14} /> : <Activity size={14} />}
-          {simulationMode === 'FLOOD' ? 'Sim Mode' : 'Live Mode'}
+          {simulationMode === 'DEMO' ? <Activity size={14} /> : <AlertTriangle size={14} />}
+          {simulationMode === 'DEMO' ? 'Live Mode' : 'Offline Mode'}
         </button>
         
         <button onClick={logout} className="p-3 bg-white rounded-xl border border-black/5 text-gray-900 hover:bg-slate-50 transition-all">

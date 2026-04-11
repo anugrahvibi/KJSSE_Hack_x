@@ -1,5 +1,5 @@
 import networkx as nx
-from layer1_detection.drain_capacity_engine import CascadeStep
+from ..layer1_detection.drain_capacity_engine import CascadeStep
 
 def run_event_mode(G: nx.DiGraph, trigger_node: str) -> list[CascadeStep]:
     steps = []

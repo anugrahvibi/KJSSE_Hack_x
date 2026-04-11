@@ -6,6 +6,6 @@
     {"dt": "2024-07-15T06:00:00Z", "height_m": 2.1, "type": "LOW"},
     {"dt": "2024-07-15T09:07:00Z", "height_m": 4.6, "type": "HIGH"},
     {"dt": "2024-07-15T13:00:00Z", "height_m": 4.8, "type": "HIGH"},
-    {"dt": "2024-07-15T17:00:00Z", "height_m": 1.9, "type": "LOW"}
+    {"dt": "2024-07-15T17:00:00Z", "height_m": 4.8, "type": "HIGH"}
   ]
 }

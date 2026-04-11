@@ -6,8 +6,10 @@ import { getPredictionAlertLevel } from '../utils/schemaHelpers';
 import { useGsapAnimations } from '../utils/useGsapAnimations';
 import { AccountabilityBanner } from '../components/AccountabilityBanner';
 import { AckButton } from '../components/AckButton';
+import { useAuth } from '../AuthContext';
 
 export function HighwayDepartmentDashboard() {
+  const { simulationMode } = useAuth();
   const [alerts, setAlerts] = useState<StakeholderAction[]>([]);
   const [predictions, setPredictions] = useState<ZonePrediction[]>([]);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -15,6 +17,13 @@ export function HighwayDepartmentDashboard() {
   useGsapAnimations(containerRef, [alerts, predictions]);
 
   useEffect(() => {
+    // Only fetch data when in live mode (DEMO)
+    if (simulationMode !== 'DEMO') {
+      setAlerts([]);
+      setPredictions([]);
+      return;
+    }
+
     async function init() {
       const aData = await fetchActiveAlerts('WESTERN_RAILWAY');
       const pData = await fetchPredictions();
@@ -22,7 +31,7 @@ export function HighwayDepartmentDashboard() {
       setPredictions(pData);
     }
     init();
-  }, []);
+  }, [simulationMode]);
 
   return (
     <div ref={containerRef} className="pt-20 sm:pt-24 lg:pt-26 p-10 h-full bg-transparent overflow-y-auto w-full custom-scrollbar overflow-visible">

@@ -6,8 +6,10 @@ import { Users, Shield, Activity, BarChart3, Zap, Clock, Target, PlusCircle, Amb
 import { useGsapAnimations } from '../utils/useGsapAnimations';
 import { AccountabilityBanner } from '../components/AccountabilityBanner';
 import { AckButton } from '../components/AckButton';
+import { useAuth } from '../AuthContext';
 
 export function DistrictAdminDashboard() {
+  const { simulationMode } = useAuth();
   const containerRef = useRef<HTMLDivElement>(null);
   const [predictions, setPredictions] = useState<ZonePrediction[]>([]);
   const [alerts, setAlerts] = useState<StakeholderAction[]>([]);
@@ -15,6 +17,13 @@ export function DistrictAdminDashboard() {
   useGsapAnimations(containerRef, [predictions, alerts]);
 
   useEffect(() => {
+    // Only fetch data when in live mode (DEMO)
+    if (simulationMode !== 'DEMO') {
+      setPredictions([]);
+      setAlerts([]);
+      return;
+    }
+
     async function init() {
       const [pData, aData] = await Promise.all([
         fetchPredictions(),
@@ -24,7 +33,7 @@ export function DistrictAdminDashboard() {
       setAlerts(aData);
     }
     init();
-  }, []);
+  }, [simulationMode]);
 
   return (
     <div ref={containerRef} className="pt-20 sm:pt-24 lg:pt-26 p-10 h-full bg-transparent overflow-y-auto w-full custom-scrollbar overflow-visible">

@@ -6,8 +6,10 @@ import { getPredictionAlertLevel } from '../utils/schemaHelpers';
 import { useGsapAnimations } from '../utils/useGsapAnimations';
 import { AccountabilityBanner } from '../components/AccountabilityBanner';
 import { AckButton } from '../components/AckButton';
+import { useAuth } from '../AuthContext';
 
 export function DamOperatorDashboard() {
+  const { simulationMode } = useAuth();
   const containerRef = useRef<HTMLDivElement>(null);
   const [sensor, setSensor] = useState<SensorReading | null>(null);
   const [alerts, setAlerts] = useState<StakeholderAction[]>([]);
@@ -16,6 +18,14 @@ export function DamOperatorDashboard() {
   useGsapAnimations(containerRef, [sensor, alerts, prediction]);
 
   useEffect(() => {
+    // Only fetch data when in live mode (DEMO)
+    if (simulationMode !== 'DEMO') {
+      setSensor(null);
+      setAlerts([]);
+      setPrediction(null);
+      return;
+    }
+
     async function init() {
       const sData = await fetchSensorReadings('H-East');
       const aData = await fetchActiveAlerts('BMC_WARD_OFFICER');
@@ -28,7 +38,7 @@ export function DamOperatorDashboard() {
     init();
     const interval = setInterval(init, 3000);
     return () => clearInterval(interval);
-  }, []);
+  }, [simulationMode]);
 
   const level = prediction ? getPredictionAlertLevel(prediction) : 'GREEN';
   const systemStatus = level === 'RED' ? 'CRITICAL' : (level === 'YELLOW' || level === 'ORANGE') ? 'WARNING' : 'NORMAL';
