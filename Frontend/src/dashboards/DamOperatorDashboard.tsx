@@ -1,15 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Activity, Droplets, Target, CheckCircle2, Waves, Settings, AlertTriangle, Zap, Wind, Shield, ArrowRight, MapPin, TrendingUp, BarChart3, Layers, Activity as Pulse, Map as MapIcon, XCircle, AlertCircle, Clock } from 'lucide-react';
+import { Waves, Target, Droplets, Activity, AlertCircle, Clock, XCircle } from 'lucide-react';
 import { fetchActiveAlerts, fetchSensorReadings, fetchPredictions } from '../utils/dataFetcher';
 import type { StakeholderAction, SensorReading, ZonePrediction } from '@schema';
-import { getPredictionAlertLevel } from '../utils/schemaHelpers';
 import { useGsapAnimations } from '../utils/useGsapAnimations';
 import { AccountabilityBanner } from '../components/AccountabilityBanner';
 import { AckButton } from '../components/AckButton';
-import { useAuth } from '../AuthContext';
+import { TacticalCard, TacticalMetric, TacticalAlertRow, TacticalBadge } from '../components/tactical/TacticalLibrary';
+import { ProgressBar } from '../components/common/ProgressBar';
 
 export function DamOperatorDashboard() {
-  const { simulationMode } = useAuth();
   const containerRef = useRef<HTMLDivElement>(null);
   const [sensor, setSensor] = useState<SensorReading | null>(null);
   const [alerts, setAlerts] = useState<StakeholderAction[]>([]);
@@ -18,14 +17,6 @@ export function DamOperatorDashboard() {
   useGsapAnimations(containerRef, [sensor, alerts, prediction]);
 
   useEffect(() => {
-    // Only fetch data when in live mode (DEMO)
-    if (simulationMode !== 'DEMO') {
-      setSensor(null);
-      setAlerts([]);
-      setPrediction(null);
-      return;
-    }
-
     async function init() {
       const sData = await fetchSensorReadings('H-East');
       const aData = await fetchActiveAlerts('BMC_WARD_OFFICER');
@@ -38,14 +29,11 @@ export function DamOperatorDashboard() {
     init();
     const interval = setInterval(init, 3000);
     return () => clearInterval(interval);
-  }, [simulationMode]);
-
-  const level = prediction ? getPredictionAlertLevel(prediction) : 'GREEN';
-  const systemStatus = level === 'RED' ? 'CRITICAL' : (level === 'YELLOW' || level === 'ORANGE') ? 'WARNING' : 'NORMAL';
+  }, []);
 
   return (
-    <div ref={containerRef} className="pt-20 sm:pt-24 lg:pt-26 p-10 h-full bg-transparent overflow-y-auto w-full custom-scrollbar overflow-visible">
-      <div className="max-w-7xl mx-auto space-y-10 py-4 sm:py-6">
+    <div ref={containerRef} className="pt-28 sm:pt-32 lg:pt-36 p-10 h-full bg-transparent overflow-y-auto w-full custom-scrollbar overflow-visible">
+      <div className="max-w-7xl mx-auto space-y-10 py-6">
         <AccountabilityBanner />
 
         <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 border-b border-black/5 pb-10">
@@ -76,39 +64,30 @@ export function DamOperatorDashboard() {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
           
-          {/* Main Feed: Alerts & Directives */}
           <section className="lg:col-span-2 space-y-8">
-            <div className="glass-card rounded-[3rem] overflow-hidden flex flex-col premium-shadow">
-               <div className="p-8 flex items-center justify-between glass-header">
-                 <h2 className="font-black text-gray-950 uppercase text-[15px] flex items-center gap-3">
-                   <Target size={16} className="text-blue-600" /> Dispatch Directives
-                 </h2>
-                 <span className="px-3 py-1 bg-blue-500/10 rounded-full text-[12px] font-black text-blue-700 uppercase">{alerts.length} ORDERS</span>
+            <TacticalCard 
+              title="Dispatch Directives" 
+              icon={<Target size={16} className="text-blue-600" />}
+              badge={<span className="px-3 py-1 bg-blue-500/10 rounded-full text-[12px] font-black text-blue-700 uppercase">{alerts.length} ORDERS</span>}
+            >
+               <div className="space-y-4">
+                  {alerts.map((alert, idx) => (
+                    <TacticalAlertRow 
+                      key={idx}
+                      status="ACTIVE"
+                      title={`${alert.alert_level} Protocol`}
+                      description={alert.action}
+                      time={`T-${alert.time_window_hours}h`}
+                      action={<AckButton alertId={(alert as any).alert_id || `ALT-${idx}`} deptId="BMC_WARD_OFFICER" status={(alert as any).status} />}
+                    />
+                  ))}
                </div>
-               <div className="p-8 space-y-6">
-                 {alerts.map((alert, idx) => (
-                   <div key={idx} className="p-6 bg-white/50 border border-black/5 rounded-[2.5rem] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 group hover:shadow-md transition-all">
-                     <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-2">
-                           <span className={`px-3 py-1 rounded-xl text-[10px] font-black uppercase ${alert.alert_level === 'RED' ? 'bg-red-100 text-red-600' : 'bg-blue-100 text-blue-600'}`}>{alert.alert_level} PROTOCOL</span>
-                           <span className="text-[10px] font-black text-gray-400 uppercase italic">T-{alert.time_window_hours}h Deadline</span>
-                        </div>
-                        <p className="text-[15px] font-bold text-gray-950 leading-relaxed italic">"{alert.action}"</p>
-                     </div>
-                     <div className="flex gap-2 shrink-0">
-                        <AckButton alertId={(alert as any).alert_id || `ALT-${idx}`} deptId="BMC_WARD_OFFICER" status={(alert as any).status} />
-                        <button className="px-6 py-3 bg-red-600/10 text-red-600 rounded-2xl font-black text-[11px] uppercase border border-red-100 hover:bg-red-600 hover:text-white transition-all">Escalate</button>
-                     </div>
-                   </div>
-                 ))}
-               </div>
-            </div>
+            </TacticalCard>
 
-            {/* Roads to Close */}
-            <div className="glass-card rounded-[3rem] p-8 premium-shadow space-y-6">
-               <h3 className="text-[15px] font-black text-gray-900 uppercase flex items-center gap-3">
-                  <XCircle size={18} className="text-red-600" /> Sector Access Neutralization
-               </h3>
+            <TacticalCard 
+              title="Sector Access Neutralization"
+              icon={<XCircle size={18} className="text-red-600" />}
+            >
                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {[
                     { road: "Sion-Bandra Link Road", status: "PENDING", level: "CRITICAL" },
@@ -127,17 +106,16 @@ export function DamOperatorDashboard() {
                     </div>
                   ))}
                </div>
-            </div>
+            </TacticalCard>
           </section>
 
-          {/* Sidebar: Pump Stations */}
           <section className="space-y-8">
-             <div className="glass-card rounded-[3rem] p-8 premium-shadow space-y-6 bg-white/40 text-gray-950 overflow-hidden relative border border-white/40">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-blue-600/10 blur-[60px] rounded-full" />
-                <h3 className="text-[15px] font-black uppercase flex items-center gap-3 relative z-10 text-gray-900">
-                   <Droplets size={18} className="text-blue-600" /> Pump Infrastructure
-                </h3>
-                <div className="space-y-4 relative z-10">
+             <TacticalCard 
+               title="Pump Infrastructure"
+               icon={<Droplets size={18} className="text-blue-600" />}
+               dark={false}
+             >
+                <div className="space-y-5">
                    {[
                      { name: "H-East Station 1", capacity: "92%", status: "OPTIMAL" },
                      { name: "H-East Station 2", capacity: "110%", status: "OVERLOAD" },
@@ -146,21 +124,25 @@ export function DamOperatorDashboard() {
                       <div key={i} className="p-5 rounded-2xl bg-white/50 border border-black/5 space-y-3">
                          <div className="flex justify-between items-center">
                             <span className="text-[12px] font-black uppercase tracking-wider text-gray-900">{p.name}</span>
-                            <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${p.status === 'DEADLOCK' ? 'bg-red-600' : (p.status === 'OVERLOAD' ? 'bg-orange-600' : 'bg-emerald-600')} text-white`}>
-                               {p.status}
-                            </span>
+                            <TacticalBadge 
+                              label={p.status} 
+                              color={p.status === 'DEADLOCK' ? 'red' : (p.status === 'OVERLOAD' ? 'orange' : 'emerald')} 
+                              variant={p.status === 'DEADLOCK' ? 'filled' : 'outline'} 
+                            />
                          </div>
-                         <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
-                            <div className={`h-full ${p.status === 'DEADLOCK' ? 'bg-red-600' : 'bg-blue-600'}`} style={{ width: p.capacity }} />
-                         </div>
+                         <ProgressBar
+                           value={p.capacity}
+                           className="h-2"
+                           trackClassName="bg-gray-100"
+                           fillClassName={p.status === 'DEADLOCK' ? 'bg-red-600' : 'bg-blue-600'}
+                         />
                          <div className="text-[11px] font-black text-blue-600/80 uppercase">Output: {p.capacity} Flow</div>
                       </div>
                    ))}
                 </div>
-             </div>
+             </TacticalCard>
 
-             <div className="glass-card rounded-[3rem] p-8 premium-shadow space-y-4">
-                <h3 className="text-[14px] font-black text-gray-900 uppercase">Operational Protocol</h3>
+             <TacticalCard title="Operational Protocol">
                 <p className="text-[12px] font-bold text-gray-500 leading-relaxed italic">
                    "All pumps must remain active until high tide recession at 11:45 AM. Monitor Mithi backflow sensors continuously."
                 </p>
@@ -168,9 +150,8 @@ export function DamOperatorDashboard() {
                    <Clock size={14} className="text-blue-600" />
                    <span className="text-[12px] font-black text-gray-900 uppercase">Sync: 0.4s Latency</span>
                 </div>
-             </div>
+             </TacticalCard>
           </section>
-
         </div>
       </div>
     </div>

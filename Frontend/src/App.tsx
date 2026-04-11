@@ -46,7 +46,7 @@ function AgencyPortal() {
 function Navigation() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { role, logout, simulationMode, toggleSimulation } = useAuth();
+  const { role, logout, simulationMode, toggleSimulation, setRoleDirectly } = useAuth();
   const [notifications, setNotifications] = useState<StakeholderAction[]>([]);
   const navRef = useRef<HTMLElement>(null);
 
@@ -76,17 +76,17 @@ function Navigation() {
       <div className="flex items-center gap-8">
         <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate('/')}>
            <img src="/logo.svg" alt="Riva logo" className="w-8 h-8" />
-           <h1 className="text-xl font-black text-gray-950 brand-font uppercase tracking-tighter">Riva</h1>
+           <h1 className="type-priority-2 text-gray-950 brand-font uppercase">Riva</h1>
         </div>
 
         <div className="hidden lg:flex items-center gap-6 border-l border-black/5 pl-8">
            <div className="flex flex-col items-center">
-              <span className="text-[9px] font-black text-gray-400 uppercase">Rainfall</span>
-              <span className="text-[14px] font-black text-gray-900">87mm/h</span>
+              <span className="type-priority-5 text-gray-400">Rainfall</span>
+              <span className="type-priority-4 text-gray-900">87mm/h</span>
            </div>
            <div className="flex flex-col items-center">
-              <span className="text-[9px] font-black text-gray-400 uppercase">Tide</span>
-              <span className="text-[14px] font-black text-blue-600">4.6m HIGH</span>
+              <span className="type-priority-5 text-gray-400">Tide</span>
+              <span className="type-priority-4 text-blue-600">4.6m HIGH</span>
            </div>
         </div>
       </div>
@@ -121,7 +121,23 @@ function Navigation() {
           {simulationMode === 'DEMO' ? 'Live Mode' : 'Offline Mode'}
         </button>
         
-        <button onClick={logout} className="p-3 bg-white rounded-xl border border-black/5 text-gray-900 hover:bg-slate-50 transition-all">
+        <div className="hidden xl:flex items-center gap-2 px-4 border-l border-black/5 ml-4">
+           <select 
+             value={role || ''} 
+             onChange={(e) => {
+                const newRole = e.target.value as Role;
+                setRoleDirectly(newRole);
+             }}
+             className="glass-select-compact text-[10px] font-black"
+           >
+              <option value="BMC Ward Officer">BMC Hub</option>
+              <option value="NDRF">NDRF Tactical</option>
+              <option value="Western Railway">Western Railway</option>
+              <option value="KEM Hospital">KEM Hospital</option>
+           </select>
+        </div>
+
+        <button onClick={logout} className="p-3 bg-white rounded-xl border border-black/5 text-gray-900 hover:bg-slate-50 transition-all ml-2">
            <LogOut size={18} />
         </button>
       </div>

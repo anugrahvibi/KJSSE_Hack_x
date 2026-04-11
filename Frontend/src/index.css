@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400..700&family=Plus+Jakarta+Sans:wght@400..800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400..800&family=Inter:wght@400..800&display=swap');
 @import "tailwindcss";
 
 @theme {
@@ -16,8 +16,9 @@
 
 @layer base {
   :root {
-    --font-sans: 'Plus Jakarta Sans', 'Inter', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-    --font-ending: 'Instrument Sans', 'Plus Jakarta Sans', 'Inter', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    --font-sans: 'Inter', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    --font-heading: 'Inter Tight', 'Inter', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    --font-ending: 'Inter', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
 
     --background: #f8fafc;
     --foreground: #0f172a;
@@ -86,7 +87,7 @@
   h3,
   h4,
   .brand-font {
-    font-family: var(--font-sans);
+    font-family: var(--font-heading);
     font-weight: 700;
     line-height: 1.2;
     letter-spacing: 0;
@@ -99,6 +100,60 @@
     font-weight: 600;
     letter-spacing: 0;
     text-transform: none;
+  }
+
+  .type-priority-1 {
+    font-family: var(--font-heading);
+    font-size: clamp(2.125rem, 4.5vw, 3.5rem);
+    line-height: 1.02;
+    font-weight: 800;
+    letter-spacing: -0.04em;
+  }
+
+  .type-priority-2 {
+    font-family: var(--font-heading);
+    font-size: clamp(1.5rem, 2.6vw, 2.25rem);
+    line-height: 1.1;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+  }
+
+  .type-priority-3 {
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    line-height: 1.65;
+    font-weight: 500;
+    letter-spacing: 0;
+  }
+
+  .type-priority-4 {
+    font-family: var(--font-sans);
+    font-size: 0.875rem;
+    line-height: 1.5;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+  }
+
+  .type-priority-5 {
+    font-family: var(--font-sans);
+    font-size: 0.75rem;
+    line-height: 1.35;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .pill-badge {
+    border-radius: 9999px;
+    padding-inline: 0.85rem;
+    padding-block: 0.45rem;
+    letter-spacing: 0.08em;
+  }
+
+  .pill-button {
+    border-radius: 9999px;
+    padding-inline: 1rem;
+    padding-block: 0.7rem;
   }
 
   p,
