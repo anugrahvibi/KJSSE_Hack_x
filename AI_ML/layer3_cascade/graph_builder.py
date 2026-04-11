@@ -1,7 +1,7 @@
 import json
 import networkx as nx
 
-def build_cascade_graph(path: str = "AI_ML/data/dependency_graph.json") -> nx.DiGraph:
+def build_cascade_graph(path: str = "data/dependency_graph.json") -> nx.DiGraph:
     """
     Loads dependency_graph.json and builds a directed weighted NetworkX graph.
     Each node stores all its attributes (label, type, daily_users, etc).
