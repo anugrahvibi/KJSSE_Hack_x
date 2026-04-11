@@ -1,38 +1,35 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Waves, Droplets, Activity, AlertCircle, Clock, BrainCircuit, Navigation } from 'lucide-react';
-import { fetchActiveAlerts, fetchSensorReadings, fetchZones, fetchInfrastructure, fetchPredictions } from '../utils/dataFetcher';
+import { MapView } from '../components/MapView';
+import { fetchActiveAlerts, fetchSensorReadings, fetchInfrastructure, fetchPredictions } from '../utils/dataFetcher';
 import type { StakeholderAction, SensorReading, InfrastructureNode, ZonePrediction } from '@schema';
+import { Waves, Droplets, Activity, AlertCircle, Clock, MapPin, BrainCircuit, Navigation } from 'lucide-react';
 import { useGsapAnimations } from '../utils/useGsapAnimations';
 import { AccountabilityBanner } from '../components/AccountabilityBanner';
-import { MapView } from '../components/MapView';
-import { TacticalCard, TacticalBadge, Label } from '../components/tactical/TacticalLibrary';
+import { TacticalCard, TacticalBadge } from '../components/tactical/TacticalLibrary';
 
 export function DamOperatorDashboard() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [sensor, setSensor] = useState<SensorReading | null>(null);
   const [alerts, setAlerts] = useState<StakeholderAction[]>([]);
-   const [zones, setZones] = useState<any>(null);
-   const [infra, setInfra] = useState<InfrastructureNode[]>([]);
-   const [predictions, setPredictions] = useState<ZonePrediction[]>([]);
-   const [selectedZone, setSelectedZone] = useState<string | null>('H-East');
+  const [infra, setInfra] = useState<InfrastructureNode[]>([]);
+  const [predictions, setPredictions] = useState<ZonePrediction[]>([]);
+  const [selectedZone, setSelectedZone] = useState<string | null>('H-East');
 
-  useGsapAnimations(containerRef, [sensor, alerts]);
+  useGsapAnimations(containerRef, [sensor, alerts, predictions]);
 
   useEffect(() => {
     async function init() {
-         const [sData, aData, zData, iData, pData] = await Promise.all([
-            fetchSensorReadings('H-East'),
-            fetchActiveAlerts('BMC_WARD_OFFICER'),
-            fetchZones(),
-            fetchInfrastructure(),
-            fetchPredictions(),
-         ]);
+      const [sData, aData, iData, pData] = await Promise.all([
+        fetchSensorReadings('H-East'),
+        fetchActiveAlerts('BMC_WARD_OFFICER'),
+        fetchInfrastructure(),
+        fetchPredictions(),
+      ]);
 
       if (sData.length > 0) setSensor(sData[0]);
       setAlerts(aData);
-         setZones(zData);
-         setInfra((iData.nodes || []).filter((node: InfrastructureNode) => node.type === 'water_pump' || node.type === 'road'));
-         setPredictions(pData);
+      setInfra(iData.nodes);
+      setPredictions(pData);
     }
     init();
   }, []);
@@ -60,10 +57,7 @@ export function DamOperatorDashboard() {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           
-          {/* LEFT COLUMN */}
           <div className="space-y-8 flex flex-col">
-            
-            {/* Ward Alert Narrative */}
             <TacticalCard 
                title="Ward Alert — H-East Dharavi" 
                icon={<AlertCircle size={18} className="text-red-600" />}
@@ -82,7 +76,6 @@ export function DamOperatorDashboard() {
                </div>
             </TacticalCard>
 
-            {/* Road Closure Status */}
             <TacticalCard title="Road Closure Status" icon={<Navigation size={18} className="text-blue-600" />}>
                <div className="space-y-2">
                   <StatusRow time="09:09" label="Sion underpass closed — barriers deployed" status="DONE" color="emerald" />
@@ -91,7 +84,6 @@ export function DamOperatorDashboard() {
                </div>
             </TacticalCard>
             
-            {/* Escalation Window */}
             <TacticalCard title="Escalation Window" className="flex-1">
                <div className="flex items-center justify-between gap-10 h-full py-4">
                   <div className="space-y-1">
@@ -106,32 +98,21 @@ export function DamOperatorDashboard() {
             </TacticalCard>
           </div>
 
-          {/* RIGHT COLUMN */}
           <div className="space-y-8 flex flex-col">
-            
-            {/* Ward Tactical Map */}
-            <div className="flex-1 min-h-[350px] overflow-hidden glass-card rounded-[2.5rem] border border-white/40 shadow-xl bg-slate-900/5 relative">
+            <div className="flex-1 min-h-[450px] overflow-hidden glass-card rounded-[2.5rem] border border-white/40 shadow-xl bg-slate-900/5 relative">
+               <div className="absolute top-6 left-6 z-[1000] text-[10px] font-black text-gray-400 uppercase">MAP PINS — HYDROMETRIC OVERLAY</div>
                <MapView
-                 zonesGeoJson={zones}
                  infrastructureNodes={infra}
                  predictions={predictions}
                  onZoneClick={setSelectedZone}
                  selectedZoneId={selectedZone}
+                 variant="hydro"
                />
-               <Label
-                 label="Ward Tactical Map - Pump and Evacuation Nodes"
-                 as="div"
-                 variant="block"
-                 className="absolute top-6 left-6 z-10 glass-card text-gray-500 border border-black/5 max-w-[300px] leading-tight"
-               />
-               <Label
-                 label="H-East focus - tap zones to inspect"
-                 as="div"
-                 className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 bg-emerald-100 text-emerald-700"
-               />
+               <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-[1000] text-[10px] font-black text-emerald-600 uppercase italic">
+                  Ward H-East · focus on pump station metrics
+               </div>
             </div>
 
-            {/* Pump Station Status */}
             <TacticalCard title="Pump Station Status" icon={<Droplets size={18} className="text-blue-600" />}>
                <div className="grid grid-cols-2 gap-4">
                   <PumpBlock name="Pump 3 — 90 Feet Rd" status="ON" color="emerald" />
@@ -141,12 +122,10 @@ export function DamOperatorDashboard() {
                </div>
             </TacticalCard>
 
-            {/* Agent Reasoning */}
-            <TacticalCard title="Agent Reasoning — WHY THIS ACTION" icon={<BrainCircuit size={18} className="text-blue-600" />}>
+            <TacticalCard title="Agent Reasoning" icon={<BrainCircuit size={18} className="text-blue-600" />}>
                <div className="space-y-4">
                   <ReasoningLine text="Sion underpass is the only NDRF route — close before Bn4 deploys" />
                   <ReasoningLine text="Pumps 3+7 at 90 Feet Rd — highest capacity in H-East" />
-                  <ReasoningLine text="Sector B: 1,200 residents, elevation lowest, evac window 40 min" />
                </div>
             </TacticalCard>
           </div>
@@ -167,11 +146,7 @@ function StatusRow({ time, label, status, color }: { time: string; label: string
 }
 
 function PumpBlock({ name, status, color }: { name: string; status: string; color: any }) {
-  const colorMap = {
-     emerald: 'text-emerald-600',
-     orange: 'text-orange-500',
-     red: 'text-red-600'
-  } as any;
+  const colorMap = { emerald: 'text-emerald-600', orange: 'text-orange-500', red: 'text-red-600' } as any;
   return (
     <div className="p-5 rounded-2xl bg-white/50 border border-black/5 hover:border-blue-200 transition-all flex flex-col gap-2">
        <p className="text-[12px] font-black text-gray-950 uppercase leading-none">{name}</p>
