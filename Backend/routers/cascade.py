@@ -2,9 +2,9 @@ from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 import asyncio
 import json
 import os
-from AI_ML.layer3_cascade.graph_builder import G
-from AI_ML.layer3_cascade.event_mode import run_event_mode
-from AI_ML.layer3_cascade.audit_mode import run_audit_mode
+from AI.layer3_cascade.graph_builder import G
+from AI.layer3_cascade.event_mode import run_event_mode
+from AI.layer3_cascade.audit_mode import run_audit_mode
 
 router = APIRouter(tags=["cascade"])
 

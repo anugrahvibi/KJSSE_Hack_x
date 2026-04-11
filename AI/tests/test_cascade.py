@@ -1,11 +1,11 @@
 import pytest
-from AI_ML.layer3_cascade.graph_builder import build_graph
-from AI_ML.layer3_cascade.event_mode import run_event_mode
-from AI_ML.layer3_cascade.audit_mode import run_audit_mode
+from AI.layer3_cascade.graph_builder import build_graph
+from AI.layer3_cascade.event_mode import run_event_mode
+from AI.layer3_cascade.audit_mode import run_audit_mode
 
 @pytest.fixture
 def graph():
-    return build_graph("AI_ML/data/dependency_graph.json")
+    return build_graph("AI/data/dependency_graph.json")
 
 def test_graph_builds_correctly(graph):
     # Test 1

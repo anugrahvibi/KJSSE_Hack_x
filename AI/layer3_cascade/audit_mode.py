@@ -1,5 +1,5 @@
 import networkx as nx
-from AI_ML.layer1_detection.drain_capacity_engine import NodeRanking, VulnerabilityReport
+from AI.layer1_detection.drain_capacity_engine import NodeRanking, VulnerabilityReport
 
 def run_audit_mode(G: nx.DiGraph, ward_data: list[dict]) -> VulnerabilityReport:
     ranked_nodes = []

@@ -1,7 +1,13 @@
 import networkx as nx
 import json
 
-def build_graph(path: str = "AI_ML/data/dependency_graph.json") -> nx.DiGraph:
+def build_graph(path: str = "AI/data/dependency_graph.json") -> nx.DiGraph:
+    """
+    Loads dependency_graph.json and builds a directed weighted NetworkX graph.
+    Each node stores all its attributes (label, type, daily_users, etc).
+    Each edge stores: propagation_delay_min, impact_multiplier, failure_condition.
+    Returns the fully constructed DiGraph.
+    """
     with open(path) as f:
         data = json.load(f)
     G = nx.DiGraph()
