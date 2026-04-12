@@ -34,12 +34,12 @@ export function NdrfDashboard() {
   }, []);
 
   return (
-    <div ref={containerRef} className={`h-full w-full bg-transparent pt-34 sm:pt-43 ${TACTICAL_THEME.paddingX} flex flex-col ${TACTICAL_THEME.gap} overflow-y-auto custom-scrollbar overflow-visible`}>
+    <div ref={containerRef} className={`h-full w-full bg-transparent pt-28 sm:pt-36 ${TACTICAL_THEME.paddingX} flex flex-col ${TACTICAL_THEME.gap} overflow-y-auto custom-scrollbar overflow-visible`}>
       {/* Top Urgent Alert Bar (only in DEMO) */}
       {simulationMode === 'DEMO' ? (
-        <div className="glass-card p-6 rounded-[2rem] border border-red-200 bg-red-50/20 flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl overflow-visible">
+        <div className="glass-card p-6 rounded-[2rem] border-2 border-slate-200 bg-white shadow-xl flex flex-col md:flex-row items-center justify-between gap-6 overflow-visible">
           <div className="flex-1 space-y-1">
-            <p className="text-[13px] font-black text-red-600 uppercase flex items-center gap-2">
+            <p className="text-[13px] font-black text-slate-500 uppercase flex items-center gap-2">
               <AlertTriangle size={16} /> Alert Dispatched 09:07
             </p>
             <p className="text-[15px] font-bold text-gray-900 leading-tight">
@@ -48,7 +48,7 @@ export function NdrfDashboard() {
           </div>
           <div className="flex gap-4">
             <button className="px-8 py-3 bg-gray-950 text-white rounded-xl font-black text-[13px] uppercase hover:scale-95 transition-all shadow-xl shadow-black/20">ACK + deploying</button>
-            <button className="px-8 py-3 bg-white border border-red-200 text-red-600 rounded-xl font-black text-[13px] uppercase hover:scale-95 transition-all">Cannot deploy</button>
+            <button className="px-8 py-3 bg-white border border-slate-200 text-slate-500 rounded-xl font-black text-[13px] uppercase hover:scale-95 transition-all">Cannot deploy</button>
           </div>
         </div>
       ) : (
@@ -116,52 +116,52 @@ export function NdrfDashboard() {
           /* LIVE MODE: High Density Readiness Oversight */
           <div className="flex-[0.65] flex flex-col gap-10">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-                <TacticalCard title="Battalion Readiness" icon={<UserCheck size={18} className="text-emerald-600" />}>
-                    <div className="space-y-6">
-                        <div className="flex justify-between items-center bg-emerald-500/5 p-4 rounded-xl border border-emerald-500/10">
-                            <span className="text-[11px] font-black text-emerald-900 uppercase">Active Personnel</span>
-                            <span className="text-[18px] font-black text-emerald-600">420 / 420</span>
-                        </div>
-                        <div className="space-y-3">
-                            <ReadinessMetric label="Rescue Swimmers" value={100} />
-                            <ReadinessMetric label="Medical Techs" value={98} />
-                            <ReadinessMetric label="Navigation Officers" value={100} />
-                        </div>
-                    </div>
-                </TacticalCard>
+              <TacticalCard title="Battalion Readiness" icon={<UserCheck size={18} className="text-emerald-600" />}>
+                <div className="space-y-6">
+                  <div className="flex justify-between items-center bg-emerald-500/5 p-4 rounded-xl border border-emerald-500/10">
+                    <span className="text-[11px] font-black text-emerald-900 uppercase">Active Personnel</span>
+                    <span className="text-[18px] font-black text-emerald-600">420 / 420</span>
+                  </div>
+                  <div className="space-y-3">
+                    <ReadinessMetric label="Rescue Swimmers" value={100} />
+                    <ReadinessMetric label="Medical Techs" value={98} />
+                    <ReadinessMetric label="Navigation Officers" value={100} />
+                  </div>
+                </div>
+              </TacticalCard>
 
-                <TacticalCard title="Logistics & Supplies" icon={<Zap size={18} className="text-blue-600" />}>
-                    <div className="space-y-6">
-                        <div className="flex items-center gap-4">
-                            <div className="p-3 bg-blue-500/10 rounded-xl text-blue-600">
-                                <Droplets size={20} />
-                            </div>
-                            <div className="flex-1">
-                                <div className="flex justify-between items-center mb-1">
-                                    <span className="text-[10px] font-black text-gray-500 uppercase">Drinkable Water</span>
-                                    <span className="text-[11px] font-black text-blue-600 uppercase">8,400L</span>
-                                </div>
-                                <div className="h-1.5 w-full bg-gray-100 rounded-full overflow-hidden">
-                                    <div className="h-full bg-blue-500 w-[84%]" />
-                                </div>
-                            </div>
-                        </div>
-                        <div className="flex items-center gap-4">
-                            <div className="p-3 bg-orange-500/10 rounded-xl text-orange-600">
-                                <ShieldAlert size={20} />
-                            </div>
-                            <div className="flex-1">
-                                <div className="flex justify-between items-center mb-1">
-                                    <span className="text-[10px] font-black text-gray-500 uppercase">Dry Rations</span>
-                                    <span className="text-[11px] font-black text-orange-600 uppercase">12,000 Units</span>
-                                </div>
-                                <div className="h-1.5 w-full bg-gray-100 rounded-full overflow-hidden">
-                                    <div className="h-full bg-orange-500 w-[95%]" />
-                                </div>
-                            </div>
-                        </div>
+              <TacticalCard title="Logistics & Supplies" icon={<Zap size={18} className="text-blue-600" />}>
+                <div className="space-y-6">
+                  <div className="flex items-center gap-4">
+                    <div className="p-3 bg-blue-500/10 rounded-xl text-blue-600">
+                      <Droplets size={20} />
                     </div>
-                </TacticalCard>
+                    <div className="flex-1">
+                      <div className="flex justify-between items-center mb-1">
+                        <span className="text-[10px] font-black text-gray-500 uppercase">Drinkable Water</span>
+                        <span className="text-[11px] font-black text-blue-600 uppercase">8,400L</span>
+                      </div>
+                      <div className="h-1.5 w-full bg-gray-100 rounded-full overflow-hidden">
+                        <div className="h-full bg-blue-500 w-[84%]" />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <div className="p-3 bg-orange-500/10 rounded-xl text-orange-600">
+                      <ShieldAlert size={20} />
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex justify-between items-center mb-1">
+                        <span className="text-[10px] font-black text-gray-500 uppercase">Dry Rations</span>
+                        <span className="text-[11px] font-black text-orange-600 uppercase">12,000 Units</span>
+                      </div>
+                      <div className="h-1.5 w-full bg-gray-100 rounded-full overflow-hidden">
+                        <div className="h-full bg-orange-500 w-[95%]" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </TacticalCard>
             </div>
 
             <div className="flex-1 min-h-[450px] glass-card rounded-[2.5rem] border border-black/5 shadow-xl relative overflow-hidden bg-slate-50/50">
@@ -226,23 +226,24 @@ export function NdrfDashboard() {
           </div>
         )}
       </div>
-
+      {/* FINAL MISSION BUFFER */}
+      <div className="h-16 w-full shrink-0" />
     </div>
   );
 }
 
 function ReadinessMetric({ label, value }: { label: string, value: number }) {
-    return (
-        <div className="flex flex-col gap-1">
-            <div className="flex justify-between items-center text-[10px] font-black uppercase text-gray-500">
-                <span>{label}</span>
-                <span>{value}%</span>
-            </div>
-            <div className="h-1 w-full bg-gray-100 rounded-full overflow-hidden">
-                <div className="h-full bg-emerald-500" style={{ width: `${value}%` }} />
-            </div>
-        </div>
-    );
+  return (
+    <div className="flex flex-col gap-1">
+      <div className="flex justify-between items-center text-[10px] font-black uppercase text-gray-500">
+        <span>{label}</span>
+        <span>{value}%</span>
+      </div>
+      <div className="h-1 w-full bg-gray-100 rounded-full overflow-hidden">
+        <div className="h-full bg-emerald-500" style={{ width: `${value}%` }} />
+      </div>
+    </div>
+  );
 }
 
 function SectorBlock({ label, desc, color }: { label: string; desc: string; color: 'red' | 'orange' | 'emerald' | 'blue' | 'gray' }) {

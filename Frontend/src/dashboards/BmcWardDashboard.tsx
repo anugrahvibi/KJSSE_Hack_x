@@ -55,18 +55,18 @@ export function BmcWardDashboard() {
     }, []);
 
     return (
-        <div ref={containerRef} className={`pt-34 sm:pt-43 ${TACTICAL_THEME.paddingX} ${TACTICAL_THEME.paddingB} h-full bg-transparent overflow-y-auto w-full custom-scrollbar overflow-visible`}>
+        <div ref={containerRef} className={`pt-28 sm:pt-36 ${TACTICAL_THEME.paddingX} ${TACTICAL_THEME.paddingB} h-full bg-transparent overflow-y-auto w-full custom-scrollbar overflow-visible`}>
             <div className={`w-full ${TACTICAL_THEME.spaceY}`}>
 
                 {/* CRISIS HEADER (Show only in DEMO mode or if active threats exist) */}
                 {simulationMode === 'DEMO' && (
-                    <div className="glass-card p-6 rounded-[2.5rem] border border-red-200 bg-red-50 shadow-2xl flex flex-col md:flex-row items-center justify-between gap-6 relative overflow-hidden group">
+                    <div className="glass-card p-6 rounded-[2.5rem] border-2 border-slate-200 bg-white shadow-2xl flex flex-col md:flex-row items-center justify-between gap-6 relative overflow-hidden group">
                         <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
-                            <AlertTriangle size={80} className="text-red-500" />
+                            <AlertTriangle size={80} className="text-slate-400" />
                         </div>
                         <div className="space-y-1 relative z-10">
-                            <p className="text-[13px] font-black text-red-600 uppercase tracking-widest flex items-center gap-2">
-                                <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" /> Alert dispatched 09:07
+                            <p className="text-[13px] font-black text-slate-500 uppercase tracking-widest flex items-center gap-2">
+                                Alert dispatched 09:07
                             </p>
                             <h2 className="text-[18px] font-black text-gray-900 uppercase leading-snug">
                                 Close Sion underpass + activate pump stations 3 and 7 · Deadline: 09:22
@@ -75,7 +75,7 @@ export function BmcWardDashboard() {
                         </div>
                         <div className="flex gap-4 relative z-10">
                             <LabelButton label="ACK + acting" tone="primary" className="px-8 py-4 !rounded-2xl shadow-xl shadow-blue-500/20" />
-                            <LabelButton label="Cannot comply" tone="neutral" className="px-8 py-4 !rounded-2xl border-black/5 bg-white/60" />
+                            <LabelButton label="Cannot comply" tone="neutral" className="px-8 py-4 !rounded-2xl border-slate-200 bg-white" />
                         </div>
                     </div>
                 )}
@@ -209,14 +209,14 @@ export function BmcWardDashboard() {
                             </div>
                         </div>
 
+                    </div>
                 </div>
             </div>
-        </div>
 
-        {/* FINAL MISSION BUFFER */}
-        <div className="h-32 w-full shrink-0" />
-    </div>
-  );
+            {/* FINAL MISSION BUFFER */}
+            <div className="h-8 w-full shrink-0" />
+        </div>
+    );
 }
 
 function TaskRow({ time, label, status, color }: { time: string; label: string; status: string; color: any }) {
