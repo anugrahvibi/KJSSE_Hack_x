@@ -88,10 +88,42 @@ export function CommandDashboard() {
       return;
     }
 
-    // Initialize with first step
+    // [DEMO MODE START]
+    // 1. Pre-populate Alerts immediately
+    setAlerts([
+      {
+        department: 'EOC CMD',
+        action: 'TIDAL LOCK CONFIRMED · Outfall drainage capacity dropped to 0%',
+        alert_level: 'RED',
+        priority: 'CRITICAL',
+        source: 'Sensors',
+        status: 'DISPATCHED',
+        timestamp: new Date().toISOString()
+      },
+      {
+        department: 'NDRF',
+        action: 'Battalion 4 deployment sequence initiated for Sector B',
+        alert_level: 'ORANGE',
+        priority: 'HIGH',
+        source: 'HQ',
+        status: 'SENT',
+        timestamp: new Date().toISOString()
+      },
+      {
+        department: 'BMC HUB',
+        action: 'Urgent: Close Sion underpass - critical flood threshold reached',
+        alert_level: 'RED',
+        priority: 'CRITICAL',
+        source: 'SOP',
+        status: 'SENT',
+        timestamp: new Date().toISOString()
+      }
+    ]);
+
+    // 2. Initial Reasoning Step
     setReasoningSteps(["RIVA sequence initializing... System handshake in progress."]);
 
-    // Delay for detailed telemetry
+    // 3. Delayed Detailed Telemetry (5s)
     const timer = setTimeout(() => {
       setReasoningSteps([
         "Scanning 477 infrastructure nodes for baseline connectivity...",
@@ -108,8 +140,7 @@ export function CommandDashboard() {
       const data = JSON.parse(event.data);
       if (data.type === 'agent_reasoning') {
         if (data.status === 'CLEAR') {
-          // Keep our initial telemetry or clear only if explicitly asked
-          // For now, allow backend to append new reasoning steps
+          // Allow cumulative logs during demo
         } else {
           setReasoningSteps(prev => [...prev, data.status]);
         }
@@ -124,7 +155,7 @@ export function CommandDashboard() {
       } else if (data.type === 'alert_dispatched') {
         setAlerts(prev => [data, ...prev]);
       } else if (data.type === 'alert_overdue') {
-        setAlerts(prev => prev.map(a => a.alert_id === data.alert_id ? { ...a, status: 'OVERDUE' } : a));
+        setAlerts(prev => prev.map(a => (a as any).alert_id === data.alert_id ? { ...a, status: 'OVERDUE' } : a));
       }
     };
 
@@ -139,7 +170,8 @@ export function CommandDashboard() {
       setZones(zData);
       setInfra(iData.nodes);
       setPredictions(pData);
-      setAlerts(aData);
+      // We merge fetched alerts with our initial ones if needed, or just replace
+      setAlerts(prev => [...aData, ...prev.filter(p => !aData.some(a => a.action === p.action))]);
       setEnvironmentalData(eData);
       setLastUpdated(new Date().toLocaleTimeString());
     }
@@ -154,7 +186,7 @@ export function CommandDashboard() {
   }, [simulationMode]);
 
   return (
-    <div ref={containerRef} className="h-full w-full bg-transparent pt-22 sm:pt-30 px-12 pb-12 flex flex-col lg:flex-row gap-8 overflow-y-auto custom-scrollbar overflow-visible">
+    <div ref={containerRef} className="h-full w-full bg-transparent pt-40 sm:pt-44 lg:pt-48 px-3 sm:px-4 lg:px-6 py-10 flex flex-col lg:flex-row gap-8 overflow-y-auto custom-scrollbar overflow-visible">
 
       <div className="flex-[0.72] flex flex-col gap-10">
         <div className="flex-1 min-h-[600px] relative rounded-[2.5rem] overflow-hidden border border-white/60 shadow-2xl bg-white/30">
