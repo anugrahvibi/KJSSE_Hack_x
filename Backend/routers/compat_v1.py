@@ -232,7 +232,8 @@ def request_otp(payload: dict):
     phone = payload.get("phone_number")
     if not phone:
         return {"success": False, "detail": "phone_number_required"}
-    return {"success": True, "message": "otp_sent", "otp": "1234"}
+    otp = "1111" if str(phone) == "9074121510" else "1234"
+    return {"success": True, "message": "otp_sent", "otp": otp}
 
 
 @router.post("/auth/verify-otp")
@@ -242,6 +243,8 @@ def verify_otp(payload: dict):
     role = payload.get("role", "Public")
     if not phone or not otp:
         return {"success": False, "detail": "phone_and_otp_required"}
-    if str(otp) != "1234":
+    
+    expected_otp = "1111" if str(phone) == "9074121510" else "1234"
+    if str(otp) != expected_otp:
         return {"success": False, "detail": "invalid_otp"}
     return {"success": True, "user": {"phone_number": phone, "role": role}}

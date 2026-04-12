@@ -3,7 +3,7 @@ from __future__ import annotations
 from .agent import client
 
 DEPT_BRIEFING_PROMPT = """
-You are CascadeNet Mumbai writing a direct operational briefing
+You are Riva Mumbai writing a direct operational briefing
 to a department commander. You write in second person ("You are...").
 Your briefing has exactly 4 sentences:
 1. The situation the commander is responding to (what is happening, where, why)

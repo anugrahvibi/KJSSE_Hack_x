@@ -6,7 +6,7 @@ from typing import Any
 from .agent import client
 
 ESCALATION_SYSTEM_PROMPT = """
-You are CascadeNet Mumbai's escalation agent.
+You are Riva Mumbai's escalation agent.
 A department failed to respond to a CRITICAL flood alert.
 Time has passed. The situation has worsened.
 You must produce an escalated action plan that:

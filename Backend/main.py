@@ -11,6 +11,10 @@ from fastapi.responses import JSONResponse
 # Add parent directory to Python path to import AI modules
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+import logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
+
 from Backend.config import OVERDUE_CHECK_SECONDS
 from Backend.routers import accountability, agent, cascade, compat_v1, demo, detection, websocket, reports
 from Backend.services.runtime import log_service, ws_manager
@@ -58,7 +62,7 @@ async def lifespan(_: FastAPI):
         overdue_task.cancel()
 
 
-app = FastAPI(title="Riva Mumbai Backend", version="1.0.0", lifespan=lifespan)
+app = FastAPI(title="Riva", version="1.0.0", lifespan=lifespan)
 
 app.include_router(detection.router)
 app.include_router(agent.router)

@@ -1,4 +1,4 @@
-# CascadeNet Mumbai
+# Riva Mumbai
 
 > *"When the next flood happens and someone asks why people died — Mumbai will finally have an answer. Not a press conference. A log."*
 
@@ -28,15 +28,15 @@ Mumbai's floods are not a weather problem. They are a systems failure — and th
 
 ---
 
-## The Solution: CascadeNet Mumbai
+## The Solution: Riva Mumbai
 
-CascadeNet is a three-layer crisis operating system that replaces Mumbai's reactive disaster management with predictive, coordinated, accountable flood response.
+Riva is a three-layer crisis operating system that replaces Mumbai's reactive disaster management with predictive, coordinated, accountable flood response.
 
 It does not fix the drains. It fixes the response.
 
 ### What It Does Differently
 
-| Current System | CascadeNet |
+| Current System | Riva |
 |---|---|
 | Departments learn about flooding from news or field calls | Physics-based flood status computed in real time |
 | Coordination via phone calls, 4–6 hours of lag | Agent-dispatched alerts to 6 agencies in under 60 seconds |
@@ -46,13 +46,13 @@ It does not fix the drains. It fixes the response.
 
 ### The Core Insight
 
-Dharavi's outfall elevation is 4.2m. When tide height exceeds 4.2m, drainage capacity drops to 0%. This is not a prediction. This is physics. CascadeNet computes this in real time, triggers a dispatch agent, and routes specific instructions to BMC, NDRF, Western Railway, Central Railway, KEM Hospital, and public advisory — sequenced correctly, with deadlines, with accountability.
+Dharavi's outfall elevation is 4.2m. When tide height exceeds 4.2m, drainage capacity drops to 0%. This is not a prediction. This is physics. Riva computes this in real time, triggers a dispatch agent, and routes specific instructions to BMC, NDRF, Western Railway, Central Railway, KEM Hospital, and public advisory — sequenced correctly, with deadlines, with accountability.
 
 ---
 
 ## Architecture
 
-CascadeNet has three layers. Each layer feeds the next.
+Riva has three layers. Each layer feeds the next.
 
 ```
 [ Mock Data Sources ]
@@ -163,7 +163,7 @@ Every alert dispatched generates a timestamped log entry. Every department respo
 
 ## Deadlock Impact
 
-CascadeNet directly addresses Mumbai's systemic flood failures:
+Riva directly addresses Mumbai's systemic flood failures:
 
 | Deadlock | Impact | How |
 |---|---|---|
@@ -401,4 +401,4 @@ Track: AI / Open Innovation · Prize Pool: ₹3 Lakhs+
 
 ---
 
-*CascadeNet Mumbai — because the city deserves a nervous system, not a press conference.*
+*Riva Mumbai — because the city deserves a nervous system, not a press conference.*

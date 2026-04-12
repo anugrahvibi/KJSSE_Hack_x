@@ -10,7 +10,7 @@ from ..config import DATA_DIR
 from ..models.cascade import DemoStartRequest
 from ..models.ward import FloodStatus
 from ..services.orchestration import broadcast_ack, dispatch_from_ward_status
-from ..services.runtime import demo_service, drain_service, log_service, ws_manager
+from ..services.runtime import demo_service, drain_service, log_service, ws_manager, sms_service
 
 router = APIRouter(prefix="/api/demo", tags=["demo"])
 
@@ -108,6 +108,10 @@ async def start_demo(payload: DemoStartRequest):
 
     events = scenario.get("events", [])
     demo_service.start(_replay(events, payload.speed_multiplier))
+    
+    # Trigger SMS notification
+    sms_service.trigger_demo_alert()
+    
     return {
         "status": "started",
         "scenario_id": scenario.get("scenario_id", "unknown"),

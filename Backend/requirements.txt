@@ -4,3 +4,5 @@ pydantic==2.12.5
 networkx==3.4.2
 anthropic==0.94.0
 groq==0.18.0
+twilio==9.4.5
+python-dotenv==1.0.1
