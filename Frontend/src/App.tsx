@@ -183,8 +183,8 @@ function Navigation() {
                 className="relative z-30 px-8 py-2.5 rounded-full text-[11px] font-black uppercase transition-colors duration-300 whitespace-nowrap tracking-wider outline-none bg-transparent"
               >
                 <span className={`relative z-40 transition-colors duration-300 ${isActive
-                    ? 'text-white'
-                    : (hoveredMainNav === idx ? 'text-blue-600' : 'text-gray-600')
+                  ? 'text-white'
+                  : (hoveredMainNav === idx ? 'text-blue-600' : 'text-gray-600')
                   }`}>
                   {nav.label}
                 </span>
@@ -199,8 +199,8 @@ function Navigation() {
             {/* Sliding Mode Indicator */}
             <div
               className={`absolute top-1 bottom-1 rounded-xl transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] shadow-lg z-0 ${simulationMode === 'LIVE'
-                  ? 'left-1 w-[80px] bg-emerald-600 shadow-emerald-500/20'
-                  : 'left-[84px] w-[88px] bg-red-600 shadow-red-500/20'
+                ? 'left-1 w-[80px] bg-emerald-600 shadow-emerald-500/20'
+                : 'left-[84px] w-[88px] bg-red-600 shadow-red-500/20'
                 }`}
             />
 
@@ -269,8 +269,8 @@ function Navigation() {
                 className="relative z-30 px-6 py-2 rounded-full text-[11px] font-semibold uppercase transition-colors duration-300 whitespace-nowrap outline-none bg-transparent"
               >
                 <span className={`relative z-40 transition-colors duration-300 ${isActive
-                    ? 'text-white'
-                    : (hoveredAgency === idx ? 'text-gray-950' : 'text-gray-500')
+                  ? 'text-white'
+                  : (hoveredAgency === idx ? 'text-gray-950' : 'text-gray-500')
                   }`}>
                   {agency.label}
                 </span>
