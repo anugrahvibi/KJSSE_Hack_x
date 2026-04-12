@@ -64,7 +64,7 @@ export function RailwayDashboard() {
     }, [simulationMode]);
 
     return (
-        <div ref={containerRef} className={`pt-34 sm:pt-43 ${TACTICAL_THEME.paddingX} ${TACTICAL_THEME.paddingB} h-full bg-transparent overflow-y-auto w-full custom-scrollbar overflow-visible`}>
+        <div ref={containerRef} className={`pt-28 sm:pt-36 ${TACTICAL_THEME.paddingX} ${TACTICAL_THEME.paddingB} h-full bg-transparent overflow-y-auto w-full custom-scrollbar overflow-visible`}>
             <div className={`w-full ${TACTICAL_THEME.spaceY}`}>
                 {/* SYSTEM NORMAL STATUS (Live Mode) */}
                 {simulationMode === 'LIVE' && (
@@ -84,23 +84,23 @@ export function RailwayDashboard() {
 
                 {/* CLIMAX ALERT HEADER (DEMO ONLY) */}
                 {simulationMode === 'DEMO' && (
-                    <div className="glass-card p-6 rounded-[2.5rem] border-2 border-red-500 bg-red-600/10 shadow-2xl animate-pulse overflow-hidden relative group">
-                        <div className="absolute top-0 right-0 p-4 opacity-20 group-hover:opacity-40 transition-opacity">
-                            <AlertTriangle size={80} className="text-red-600" />
+                    <div className="glass-card p-6 rounded-[2.5rem] border-2 border-slate-200 bg-white shadow-2xl overflow-hidden relative group">
+                        <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                            <AlertTriangle size={80} className="text-slate-400" />
                         </div>
                         <div className="flex flex-col md:flex-row items-center justify-between gap-6 relative z-10">
                             <div className="space-y-1">
                                 <div className="flex items-center gap-3">
-                                    <TacticalBadge label="OVERDUE - 09:27" color="red" variant="filled" className="animate-bounce" />
-                                    <span className="text-[14px] font-black text-red-600 uppercase tracking-widest">Immediate Escalation Triggered</span>
+                                    <TacticalBadge label="OVERDUE - 09:27" color="gray" variant="filled" />
+                                    <span className="text-[14px] font-black text-slate-600 uppercase tracking-widest">Immediate Escalation Triggered</span>
                                 </div>
                                 <p className="text-[18px] font-black text-gray-950 uppercase leading-tight mt-2">
                                     STATION PREP AT KURLA + SION NOT ACKNOWLEDGED · THIS SILENCE IS LOGGED · DEADLINE PASSED
                                 </p>
                             </div>
                             <div className="flex gap-4">
-                                <button className="px-8 py-4 bg-red-600 text-white rounded-2xl font-black text-[14px] uppercase hover:scale-105 active:scale-95 transition-all shadow-xl shadow-red-500/30">ACK NOW</button>
-                                <button className="px-8 py-4 bg-white border-2 border-red-200 text-red-600 rounded-2xl font-black text-[14px] uppercase hover:scale-105 active:scale-95 transition-all">ESCALATE</button>
+                                <button className="px-8 py-4 bg-gray-950 text-white rounded-2xl font-black text-[14px] uppercase hover:scale-105 active:scale-95 transition-all shadow-xl shadow-gray-500/30">ACK NOW</button>
+                                <button className="px-8 py-4 bg-white border-2 border-slate-200 text-slate-600 rounded-2xl font-black text-[14px] uppercase hover:scale-105 active:scale-95 transition-all">ESCALATE</button>
                             </div>
                         </div>
                     </div>
@@ -264,12 +264,14 @@ export function RailwayDashboard() {
                                 </div>
                             </div>
                         </div>
+                    </div>
                 </div>
             </div>
-        </div>
 
-    </div>
-  );
+            {/* FINAL MISSION BUFFER */}
+            <div className="h-32 w-full shrink-0" />
+        </div>
+    );
 }
 
 function StationRiskCard({ name, risk, sub, color }: { name: string; risk: string; sub: string, color: any }) {

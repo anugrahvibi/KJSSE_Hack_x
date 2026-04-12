@@ -89,7 +89,7 @@ export function AgencyPortalDashboard() {
   }, [config.dept]);
 
   return (
-    <div ref={containerRef} className={`pt-34 sm:pt-43 ${TACTICAL_THEME.paddingX} ${TACTICAL_THEME.paddingB} h-full bg-transparent overflow-y-auto w-full custom-scrollbar overflow-visible`}>
+    <div ref={containerRef} className={`pt-28 sm:pt-36 ${TACTICAL_THEME.paddingX} ${TACTICAL_THEME.paddingB} h-full bg-transparent overflow-y-auto w-full custom-scrollbar overflow-visible`}>
       <div className={`w-full ${TACTICAL_THEME.spaceY}`}>
         <div className={`grid grid-cols-1 lg:grid-cols-12 ${TACTICAL_THEME.gap} h-[calc(100vh-320px)] min-h-[500px]`}>
           {/* MAP PANEL */}

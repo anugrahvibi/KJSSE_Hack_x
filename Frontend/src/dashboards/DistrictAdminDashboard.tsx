@@ -24,14 +24,14 @@ export function DistrictAdminDashboard() {
       init();
    }, []);
 
-  return (
-    <div ref={containerRef} className={`pt-34 sm:pt-43 ${TACTICAL_THEME.paddingX} h-full bg-transparent overflow-y-auto w-full custom-scrollbar overflow-visible`}>
-      <div className={`w-full ${TACTICAL_THEME.spaceY}`}>
+   return (
+      <div ref={containerRef} className={`pt-28 sm:pt-36 ${TACTICAL_THEME.paddingX} h-full bg-transparent overflow-y-auto w-full custom-scrollbar overflow-visible`}>
+         <div className={`w-full ${TACTICAL_THEME.spaceY}`}>
             {/* Alert Bar - only in DEMO */}
             {simulationMode === 'DEMO' && (
-               <div className="glass-card p-6 rounded-[2.25rem] border border-orange-200 bg-orange-500/10 shadow-xl overflow-visible flex flex-col md:flex-row items-center justify-between gap-6 group">
+               <div className="glass-card p-6 rounded-[2.25rem] border-2 border-slate-200 bg-white shadow-xl overflow-visible flex flex-col md:flex-row items-center justify-between gap-6 group">
                   <div className="flex-1 space-y-1">
-                     <p className="text-[13px] font-black text-orange-600 uppercase flex items-center gap-2">
+                     <p className="text-[13px] font-black text-slate-500 uppercase flex items-center gap-2">
                         Alert Dispatched 09:07
                      </p>
                      <p className="text-[16px] font-bold text-gray-900 leading-tight uppercase">
@@ -40,7 +40,7 @@ export function DistrictAdminDashboard() {
                   </div>
                   <div className="flex gap-4">
                      <button className="px-8 py-3 bg-gray-950 text-white rounded-xl font-black text-[13px] uppercase hover:scale-95 transition-all shadow-xl">ACK + activating</button>
-                     <button className="px-8 py-3 bg-white border border-gray-200 text-gray-500 rounded-xl font-black text-[13px] uppercase hover:scale-95 transition-all">Cannot comply</button>
+                     <button className="px-8 py-3 bg-white border border-slate-200 text-slate-500 rounded-xl font-black text-[13px] uppercase hover:scale-95 transition-all">Cannot comply</button>
                   </div>
                </div>
             )}
@@ -68,15 +68,15 @@ export function DistrictAdminDashboard() {
 
                   {/* SUB-MAP: Accessibility Oversight */}
                   <div className="min-h-[400px] relative rounded-[2.5rem] overflow-hidden border border-black/5 shadow-2xl bg-white/20 backdrop-blur-xl shrink-0">
-                     <MapView 
-                        variant="emergency" 
-                        infrastructureNodes={[]} 
-                        predictions={[]} 
-                        onZoneClick={() => {}} 
+                     <MapView
+                        variant="emergency"
+                        infrastructureNodes={[]}
+                        predictions={[]}
+                        onZoneClick={() => { }}
                      />
                      <div className="absolute top-6 left-6 z-[1000] glass-card px-4 py-2 rounded-xl text-[10px] font-black text-gray-950 uppercase border border-white/40 flex items-center gap-2">
                         Hospital Transit Oversight
-                      </div>
+                     </div>
                   </div>
 
                   {/* Hospital Capacity */}
@@ -129,7 +129,7 @@ export function DistrictAdminDashboard() {
                               <CapacityProgress label="Emergency Meds" value={78} color="bg-blue-600" />
                            </div>
                         </TacticalCard>
-                        
+
                         <TacticalCard title="STAFF READINESS" icon={<PlusCircle size={16} className="text-blue-600" />}>
                            <div className="space-y-6">
                               <StatusMetric label="Surge Team" value="On Standby" color="text-blue-600" />
@@ -216,6 +216,8 @@ export function DistrictAdminDashboard() {
             </div>
          </div>
 
+         {/* FINAL MISSION BUFFER */}
+         <div className="h-16 w-full shrink-0" />
       </div>
    );
 }
