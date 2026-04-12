@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { MapView } from '../components/MapView';
 import { fetchInfrastructure, fetchPredictions, fetchActiveAlerts } from '../utils/dataFetcher';
 import type { StakeholderAction, InfrastructureNode, ZonePrediction } from '@schema';
@@ -33,7 +33,7 @@ export function NdrfDashboard() {
   }, []);
 
   return (
-    <div ref={containerRef} className="h-full w-full bg-transparent pt-40 sm:pt-44 lg:pt-48 px-3 sm:px-4 lg:px-6 py-10 flex flex-col gap-10 overflow-y-auto custom-scrollbar overflow-visible">
+    <div ref={containerRef} className="h-full w-full bg-transparent pt-35 sm:pt-46 px-12 pb-12 flex flex-col gap-10 overflow-y-auto custom-scrollbar overflow-visible">
       {/* Top Urgent Alert Bar (only in DEMO) */}
       {simulationMode === 'DEMO' ? (
         <div className="glass-card p-6 rounded-[2rem] border border-red-200 bg-red-50/20 flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl overflow-visible">

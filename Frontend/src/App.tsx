@@ -57,6 +57,14 @@ function Navigation() {
 
   useGsapAnimations(navRef);
 
+  // Pill animation state
+  const [mainPillStyle, setMainPillStyle] = useState({ left: 0, width: 0, opacity: 0 });
+  const [agencyPillStyle, setAgencyPillStyle] = useState({ left: 0, width: 0, opacity: 0 });
+  const [hoveredMainNav, setHoveredMainNav] = useState<number | null>(null);
+  const [hoveredAgency, setHoveredAgency] = useState<number | null>(null);
+  const mainNavRefs = useRef<(HTMLButtonElement | null)[]>([]);
+  const agencyRefs = useRef<(HTMLButtonElement | null)[]>([]);
+
   const isAuthPage = location.pathname === '/login' || location.pathname === '/signup';
   const isAgencyPortal = location.pathname === '/agency';
   const departmentKey = role ? roleToAlertDepartment[role] : null;
@@ -77,12 +85,42 @@ function Navigation() {
 
   if (isAuthPage) return null;
 
-  const agencyRoles: { id: Role; label: string }[] = [
+  const agencyRoles: { id: Role; label: string }[] = useMemo(() => [
     { id: 'BMC Ward Officer', label: 'BMC Ward Officer' },
     { id: 'NDRF', label: 'NDRF Battalion 4' },
     { id: 'Western Railway', label: 'Western Railway' },
     { id: 'KEM Hospital', label: 'KEM Hospital' },
-  ];
+  ], []);
+
+  const mainNavItems = useMemo(() => [
+    { path: '/', label: 'Command Hub' },
+    { path: '/agency', label: 'Department Portals' },
+    { path: '/audit', label: 'Audit Map' },
+  ], []);
+
+  useEffect(() => {
+    const activeIndex = mainNavItems.findIndex(n => location.pathname === n.path);
+    const activeEl = mainNavRefs.current[activeIndex];
+    if (activeEl) {
+      setMainPillStyle({ left: activeEl.offsetLeft, width: activeEl.offsetWidth, opacity: 1 });
+    }
+  }, [location.pathname, mainNavItems]);
+
+  const currentRole = role || 'BMC Ward Officer';
+  
+  useEffect(() => {
+    if (!isAgencyPortal) return;
+    const updateStyle = () => {
+      const activeIndex = agencyRoles.findIndex(a => a.id === currentRole);
+      const activeEl = agencyRefs.current[activeIndex];
+      if (activeEl) {
+        setAgencyPillStyle({ left: activeEl.offsetLeft, width: activeEl.offsetWidth, opacity: 1 });
+      }
+    };
+    updateStyle();
+    const timer = setTimeout(updateStyle, 50);
+    return () => clearTimeout(timer);
+  }, [currentRole, isAgencyPortal, agencyRoles]);
 
   return (
     <div ref={navRef} className="fixed top-3 sm:top-5 left-1/2 -translate-x-1/2 w-[96%] max-w-7xl z-50 flex flex-col gap-2 pointer-events-none">
@@ -116,21 +154,46 @@ function Navigation() {
         </div>
 
         {/* MAIN TABS */}
-        <div className="hidden md:inline-flex items-center gap-1.5 p-1 bg-white/40 rounded-full border border-white/60">
-          {[
-            { path: '/', label: 'Command Hub' },
-            { path: '/agency', label: 'Department Portals' },
-            { path: '/audit', label: 'Audit Map' },
-          ].map((nav) => (
-            <button
-              key={nav.path}
-              onClick={() => navigate(nav.path)}
-              className={`px-8 py-2.5 rounded-full text-[11px] font-black uppercase transition-all whitespace-nowrap tracking-wider ${location.pathname === nav.path ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20' : 'text-gray-600 hover:bg-white/60'
-                }`}
-            >
-              {nav.label}
-            </button>
-          ))}
+        <div className="hidden md:inline-flex relative items-center gap-1.5 p-1 bg-white/40 rounded-full border border-white/60 overflow-hidden">
+          {/* Layer 0: Highlight/Hover Pill (Bottom) */}
+          {hoveredMainNav !== null && mainNavRefs.current[hoveredMainNav] && location.pathname !== mainNavItems[hoveredMainNav].path && (
+            <div 
+              className="absolute top-1 bottom-1 bg-white/40 rounded-full transition-all duration-300 ease-out z-0 pointer-events-none"
+              style={{
+                left: mainNavRefs.current[hoveredMainNav]?.offsetLeft || 0,
+                width: mainNavRefs.current[hoveredMainNav]?.offsetWidth || 0
+              }}
+            />
+          )}
+
+          {/* Layer 1: Active/Sliding Pill (Middle) */}
+          <div 
+            className="absolute top-1 bottom-1 bg-blue-600 rounded-full transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] shadow-lg shadow-blue-500/20 z-10 pointer-events-none"
+            style={mainPillStyle}
+          />
+
+          {/* Layer 2: Interactive Buttons & Text (Top) */}
+          {mainNavItems.map((nav, idx) => {
+            const isActive = location.pathname === nav.path;
+            return (
+              <button
+                key={nav.path}
+                ref={el => mainNavRefs.current[idx] = el}
+                onClick={() => navigate(nav.path)}
+                onMouseEnter={() => setHoveredMainNav(idx)}
+                onMouseLeave={() => setHoveredMainNav(null)}
+                className="relative z-30 px-8 py-2.5 rounded-full text-[11px] font-black uppercase transition-colors duration-300 whitespace-nowrap tracking-wider outline-none bg-transparent"
+              >
+                <span className={`relative z-40 transition-colors duration-300 ${
+                  isActive 
+                    ? 'text-white' 
+                    : (hoveredMainNav === idx ? 'text-blue-600' : 'text-gray-600')
+                }`}>
+                  {nav.label}
+                </span>
+              </button>
+            );
+          })}
         </div>
 
         <div className="flex items-center gap-4">
@@ -166,25 +229,52 @@ function Navigation() {
       {/* TACTICAL SUB-BAR (Only for Agency Portal) */}
       {isAgencyPortal && (
         <div
-          className="inline-flex self-center items-center justify-center gap-1.5 w-fit rounded-full border border-white/40 p-1 shadow-xl animate-in fade-in slide-in-from-top-2 duration-300 pointer-events-auto"
+          className="relative inline-flex self-center items-center justify-center gap-1.5 w-fit rounded-full border border-white/40 p-1 shadow-xl animate-in fade-in slide-in-from-top-2 duration-300 pointer-events-auto"
           style={{
             background: 'rgba(255, 255, 255, 0.15)',
             backdropFilter: 'blur(40px) saturate(180%)',
             WebkitBackdropFilter: 'blur(40px) saturate(180%)'
           }}
         >
-          {agencyRoles.map((agency) => (
-            <button
-              key={agency.id}
-              onClick={() => setRoleDirectly(agency.id)}
-              className={`px-6 py-2 rounded-full text-[11px] font-semibold uppercase transition-all whitespace-nowrap ${(role || 'BMC Ward Officer') === agency.id
-                ? 'bg-gray-950 text-white shadow-lg'
-                : 'text-gray-500 hover:bg-white/60'
-                }`}
-            >
-              {agency.label}
-            </button>
-          ))}
+          {/* Layer 0: Highlight/Hover Pill (Bottom) */}
+          {hoveredAgency !== null && agencyRefs.current[hoveredAgency] && currentRole !== agencyRoles[hoveredAgency].id && (
+            <div 
+              className="absolute top-1 bottom-1 bg-white/40 rounded-full transition-all duration-300 ease-out z-0 pointer-events-none"
+              style={{
+                left: agencyRefs.current[hoveredAgency]?.offsetLeft || 0,
+                width: agencyRefs.current[hoveredAgency]?.offsetWidth || 0
+              }}
+            />
+          )}
+
+          {/* Layer 1: Active/Sliding Pill (Middle) */}
+          <div 
+            className="absolute top-1 bottom-1 bg-gray-950 rounded-full transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] drop-shadow-md z-10 pointer-events-none"
+            style={agencyPillStyle}
+          />
+          
+          {/* Layer 2: Interactive Buttons & Text (Top) */}
+          {agencyRoles.map((agency, idx) => {
+            const isActive = currentRole === agency.id;
+            return (
+              <button
+                key={agency.id}
+                ref={el => agencyRefs.current[idx] = el}
+                onClick={() => setRoleDirectly(agency.id)}
+                onMouseEnter={() => setHoveredAgency(idx)}
+                onMouseLeave={() => setHoveredAgency(null)}
+                className="relative z-30 px-6 py-2 rounded-full text-[11px] font-semibold uppercase transition-colors duration-300 whitespace-nowrap outline-none bg-transparent"
+              >
+                <span className={`relative z-40 transition-colors duration-300 ${
+                  isActive 
+                    ? 'text-white' 
+                    : (hoveredAgency === idx ? 'text-gray-950' : 'text-gray-500')
+                }`}>
+                  {agency.label}
+                </span>
+              </button>
+            );
+          })}
         </div>
       )}
     </div>

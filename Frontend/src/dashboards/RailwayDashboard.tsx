@@ -63,8 +63,8 @@ export function RailwayDashboard() {
     }, [simulationMode]);
 
     return (
-        <div ref={containerRef} className="pt-40 sm:pt-44 lg:pt-48 px-3 sm:px-4 lg:px-6 py-10 h-full bg-transparent overflow-y-auto w-full custom-scrollbar overflow-visible">
-            <div className="w-full space-y-10 py-5 pb-16">
+        <div ref={containerRef} className="pt-35 sm:pt-46 px-12 pb-12 h-full bg-transparent overflow-y-auto w-full custom-scrollbar overflow-visible">
+            <div className="w-full space-y-10 pb-16">
                 {/* SYSTEM NORMAL STATUS (Live Mode) */}
                 {simulationMode === 'LIVE' && (
                     <div className="glass-card p-6 rounded-[2.5rem] border border-emerald-200 bg-emerald-50/30 flex items-center justify-between">

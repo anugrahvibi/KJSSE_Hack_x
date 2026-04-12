@@ -116,7 +116,7 @@ export function CommandDashboard() {
   }, [simulationMode]);
 
   return (
-    <div ref={containerRef} className="h-full w-full bg-transparent pt-40 sm:pt-44 lg:pt-48 px-3 sm:px-4 lg:px-6 py-10 flex flex-col lg:flex-row gap-8 overflow-y-auto custom-scrollbar overflow-visible">
+    <div ref={containerRef} className="h-full w-full bg-transparent pt-22 sm:pt-30 px-12 pb-12 flex flex-col lg:flex-row gap-8 overflow-y-auto custom-scrollbar overflow-visible">
 
       <div className="flex-[0.72] flex flex-col gap-10">
         {/* Map Panel (Top Left) */}

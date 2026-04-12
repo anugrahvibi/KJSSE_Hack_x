@@ -54,8 +54,8 @@ export function BmcWardDashboard() {
     }, []);
 
     return (
-        <div ref={containerRef} className="pt-40 sm:pt-44 lg:pt-48 px-3 sm:px-4 lg:px-6 py-10 h-full bg-transparent overflow-y-auto w-full custom-scrollbar overflow-visible">
-            <div className="w-full space-y-8 py-5">
+        <div ref={containerRef} className="pt-35 sm:pt-46 px-12 pb-12 h-full bg-transparent overflow-y-auto w-full custom-scrollbar overflow-visible">
+            <div className="w-full space-y-8">
 
                 {/* CRISIS HEADER (Show only in DEMO mode or if active threats exist) */}
                 {simulationMode === 'DEMO' && (

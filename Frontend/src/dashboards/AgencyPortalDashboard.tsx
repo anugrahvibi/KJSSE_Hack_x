@@ -88,8 +88,8 @@ export function AgencyPortalDashboard() {
   }, [config.dept]);
 
   return (
-    <div ref={containerRef} className="pt-40 sm:pt-44 lg:pt-48 px-3 sm:px-4 lg:px-6 py-10 h-full bg-transparent overflow-y-auto w-full custom-scrollbar overflow-visible">
-      <div className="w-full space-y-12 py-10">
+    <div ref={containerRef} className="pt-35 sm:pt-46 px-12 pb-12 h-full bg-transparent overflow-y-auto w-full custom-scrollbar overflow-visible">
+      <div className="w-full space-y-12">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 h-[700px]">
           {/* MAP PANEL */}
           <div className="lg:col-span-8 relative glass-card p-1 rounded-[3rem] border-white/60 shadow-2xl overflow-hidden bg-white/30">

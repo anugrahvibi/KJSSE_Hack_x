@@ -26,8 +26,8 @@ export function AuditDashboard() {
    }, []);
 
    return (
-      <div ref={containerRef} className="pt-40 sm:pt-44 lg:pt-48 px-3 sm:px-4 lg:px-6 py-10 h-full bg-transparent overflow-y-auto w-full custom-scrollbar overflow-visible">
-         <div className="w-full flex flex-col lg:flex-row gap-10">
+    <div ref={containerRef} className="pt-22 sm:pt-30 px-12 pb-12 h-full bg-transparent overflow-y-auto w-full custom-scrollbar overflow-visible">
+      <div className="w-full flex flex-col lg:flex-row gap-10">
 
             {/* LEFT COLUMN: Insights & Map (65%) */}
             <div className="flex-[0.65] flex flex-col gap-10">
