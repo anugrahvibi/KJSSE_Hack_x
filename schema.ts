@@ -29,6 +29,8 @@ export interface StakeholderAction {
   source: string;
   time_window_hours?: number;
   is_distress?: boolean;
+  alert_id?: string;
+  status?: string;
   timestamp?: string;
 }
 

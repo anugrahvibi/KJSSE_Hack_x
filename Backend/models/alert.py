@@ -21,6 +21,7 @@ class ActionItem(BaseModel):
 
 
 class ActionPlan(BaseModel):
+    reasoning_steps: list[str] = Field(default_factory=list)
     scenario_summary: str
     actions: list[ActionItem]
     tide_trajectory_note: str

@@ -5,6 +5,17 @@ from .runtime import agent_service, log_service, ws_manager
 
 async def dispatch_from_ward_status(ward_status, context: dict | None = None, dispatched_at: str | None = None):
     plan = agent_service.run_dispatch_agent(ward_status, context=context)
+    
+    # Broadcast reasoning steps to the frontend
+    import asyncio
+    for step in plan.reasoning_steps:
+        await ws_manager.broadcast_alert({
+            "type": "agent_reasoning",
+            "status": step,
+            "timestamp": "live"
+        })
+        await asyncio.sleep(0.5)
+
     alerts = log_service.create_dispatches(ward_id=ward_status.ward_id, plan=plan, dispatched_at=dispatched_at)
 
     for alert in alerts:

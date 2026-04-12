@@ -73,6 +73,28 @@ async def _replay(events: list[dict], speed_multiplier: float):
                     "timestamp": "demo",
                 }
             )
+        
+        elif event_type == "agent_reasoning":
+            await ws_manager.broadcast_dashboard({
+                "type": "agent_reasoning",
+                "status": payload.get("status", "Generating plan..."),
+                "timestamp": "demo"
+            })
+
+        elif event_type == "alert_overdue":
+            await ws_manager.broadcast_dashboard({
+                "type": "alert_overdue",
+                "alert_id": payload.get("alert_id"),
+                "dept": payload.get("dept"),
+                "timestamp": "demo"
+            })
+
+        elif event_type == "event_closed":
+            await ws_manager.broadcast_dashboard({
+                "type": "event_closed",
+                "ward_id": payload.get("ward_id"),
+                "timestamp": "demo"
+            })
 
 
 @router.post("/start")

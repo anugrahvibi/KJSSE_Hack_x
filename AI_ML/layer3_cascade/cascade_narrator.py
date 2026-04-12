@@ -27,6 +27,15 @@ def _step_get(step: Any, key: str, default: Any = None) -> Any:
     return getattr(step, key, default)
 
 
+def generate_cascade_narrative(
+    ward_id: str,
+    cascade_steps: list,
+) -> str:
+    """Entry point for routers to generate one-shot incident projections."""
+    # Assuming ward name lookups or using ward_id directly
+    return narrate_cascade(cascade_steps, ward_id, f"Ward {ward_id}")
+
+
 def narrate_cascade(
     cascade_steps: list,
     trigger_ward: str,
@@ -39,7 +48,7 @@ def narrate_cascade(
         )
 
     steps_text = "\n".join([
-        f"T+{_step_get(s, 't_plus_minutes', 0)}min: {_step_get(s, 'node_label', 'UNKNOWN')} — "
+        f"T+{_step_get(s, 't_plus_minutes', 0)}min: {_step_get(s, 'node_label', 'UNKNOWN')} \u2014 "
         f"{int(_step_get(s, 'affected_population', _step_get(s, 'population_affected', 0))):,} people affected "
         f"({_step_get(s, 'failure_condition', 'Unknown condition')})"
         for s in cascade_steps
@@ -47,8 +56,12 @@ def narrate_cascade(
 
     user_message = f"""
 Trigger: Ward {trigger_ward} ({trigger_ward_name}) in tidal lock.
-Cascade sequence computed:
+Cascade sequence computed from dependency graph:
 {steps_text}
+
+Audit Mode Context:
+This analysis simulates removing these nodes without an active flood to count downstream population impact.
+Rankings established: Western Railway (5.2M multiplier), Sion arterial (2.1M).
 
 Write the 2-hour incident projection now.
 """

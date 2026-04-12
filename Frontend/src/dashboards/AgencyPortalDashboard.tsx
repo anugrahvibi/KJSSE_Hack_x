@@ -1,8 +1,8 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { fetchPredictions, fetchActiveAlerts, fetchInfrastructure } from '../utils/dataFetcher';
 import type { ZonePrediction, StakeholderAction, AlertRecord, InfrastructureNode } from '@schema';
-import { 
-  PlusCircle, Bed, Ambulance, AlertTriangle, Activity, Navigation, 
+import {
+  PlusCircle, Bed, Ambulance, AlertTriangle, Activity, Navigation,
   Clock, Droplets, Zap, Train, HardHat, Info, Power, Radio
 } from 'lucide-react';
 import { useGsapAnimations } from '../utils/useGsapAnimations';
@@ -15,7 +15,7 @@ export function AgencyPortalDashboard() {
   const { role, simulationMode } = useAuth();
   const currentRole = role || 'BMC Ward Officer';
   const containerRef = useRef<HTMLDivElement>(null);
-  
+
   const [alerts, setAlerts] = useState<AlertRecord[]>([]);
   const [infra, setInfra] = useState<InfrastructureNode[]>([]);
   const [predictions, setPredictions] = useState<ZonePrediction[]>([]);
@@ -58,6 +58,21 @@ export function AgencyPortalDashboard() {
   };
 
   useEffect(() => {
+    const wsUrl = `ws://${window.location.hostname}:8000/ws/dashboard`;
+    const socket = new WebSocket(wsUrl);
+
+    socket.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      if (data.type === 'alert_dispatched') {
+        const matchesRole = !config.dept || data.department?.toLowerCase() === config.dept.toLowerCase() || data.dept?.toLowerCase() === config.dept.toLowerCase();
+        if (matchesRole) {
+          setAlerts(prev => [data, ...prev]);
+        }
+      } else if (data.type === 'alert_overdue') {
+        setAlerts(prev => prev.map(a => (a as any).alert_id === data.alert_id ? { ...a, status: 'OVERDUE' } : a));
+      }
+    };
+
     async function init() {
       const [aData, iData, pData] = await Promise.all([
         fetchActiveAlerts(config.dept),
@@ -69,8 +84,8 @@ export function AgencyPortalDashboard() {
       setPredictions(pData);
     }
     init();
-    const interval = setInterval(init, 5000);
-    return () => clearInterval(interval);
+
+    return () => socket.close();
   }, [config.dept]);
 
   return (
@@ -81,60 +96,60 @@ export function AgencyPortalDashboard() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 h-[700px]">
           {/* MAP PANEL */}
           <div className="lg:col-span-8 relative glass-card p-1 rounded-[3rem] border-white/60 shadow-2xl overflow-hidden bg-white/30">
-             <MapView 
-               variant={config.variant}
-               infrastructureNodes={infra}
-               predictions={predictions}
-             />
-             <div className="absolute top-8 left-8 z-[1000] glass-card px-5 py-2.5 rounded-2xl border-white/40 shadow-xl">
-                <span className="metadata-label !text-gray-900">{config.title} — Sector View</span>
-             </div>
+            <MapView
+              variant={config.variant}
+              infrastructureNodes={infra}
+              predictions={predictions}
+            />
+            <div className="absolute top-8 left-8 z-[1000] glass-card px-5 py-2.5 rounded-2xl border-white/40 shadow-xl">
+              <span className="metadata-label !text-gray-900">{config.title} — Sector View</span>
+            </div>
           </div>
 
           {/* TELEMETRY PANEL */}
           <div className="lg:col-span-4 flex flex-col gap-8">
-             <TacticalCard title="Mission Telemetry" subtitle="Trend Analysis Hub" icon={<Activity size={18} className="text-blue-600" />}>
-                <div className="space-y-12">
-                   {config.metrics.map((m, i) => (
-                      <div key={i} className="space-y-4">
-                        <TacticalMetric 
-                          label={m.label}
-                          value={m.value}
-                          sub={m.sub}
-                          color={m.color}
-                          icon={m.icon}
-                        />
-                        <div className="px-2">
-                          <TacticalSparkline data={m.trend} color={m.color.includes('emerald') ? '#10b981' : m.color.includes('orange') ? '#f59e0b' : '#3b82f6'} />
-                        </div>
-                      </div>
-                   ))}
+            <TacticalCard title="Mission Telemetry" subtitle="Trend Analysis Hub" icon={<Activity size={18} className="text-blue-600" />}>
+              <div className="space-y-12">
+                {config.metrics.map((m, i) => (
+                  <div key={i} className="space-y-4">
+                    <TacticalMetric
+                      label={m.label}
+                      value={m.value}
+                      sub={m.sub}
+                      color={m.color}
+                      icon={m.icon}
+                    />
+                    <div className="px-2">
+                      <TacticalSparkline data={m.trend} color={m.color.includes('emerald') ? '#10b981' : m.color.includes('orange') ? '#f59e0b' : '#3b82f6'} />
+                    </div>
+                  </div>
+                ))}
 
-                   {/* Distribution Visualization */}
-                   <div className="pt-6 border-t border-black/5">
-                      <p className="metadata-label mb-6">Resource Distribution — Sector H</p>
-                      <TacticalBarChart items={[
-                        { label: 'STAFF', value: 85, color: 'bg-blue-500' },
-                        { label: 'EQUIP', value: 62, color: 'bg-emerald-500' },
-                        { label: 'FUEL', value: 92, color: 'bg-orange-500' },
-                        { label: 'COMM', value: 100, color: 'bg-blue-600' }
-                      ]} />
-                   </div>
+                {/* Distribution Visualization */}
+                <div className="pt-6 border-t border-black/5">
+                  <p className="metadata-label mb-6">Resource Distribution — Sector H</p>
+                  <TacticalBarChart items={[
+                    { label: 'STAFF', value: 85, color: 'bg-blue-500' },
+                    { label: 'EQUIP', value: 62, color: 'bg-emerald-500' },
+                    { label: 'FUEL', value: 92, color: 'bg-orange-500' },
+                    { label: 'COMM', value: 100, color: 'bg-blue-600' }
+                  ]} />
                 </div>
-             </TacticalCard>
+              </div>
+            </TacticalCard>
 
-             <TacticalCard title="Tactical Tasks" icon={<HardHat size={18} className="text-orange-500" />}>
-                <div className="space-y-2">
-                   {alerts.slice(0, 3).map((a, i) => (
-                      <div key={i} className="flex items-center gap-4 p-4 border-b border-black/5 last:border-0 hover:bg-black/5 rounded-xl transition-all h-16">
-                         <p className="flex-1 text-[13px] font-bold text-gray-800 uppercase truncate">
-                            {a.description}
-                         </p>
-                         <TacticalBadge label="ACTIVE" color="orange" variant="outline" />
-                      </div>
-                   ))}
-                </div>
-             </TacticalCard>
+            <TacticalCard title="Tactical Tasks" icon={<HardHat size={18} className="text-orange-500" />}>
+              <div className="space-y-2">
+                {alerts.slice(0, 3).map((a, i) => (
+                  <div key={i} className="flex items-center gap-4 p-4 border-b border-black/5 last:border-0 hover:bg-black/5 rounded-xl transition-all h-16">
+                    <p className="flex-1 text-[13px] font-bold text-gray-800 uppercase truncate">
+                      {a.description}
+                    </p>
+                    <TacticalBadge label="ACTIVE" color="orange" variant="outline" />
+                  </div>
+                ))}
+              </div>
+            </TacticalCard>
           </div>
         </div>
       </div>

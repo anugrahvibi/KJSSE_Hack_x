@@ -197,13 +197,7 @@ export function MapView({ infrastructureNodes, predictions, onZoneClick, selecte
       return;
     }
     if (!predictions || predictions.length === 0) return;
-    if (variant === 'railway') {
-      circleLayersRef.current.forEach(c => {
-        try { c.remove(); } catch (e) { }
-      });
-      circleLayersRef.current = [];
-      return;
-    }
+    if (!predictions || predictions.length === 0) return;
 
     // Clear old circles safely
     circleLayersRef.current.forEach(c => {
@@ -287,13 +281,7 @@ export function MapView({ infrastructureNodes, predictions, onZoneClick, selecte
     const map = mapRef.current;
     const L = LRef.current;
     if (!map || !L || !infrastructureNodes || infrastructureNodes.length === 0) return;
-    if (variant === 'railway') {
-      nodeLayersRef.current.forEach(m => {
-        try { m.remove(); } catch (e) { }
-      });
-      nodeLayersRef.current = [];
-      return;
-    }
+    if (!map || !L || !infrastructureNodes || infrastructureNodes.length === 0) return;
 
     // Clear old node markers safely
     nodeLayersRef.current.forEach(m => {
@@ -311,9 +299,10 @@ export function MapView({ infrastructureNodes, predictions, onZoneClick, selecte
     };
 
     const getFilteredNodes = () => {
-       if (variant === 'hydro') return infrastructureNodes.filter(n => n.type === 'water_pump');
-       if (variant === 'emergency') return infrastructureNodes.filter(n => n.type === 'hospital' || n.type === 'comm_tower');
-       return infrastructureNodes;
+      if (variant === 'hydro') return infrastructureNodes.filter(n => n.type === 'water_pump');
+      if (variant === 'emergency') return infrastructureNodes.filter(n => n.type === 'hospital' || n.type === 'comm_tower');
+      if (variant === 'railway') return infrastructureNodes.filter(n => n.type === 'comm_tower' || n.type === 'road'); // stations are roads in this schema sometimes or comm_towers
+      return infrastructureNodes;
     };
 
     getFilteredNodes().forEach((node) => {
@@ -350,7 +339,6 @@ export function MapView({ infrastructureNodes, predictions, onZoneClick, selecte
       <div ref={containerRef} style={{ width: '100%', height: '100%' }} />
 
       {/* Risk Legend */}
-      {variant !== 'railway' && (
       <div className="glass-card" style={{
         position: 'absolute', bottom: 20, right: 20, zIndex: 1000,
         borderRadius: 20, padding: '12px 16px',
@@ -369,10 +357,7 @@ export function MapView({ infrastructureNodes, predictions, onZoneClick, selecte
           ))}
         </div>
       </div>
-      )}
-
       {/* Geospatial Intelligence Card */}
-      {variant !== 'railway' && (
       <div className="glass-card shadow-2xl overflow-visible border-white/60" style={{
         position: 'absolute', top: 20, left: 60, zIndex: 1000,
         borderRadius: 24, padding: '16px',
@@ -381,16 +366,16 @@ export function MapView({ infrastructureNodes, predictions, onZoneClick, selecte
         width: 220
       }}>
         <div className="glass-blur-fix" />
-               <div className="flex items-center gap-3 mb-4">
+        <div className="flex items-center gap-3 mb-4">
           <div className="w-8 h-8 rounded-xl bg-blue-600/10 flex items-center justify-center text-blue-600">
-             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21 3 6"/><line x1="9" y1="3" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="21"/></svg>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21 3 6" /><line x1="9" y1="3" x2="9" y2="18" /><line x1="15" y1="6" x2="15" y2="21" /></svg>
           </div>
           <div>
             <div className="text-[12px] font-black text-gray-950 uppercase leading-none mb-0.5">Geospatial Intelligence</div>
             <div className="text-[9px] font-bold text-blue-600/60 uppercase tracking-tighter">Riva Engine v1.0</div>
           </div>
         </div>
-        
+
         <div className="space-y-3">
           <div className="flex justify-between items-center text-[10px] font-bold">
             <span className="text-gray-500 uppercase">Projection Mode</span>
@@ -403,27 +388,26 @@ export function MapView({ infrastructureNodes, predictions, onZoneClick, selecte
           <div className="flex justify-between items-center text-[10px] font-bold">
             <span className="text-gray-500 uppercase">Temporal Sync</span>
             <div className="flex items-center gap-1.5">
-               <div className={`w-1.5 h-1.5 rounded-full ${simulationMode === 'DEMO' ? 'bg-red-500 animate-pulse' : 'bg-emerald-500 animate-pulse'}`} />
-               <span className={`${simulationMode === 'DEMO' ? 'text-red-600' : 'text-emerald-600'}`}>{simulationMode === 'DEMO' ? 'DEMO RELAY' : 'LIVE RELAY'}</span>
+              <div className={`w-1.5 h-1.5 rounded-full ${simulationMode === 'DEMO' ? 'bg-red-500 animate-pulse' : 'bg-emerald-500 animate-pulse'}`} />
+              <span className={`${simulationMode === 'DEMO' ? 'text-red-600' : 'text-emerald-600'}`}>{simulationMode === 'DEMO' ? 'DEMO RELAY' : 'LIVE RELAY'}</span>
             </div>
           </div>
-          
+
           <div className="pt-3 border-t border-black/5">
-             <div className="text-[9px] font-black text-gray-400 uppercase mb-2">Model Confidence Stream</div>
-             <ProgressBar
-               value={94}
-               className="h-1"
-               trackClassName="bg-gray-100"
-               fillClassName="bg-blue-600"
-               animated
-             />
+            <div className="text-[9px] font-black text-gray-400 uppercase mb-2">Model Confidence Stream</div>
+            <ProgressBar
+              value={94}
+              className="h-1"
+              trackClassName="bg-gray-100"
+              fillClassName="bg-blue-600"
+              animated
+            />
           </div>
         </div>
       </div>
-      )}
 
       {/* Loading overlay while predictions not yet arrived */}
-      {variant !== 'railway' && predictions.length === 0 && (
+      {predictions.length === 0 && (
         <div className="absolute inset-0 z-[999] flex items-center justify-center bg-transparent pointer-events-none">
           <div className="flex items-center justify-center glass-card px-8 py-5 rounded-2xl shrink-0">
             <span className="text-[13px] font-black text-blue-600 uppercase whitespace-nowrap animate-pulse">

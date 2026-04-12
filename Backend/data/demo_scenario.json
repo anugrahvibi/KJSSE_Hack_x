@@ -13,19 +13,59 @@
     {
       "t_seconds": 5,
       "type": "agent_dispatch",
-      "payload": {"ward_id": "H-East"}
+      "payload": {
+        "ward_id": "H-East"
+      }
+    },
+    {
+      "t_seconds": 7,
+      "type": "agent_reasoning",
+      "payload": {
+        "status": "RIVA AGENT - REASONING | ACTIVE | CRITICAL | TIDE: RISING | 09:07: PEAK HOUR"
+      }
     },
     {
       "t_seconds": 8,
       "type": "agent_reasoning",
       "payload": {
-        "status": "Generating actionable plan for 4 agencies..."
+        "status": "Peak commute. 3.5M on WR right now."
+      }
+    },
+    {
+      "t_seconds": 10,
+      "type": "agent_reasoning",
+      "payload": {
+        "status": "Tide still rising - 4 hrs zero drainage."
+      }
+    },
+    {
+      "t_seconds": 12,
+      "type": "agent_reasoning",
+      "payload": {
+        "status": "Sion underpass closes in ~15 min. NDRF default route blocked."
+      }
+    },
+    {
+      "t_seconds": 14,
+      "type": "agent_reasoning",
+      "payload": {
+        "status": "Rerouting Bn4 via 60 Feet Road instead."
+      }
+    },
+    {
+      "t_seconds": 16,
+      "type": "agent_reasoning",
+      "payload": {
+        "status": "KEM at 65% - surge protocol viable now."
       }
     },
     {
       "t_seconds": 90,
       "type": "acknowledge",
-      "payload": {"alert_id": "ALT-001", "dept": "BMC_WARD_H_EAST"}
+      "payload": {
+        "alert_id": "ALT-001",
+        "dept": "BMC_WARD_H_EAST"
+      }
     },
     {
       "t_seconds": 120,

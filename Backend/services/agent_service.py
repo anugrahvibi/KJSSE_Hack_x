@@ -43,6 +43,13 @@ class AgentService:
     def _mock_plan(self, ward_status: WardStatus, context: dict) -> ActionPlan:
         priority = ward_status.flood_status.value
         return ActionPlan(
+            reasoning_steps=[
+                "Peak commute. 3.5M on WR right now.",
+                "Tide still rising - 4 hrs zero drainage.",
+                "Sion underpass closes in ~15 min. NDRF default route blocked.",
+                "Rerouting Bn4 via 60 Feet Road instead.",
+                "KEM at 65% - surge protocol viable now."
+            ],
             scenario_summary=(
                 f"{ward_status.ward_name} ({ward_status.ward_id}) in tidal lock with "
                 f"{ward_status.rainfall_rate}mm/hr rainfall."

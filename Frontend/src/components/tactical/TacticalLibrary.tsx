@@ -64,10 +64,10 @@ export function TacticalCard({ children, title, subtitle, icon, badge, className
       {title && (
         <header className={`p-8 border-b border-black/5 flex justify-between items-center ${headerClassName}`}>
           <div className="space-y-1">
-             <h3 className={`text-[13px] font-bold uppercase flex items-center gap-3 ${dark ? 'text-blue-400' : 'text-gray-950'}`}>
-                {icon} {title}
-             </h3>
-             {subtitle && <p className="text-[10px] font-medium text-gray-400 italic uppercase tracking-widest">{subtitle}</p>}
+            <h3 className={`text-[13px] font-bold uppercase flex items-center gap-3 ${dark ? 'text-blue-400' : 'text-gray-950'}`}>
+              {icon} {title}
+            </h3>
+            {subtitle && <p className="text-[10px] font-medium text-gray-400 italic uppercase tracking-widest">{subtitle}</p>}
           </div>
           {badge}
         </header>
@@ -135,7 +135,7 @@ export function TacticalBadge({ label, variant = 'filled', color = 'blue', class
 
   return (
     <Label label={label} className={`text-[9px] tracking-wider ${styles[color][variant]} ${className}`} />
-    
+
   );
 }
 
@@ -217,7 +217,7 @@ export function TacticalSparkline({
   const min = Math.min(...chartData, 0);
   const range = Math.max(max - min, 1);
   const step = chartData.length > 1 ? width / (chartData.length - 1) : width;
-  
+
   const pointPairs = chartData.map((val, i) => {
     const x = i * step;
     const y = height - ((val - min) / range) * height;
@@ -269,9 +269,9 @@ export function TacticalBarChart({ items }: { items: { label: string, value: num
     <div className="flex items-end gap-3 h-32 w-full px-2">
       {items.map((item, i) => (
         <div key={i} className="flex-1 flex flex-col items-center gap-2 group">
-          <div 
-            className={`w-full ${item.color} rounded-t-lg transition-all duration-1000 group-hover:brightness-110 shadow-lg`} 
-            style={{ height: `${item.value}%` }} 
+          <div
+            className={`w-full ${item.color} rounded-t-lg transition-all duration-1000 group-hover:brightness-110 shadow-lg`}
+            style={{ height: `${item.value}%` }}
           />
           <span className="text-[8px] font-black text-gray-400 uppercase text-center rotate-[-45deg] origin-top-left mt-1 whitespace-nowrap">
             {item.label}

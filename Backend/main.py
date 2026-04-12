@@ -24,7 +24,7 @@ async def overdue_loop() -> None:
         overdue_alerts = log_service.mark_overdue()
         for alert in overdue_alerts:
             event = {
-                "type": "alert_acknowledged",
+                "type": "alert_overdue",
                 "alert_id": alert.alert_id,
                 "dept": alert.dept,
                 "status": alert.status.value,

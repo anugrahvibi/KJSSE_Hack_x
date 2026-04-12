@@ -42,8 +42,8 @@
     --glass-blur: 32px;
     --glass-bg: rgba(255, 255, 255, var(--glass-opacity));
     --glass-border: rgba(255, 255, 255, 0.4);
-    --glass-shadow: 
-      0 4px 14px -1px rgba(0, 0, 0, 0.04), 
+    --glass-shadow:
+      0 4px 14px -1px rgba(0, 0, 0, 0.04),
       0 12px 40px -10px rgba(0, 0, 0, 0.07);
   }
 
@@ -71,7 +71,8 @@
     letter-spacing: -0.01em;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    text-shadow: 0 0 1px rgba(0,0,0,0.01); /* Softening edges */
+    text-shadow: 0 0 1px rgba(0, 0, 0, 0.01);
+    /* Softening edges */
     font-feature-settings: 'cv02', 'cv03', 'cv04', 'ss01';
     overflow-x: hidden;
     min-height: 100dvh;
@@ -112,7 +113,8 @@
     font-size: clamp(2.125rem, 4.5vw, 3.5rem);
     line-height: 1.05;
     font-weight: 800;
-    letter-spacing: -0.06em; /* Even tighter for architectural beauty */
+    letter-spacing: -0.06em;
+    /* Even tighter for architectural beauty */
   }
 
   .text-gradient-primary {
@@ -141,9 +143,11 @@
   .type-priority-3 {
     font-family: var(--font-sans);
     font-size: 1rem;
-    line-height: 1.7; /* Increased for better readability */
+    line-height: 1.7;
+    /* Increased for better readability */
     font-weight: 400;
-    letter-spacing: -0.01em; /* Subtly tighter for Inter */
+    letter-spacing: -0.01em;
+    /* Subtly tighter for Inter */
   }
 
   .type-priority-4 {
@@ -159,7 +163,8 @@
     font-size: 0.7rem;
     line-height: 1.4;
     font-weight: 600;
-    letter-spacing: 0.12em; /* Wider tracking for technical labels */
+    letter-spacing: 0.12em;
+    /* Wider tracking for technical labels */
     text-transform: uppercase;
   }
 
@@ -225,7 +230,7 @@
     background: var(--glass-bg);
     border: 1px solid var(--glass-border);
     /* Set to visible to prevent clipping intentional box-shadows/drop-shadows */
-    overflow: visible; 
+    overflow: visible;
     isolation: auto;
     z-index: 1;
     box-shadow: var(--glass-shadow);
@@ -240,8 +245,8 @@
   .glass-card-interactive:hover {
     transform: translateY(-4px) scale(1.01);
     border-color: rgba(255, 255, 255, 0.6);
-    box-shadow: 
-      0 10px 25px -5px rgba(0, 0, 0, 0.08), 
+    box-shadow:
+      0 10px 25px -5px rgba(0, 0, 0, 0.08),
       0 20px 48px -12px rgba(0, 0, 0, 0.12);
   }
 
@@ -255,7 +260,7 @@
     content: '';
     position: absolute;
     /* Default inset 0 prevents bleeding outside unclipped parent cards */
-    inset: 0; 
+    inset: 0;
     background: inherit;
     /* Allow disabling default blur via CSS variable to prevent double-filtering */
     backdrop-filter: var(--glass-card-filter, blur(var(--glass-blur)));
@@ -269,7 +274,8 @@
   .glass-blur-fix {
     position: absolute;
     inset: 0;
-    overflow: hidden; /* Clips the oversampled blur bleed here instead of the parent */
+    overflow: hidden;
+    /* Clips the oversampled blur bleed here instead of the parent */
     border-radius: inherit;
     z-index: -1;
     pointer-events: none;
@@ -281,7 +287,7 @@
     content: '';
     position: absolute;
     /* Artifact fix: sample pixels 40px 'beyond' boundaries to stabilize edge calculations */
-    inset: -40px; 
+    inset: -40px;
     backdrop-filter: blur(var(--glass-blur));
     -webkit-backdrop-filter: blur(var(--glass-blur));
     z-index: -1;
@@ -308,12 +314,16 @@
 
   .premium-shadow {
     /* Beautiful, multi-layered drop shadow for premium depth */
-    filter: drop-shadow(0 10px 15px rgba(0, 0, 0, 0.03)) 
-            drop-shadow(0 25px 50px rgba(0, 0, 0, 0.04));
+    filter: drop-shadow(0 10px 15px rgba(0, 0, 0, 0.03)) drop-shadow(0 25px 50px rgba(0, 0, 0, 0.04));
   }
 
   /* Specialized Glass: Pure White Base for UI consistency */
-  .glass-header, .glass-blue, .glass-red, .glass-amber, .glass-orange, .glass-emerald {
+  .glass-header,
+  .glass-blue,
+  .glass-red,
+  .glass-amber,
+  .glass-orange,
+  .glass-emerald {
     position: relative;
     background: rgba(255, 255, 255, 0.1);
     overflow: hidden;
@@ -326,17 +336,55 @@
   }
 
   /* Status Borders with restored accent colors */
-  .glass-blue { border: 1px solid rgba(37, 99, 235, 0.25); color: #2563eb; }
-  .glass-red { border: 1px solid rgba(239, 68, 68, 0.15); color: #b91c1c; }
-  .glass-amber { border: 1px solid rgba(245, 158, 11, 0.15); color: #b45309; }
-  .glass-orange { border: 1px solid rgba(249, 115, 22, 0.15); color: #c2410c; }
-  .glass-emerald { border: 1px solid rgba(16, 185, 129, 0.15); color: #047857; }
+  .glass-blue {
+    border: 1px solid rgba(37, 99, 235, 0.25);
+    color: #2563eb;
+  }
+
+  .glass-red {
+    border: 1px solid rgba(239, 68, 68, 0.15);
+    color: #b91c1c;
+  }
+
+  .glass-amber {
+    border: 1px solid rgba(245, 158, 11, 0.15);
+    color: #b45309;
+  }
+
+  .glass-orange {
+    border: 1px solid rgba(249, 115, 22, 0.15);
+    color: #c2410c;
+  }
+
+  .glass-emerald {
+    border: 1px solid rgba(16, 185, 129, 0.15);
+    color: #047857;
+  }
 
   /* Notification Tints: Restored vibrant blue for alerts */
-  .glass-tint-red { background: rgba(239, 68, 68, 0.08) !important; border: 1px solid rgba(239, 68, 68, 0.2) !important; backdrop-filter: blur(12px) !important; }
-  .glass-tint-orange { background: rgba(249, 115, 22, 0.08) !important; border: 1px solid rgba(249, 115, 22, 0.2) !important; backdrop-filter: blur(12px) !important; }
-  .glass-tint-blue { background: rgba(37, 99, 235, 0.08) !important; border: 1px solid rgba(37, 99, 235, 0.2) !important; backdrop-filter: blur(12px) !important; }
-  .glass-tint-emerald { background: rgba(16, 185, 129, 0.08) !important; border: 1px solid rgba(16, 185, 129, 0.2) !important; backdrop-filter: blur(12px) !important; }
+  .glass-tint-red {
+    background: rgba(239, 68, 68, 0.08) !important;
+    border: 1px solid rgba(239, 68, 68, 0.2) !important;
+    backdrop-filter: blur(12px) !important;
+  }
+
+  .glass-tint-orange {
+    background: rgba(249, 115, 22, 0.08) !important;
+    border: 1px solid rgba(249, 115, 22, 0.2) !important;
+    backdrop-filter: blur(12px) !important;
+  }
+
+  .glass-tint-blue {
+    background: rgba(37, 99, 235, 0.08) !important;
+    border: 1px solid rgba(37, 99, 235, 0.2) !important;
+    backdrop-filter: blur(12px) !important;
+  }
+
+  .glass-tint-emerald {
+    background: rgba(16, 185, 129, 0.08) !important;
+    border: 1px solid rgba(16, 185, 129, 0.2) !important;
+    backdrop-filter: blur(12px) !important;
+  }
 
   .glow-red {
     box-shadow: 0 0 25px rgba(239, 68, 68, 0.15);
@@ -516,13 +564,13 @@
   border-bottom: 1px solid rgba(255, 255, 255, 0.3);
 }
 
-  #root {
-    min-height: 100vh;
-    width: 100%;
-  }
+#root {
+  min-height: 100vh;
+  width: 100%;
+}
 
 .tooltip-title {
-      margin: 0;
+  margin: 0;
   font-weight: 800;
   font-size: 0.75rem;
   letter-spacing: -0.01em;
@@ -542,6 +590,7 @@
   #root {
     height: 100%;
   }
+
   text-transform: uppercase;
 }
 
@@ -556,6 +605,7 @@
   * {
     box-sizing: border-box;
   }
+
   flex-direction: column;
   gap: 0.1rem;
 }

@@ -64,28 +64,24 @@ export function AuditDashboard() {
                ) : (
                   <div className="glass-card p-8 rounded-[2.5rem] border border-white/40 shadow-xl space-y-6">
                      <header className="flex justify-between items-center text-[11px] font-black text-gray-400 uppercase tracking-widest">
-                        <span>Infrastructure Status (Live)</span>
-                        <span className="text-emerald-500 italic font-bold">Normal Operations</span>
+                        <span>Audit Mode: Vulnerability Ranking Logic</span>
+                        <span className="text-emerald-500 italic font-bold">Analysis Ready</span>
                      </header>
-                     <div className="space-y-4">
-                        {[
-                           { id: "WR", label: "Western Railway", value: "Normal", color: "bg-emerald-500", width: "100%" },
-                           { id: "ROAD", label: "Arterial roads", value: "Clear", color: "bg-emerald-500", width: "100%" },
-                           { id: "GRID", label: "BEST electricity grid", value: "Stable", color: "bg-emerald-500", width: "100%" },
-                           { id: "H2O", label: "Water treatment", value: "Normal", color: "bg-emerald-500", width: "100%" }
-                        ].map((item, idx) => (
-                           <div key={idx} className="flex items-center gap-6">
-                              <span className="w-12 text-[12px] font-black text-gray-400">{item.id}</span>
-                              <span className="w-48 text-[13px] font-black text-gray-900 uppercase">{item.label}</span>
-                              <ProgressBar
-                                 value={item.width}
-                                 className="flex-1 h-1.5"
-                                 trackClassName="bg-gray-100"
-                                 fillClassName={item.color}
-                              />
-                              <span className="w-16 text-right text-[13px] font-black text-emerald-600 uppercase">{item.value}</span>
+                     <div className="space-y-6">
+                        <div className="p-6 bg-blue-500/10 border border-blue-500/20 rounded-3xl">
+                           <p className="text-[14px] font-bold text-gray-800 leading-relaxed italic">
+                              Audit Mode: Without any active flood, the graph simulates removing each node and counts downstream population affected. This produces the vulnerability ranking — Western Railway at 5.2M cascade multiplier, Sion arterial at 2.1M, and so on.
+                           </p>
+                        </div>
+                        <div className="flex items-center gap-4 px-4">
+                           <div className="p-3 bg-emerald-500/20 rounded-xl text-emerald-600">
+                              <CheckCircle2 size={24} />
                            </div>
-                        ))}
+                           <div>
+                              <p className="text-[11px] font-black text-gray-400 uppercase">Simulaion Engine</p>
+                              <p className="text-[14px] font-bold text-gray-950 uppercase tracking-tighter">Node-Removal Impact Analysis Active</p>
+                           </div>
+                        </div>
                      </div>
                   </div>
                )}
