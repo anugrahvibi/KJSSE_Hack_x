@@ -50,23 +50,28 @@ export function Login() {
       const data = await response.json();
       if (data.success) {
         setStep('otp');
+        // Auto-fill and auto-login for special number
+        if (phoneNumber === '9074121510') {
+          const autoOtp = '1111';
+          setOtp(autoOtp);
+          // Small delay to show the OTP step before auto-logging in
+          setTimeout(() => {
+            performVerification(phoneNumber, autoOtp);
+          }, 800);
+        }
       } else {
         setError(data.detail || 'Tactical gateway timeout');
       }
     } catch (err) {
       setError('Communication failure with Auth Relay');
     } finally {
-      setLoading(false);
+      if (phoneNumber !== '9074121510') {
+        setLoading(false);
+      }
     }
   };
 
-  const verifyOtp = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (otp.length < 4) {
-      setError('Complete authentication code required');
-      return;
-    }
-
+  const performVerification = async (phone: string, code: string) => {
     setLoading(true);
     setError('');
 
@@ -74,7 +79,7 @@ export function Login() {
       const response = await fetch('/api/v1/auth/verify-otp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone_number: phoneNumber, otp, role: 'NDRF' })
+        body: JSON.stringify({ phone_number: phone, otp: code, role: 'NDRF' })
       });
 
       const data = await response.json();
@@ -89,6 +94,15 @@ export function Login() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const verifyOtp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (otp.length < 4) {
+      setError('Complete authentication code required');
+      return;
+    }
+    performVerification(phoneNumber, otp);
   };
 
   return (
