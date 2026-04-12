@@ -51,8 +51,8 @@ DISTRESS_ALERT: dict | None = None
 def _default_actions() -> list[dict]:
     return [
         {
-            "department": "dam_controller",
-            "action": "Pre-release 12% reservoir capacity and lock non-essential gates.",
+            "department": "bmc_stormwater",
+            "action": "Activate Love Grove and Cleveland Bunder pumping stations to max outreach.",
             "alert_level": "ORANGE",
             "priority": "HIGH",
             "source": "RIVA Layer 2",
@@ -61,7 +61,7 @@ def _default_actions() -> list[dict]:
         },
         {
             "department": "ndrf_rescue",
-            "action": "Deploy Rescue Unit Bravo to Panamaram low-lying corridor.",
+            "action": "Deploy Rescue Unit 4 to Dharavi transit corridor near 60 Feet Road.",
             "alert_level": "RED",
             "priority": "CRITICAL",
             "source": "RIVA Layer 2",
@@ -69,8 +69,8 @@ def _default_actions() -> list[dict]:
             "timestamp": _now_iso(),
         },
         {
-            "department": "district_admin",
-            "action": "Open district shelters and trigger ward-level evacuation advisories.",
+            "department": "ward_officer",
+            "action": "Execute immediate road closure markers for Sion underpass and Milan subway.",
             "alert_level": "ORANGE",
             "priority": "HIGH",
             "source": "RIVA Layer 2",
@@ -78,8 +78,8 @@ def _default_actions() -> list[dict]:
             "timestamp": _now_iso(),
         },
         {
-            "department": "highway_department",
-            "action": "Close Vythiri underpass and publish diversion route map.",
+            "department": "western_railway",
+            "action": "Trigger phased service slowdown at Kurla-Sion bottleneck; monitor track sub-levels.",
             "alert_level": "RED",
             "priority": "CRITICAL",
             "source": "RIVA Layer 2",
@@ -88,7 +88,7 @@ def _default_actions() -> list[dict]:
         },
         {
             "department": "dev_sys",
-            "action": "Switch dashboards to flood simulation telemetry mode.",
+            "action": "Switch Command Center to High-Tide Synchronization Mode (HTSM).",
             "alert_level": "YELLOW",
             "priority": "MEDIUM",
             "source": "RIVA Layer 2",
@@ -97,7 +97,7 @@ def _default_actions() -> list[dict]:
         },
         {
             "department": "Public",
-            "action": "Avoid underpasses; use designated high-ground corridors only.",
+            "action": "Avoid low-lying subways; use 90 Feet Road northbound for trans-ward movement.",
             "alert_level": "ORANGE",
             "priority": "HIGH",
             "source": "RIVA Public Advisory",

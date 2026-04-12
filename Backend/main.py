@@ -32,6 +32,20 @@ async def overdue_loop() -> None:
                 "timestamp": None,
             }
             await ws_manager.broadcast_alert(event, dept_id=alert.dept)
+            try:
+                from AI_ML.layer2_agent.escalation import run_escalation_agent
+                escalation_plan = run_escalation_agent(
+                    original_dept=alert.dept,
+                    original_action=alert.action,
+                    original_deadline_minutes=10,
+                    minutes_elapsed_since_deadline=5,
+                    ward_id=alert.ward_id,
+                    current_tide_height=4.6,
+                    current_drain_pct=10.0,
+                )
+                print(f"Escalation generated: {escalation_plan}")
+            except Exception as e:
+                print(f"Escalation agent failed: {e}")
         await asyncio.sleep(OVERDUE_CHECK_SECONDS)
 
 

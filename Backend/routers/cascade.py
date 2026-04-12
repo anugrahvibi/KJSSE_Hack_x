@@ -8,7 +8,14 @@ router = APIRouter(tags=["cascade"])
 @router.get("/api/cascade/event/{ward_id}")
 async def cascade_event(ward_id: str):
     steps = cascade_service.compute_event_cascade(ward_id)
-    return [step.model_dump() for step in steps]
+    steps_dump = [step.model_dump() for step in steps]
+    try:
+        from AI_ML.layer3_cascade.cascade_narrator import generate_cascade_narrative
+        narrative = generate_cascade_narrative(ward_id, steps_dump)
+        print(f"Cascade narrative projection: {narrative}")
+    except Exception as e:
+        pass
+    return steps_dump
 
 @router.get("/api/cascade/audit")
 async def cascade_audit():
