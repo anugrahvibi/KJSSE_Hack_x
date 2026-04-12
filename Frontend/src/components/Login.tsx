@@ -134,7 +134,14 @@ export function Login() {
 
         <FormCard>
           <div className="space-y-2">
-            <h2 className="type-priority-2 text-slate-900 uppercase">
+            <h2
+              className={`type-priority-2 text-slate-900 uppercase ${step === 'otp' ? 'cursor-pointer hover:text-blue-600 transition-colors' : ''}`}
+              onClick={() => {
+                if (step === 'otp') {
+                  window.location.href = 'http://localhost:5175';
+                }
+              }}
+            >
               {step === 'phone' ? 'Operator Access' : 'Security Check'}
             </h2>
             <p className="type-priority-3 text-slate-500">
