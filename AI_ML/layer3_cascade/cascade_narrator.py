@@ -5,7 +5,7 @@ from typing import Any
 from ..layer2_agent.agent import client
 
 CASCADE_NARRATOR_PROMPT = """
-You are CascadeNet Mumbai's cascade analyst writing for the
+You are Riva Mumbai's cascade analyst writing for the
 Emergency Operations Centre commander.
 You receive ordered infrastructure failure steps computed from
 a real-time dependency graph.

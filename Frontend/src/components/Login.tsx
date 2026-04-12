@@ -81,7 +81,7 @@ export function Login() {
       const data = await response.json();
       if (data.success) {
         login(data.user.role, data.user.phone_number);
-        navigate('/', { replace: true });
+        navigate('/agency', { replace: true });
       } else {
         setError(data.detail || 'Verification failure');
       }
@@ -115,15 +115,15 @@ export function Login() {
             type="button"
             onClick={() => {
               login('Developer');
-              navigate('/', { replace: true });
+              navigate('/agency', { replace: true });
             }}
             className="w-20 h-20 glass-card rounded-3xl mx-auto flex items-center justify-center shadow-2xl shadow-blue-500/20 active:scale-95 transition-transform duration-500 group mb-6"
             aria-label="Bypass operator access"
           >
             <img src="/logo.svg" alt="Riva" className="w-12 h-12 group-hover:rotate-[360deg] transition-transform duration-700" />
           </button>
-          <h1 className="type-priority-1 text-gray-900 brand-fonter">
-            Cascade<span className="text-blue-600 ending-serif">Net</span>
+          <h1 className="type-priority-1 text-gray-900 brand-font">
+            Riva
           </h1>
           <p className="type-priority-5 text-gray-400 mt-3">Advanced Intelligence &amp; Response</p>
         </div>
@@ -133,9 +133,7 @@ export function Login() {
             <h2
               className={`type-priority-2 text-slate-900 uppercase ${step === 'otp' ? 'cursor-pointer hover:text-blue-600 transition-colors' : ''}`}
               onClick={() => {
-                if (step === 'otp') {
-                  window.location.href = 'http://localhost:5175';
-                }
+                // Removed hardcoded localhost:5175 redirect
               }}
             >
               {step === 'phone' ? 'Operator Access' : 'Security Check'}

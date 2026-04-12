@@ -1,7 +1,7 @@
-import type { 
-  ZonePrediction, 
-  StakeholderAction, 
-  VulnerabilityAnalysis, 
+import type {
+  ZonePrediction,
+  StakeholderAction,
+  VulnerabilityAnalysis,
   ROIAnalysis,
   GraphResponse,
   PredictionResponse,
@@ -51,13 +51,13 @@ function cacheSet(key: string, data: any) {
   cache[key] = { data, timestamp: Date.now() };
 }
 
-async function fetchJsonWithRetry<T>(url: string, options: { 
-  retries?: number; 
+async function fetchJsonWithRetry<T>(url: string, options: {
+  retries?: number;
   timeoutMs?: number;
   skipCache?: boolean;
 } = {}): Promise<T | null> {
   const { retries = DEFAULT_RETRIES, timeoutMs = DEFAULT_TIMEOUT_MS } = options;
-  
+
   for (let i = 0; i <= retries; i++) {
     try {
       const response = await fetchWithTimeout(url, {}, timeoutMs);
@@ -101,9 +101,14 @@ export async function fetchActiveAlerts(role: string, scenario: string = '2024_p
   if (cached) return cached;
 
   // Use new agent alerts endpoint
-  const data = await fetchJsonWithRetry<StakeholderAction[]>('/api/agent/alerts');
+  const data = await fetchJsonWithRetry<any[]>('/api/agent/alerts');
   if (data) {
-    const filteredActions = data.filter(action => !role || action.department.toLowerCase() === role.toLowerCase());
+    const filteredActions = data.filter(action => {
+      const actionDept = action.dept || action.department;
+      if (!role) return true;
+      if (!actionDept) return false;
+      return actionDept.toLowerCase() === role.toLowerCase();
+    });
     cacheSet(cacheKey, filteredActions);
     return filteredActions;
   }
@@ -118,11 +123,11 @@ export async function fetchSensorReadings(zoneId: string): Promise<SensorReading
   });
   if (latestData) {
     return [{
-       zone_id: latestData.ward_id,
-       reservoir_pct: 0, // Not in new schema directly
-       flow_rate: latestData.rainfall_rate,
-       rainfall_mm: latestData.rainfall_rate,
-       timestamp: new Date().toISOString()
+      zone_id: latestData.ward_id,
+      reservoir_pct: 0, // Not in new schema directly
+      flow_rate: latestData.rainfall_rate,
+      rainfall_mm: latestData.rainfall_rate,
+      timestamp: new Date().toISOString()
     }];
   }
   return [];
