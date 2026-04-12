@@ -4,7 +4,7 @@ from fastapi import APIRouter, HTTPException
 
 from ..models.ward import FloodStatus, TriggerScenarioRequest
 from ..services.orchestration import dispatch_from_ward_status
-from ..services.runtime import drain_service, ws_manager
+from ..services.runtime import drain_service, ws_manager, sms_service
 
 router = APIRouter(prefix="/api/detection", tags=["detection"])
 
@@ -18,6 +18,8 @@ def start_demo_mode():
     demo_mode = True
     # Force reload of demo data
     drain_service._load_demo_data()
+    # Trigger SMS notification
+    sms_service.trigger_demo_alert()
     return {"status": "demo_mode_activated", "message": "Using mock tide and rainfall data for demonstration"}
 
 @router.post("/demo/stop")

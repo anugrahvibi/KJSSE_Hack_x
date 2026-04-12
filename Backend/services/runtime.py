@@ -6,6 +6,7 @@ from .cascade_service import CascadeService
 from .demo_service import DemoService
 from .drain_capacity import DrainCapacityService
 from .log_service import AccountabilityLogService
+from .sms_service import SMSService
 from .ws_manager import WebSocketManager
 
 
@@ -24,3 +25,4 @@ cascade_service = CascadeService(
     wards_geojson_path=DATA_DIR / "wards.geojson",
 )
 demo_service = DemoService()
+sms_service = SMSService()
