@@ -14,35 +14,11 @@ export function CommandDashboard() {
   const [zones, setZones] = useState<any>(null);
   const [infra, setInfra] = useState<InfrastructureNode[]>([]);
   const [predictions, setPredictions] = useState<ZonePrediction[]>([]);
-  const [alerts, setAlerts] = useState<StakeholderAction[]>([
-    {
-      department: 'RIVA SYSTEM',
-      action: 'Crisis Command Network heartbeat verified - latency 42ms',
-      alert_level: 'GREEN',
-      priority: 'LOW',
-      source: 'Internal',
-      status: 'OK',
-      timestamp: new Date().toISOString()
-    },
-    {
-      department: 'EOC CMD',
-      action: 'Multi-agency response protocols synced with Llama-3.3-70B',
-      alert_level: 'GREEN',
-      priority: 'LOW',
-      source: 'MCGM',
-      status: 'SYNC',
-      timestamp: new Date().toISOString()
-    }
-  ]);
+  const [alerts, setAlerts] = useState<StakeholderAction[]>([]);
   const [selectedZone, setSelectedZone] = useState<string | null>("H-East");
   const [lastUpdated, setLastUpdated] = useState<string>('');
   const [environmentalData, setEnvironmentalData] = useState<any>(null);
-  const [reasoningSteps, setReasoningSteps] = useState<string[]>([
-    "Scanning 477 infrastructure nodes for baseline connectivity...",
-    "Correlating IMD satellite rainfall maps with ward-level drainage capacity.",
-    "Llama-3.3-70B model heartbeat verified. Latency: 2.1s.",
-    "System standby: Active monitoring of 4.6m high-tide window."
-  ]);
+  const [reasoningSteps, setReasoningSteps] = useState<string[]>([]);
 
   const tideTrend = simulationMode === 'DEMO'
     ? [2.1, 2.4, 2.8, 3.3, 3.9, 4.4, 4.8, 5.2, 4.9, 5.4, 4.6, 5.3]
@@ -79,11 +55,29 @@ export function CommandDashboard() {
           timestamp: new Date().toISOString()
         },
         {
-          department: 'IMD',
-          action: 'Satellite rainfall map update: No precipitation detected',
+          department: 'WESTERN RAILWAY',
+          action: 'Automatic signalling telemetry reporting nominal on all lines',
           alert_level: 'GREEN',
           priority: 'LOW',
-          source: 'IMD',
+          source: 'Sensors',
+          status: 'OK',
+          timestamp: new Date().toISOString()
+        },
+        {
+          department: 'PUMPING STN',
+          action: '90 Feet Rd Sector B: Voltage stable, backup diesel full',
+          alert_level: 'GREEN',
+          priority: 'LOW',
+          source: 'SOP',
+          status: 'OK',
+          timestamp: new Date().toISOString()
+        },
+        {
+          department: 'WEATHER DEP',
+          action: 'Local rain gauge 0.2mm/hr (Insignificant) - Wind 08 kts',
+          alert_level: 'GREEN',
+          priority: 'LOW',
+          source: 'Sensors',
           status: 'OK',
           timestamp: new Date().toISOString()
         }
@@ -94,6 +88,19 @@ export function CommandDashboard() {
       return;
     }
 
+    // Initialize with first step
+    setReasoningSteps(["RIVA sequence initializing... System handshake in progress."]);
+
+    // Delay for detailed telemetry
+    const timer = setTimeout(() => {
+      setReasoningSteps([
+        "Scanning 477 infrastructure nodes for baseline connectivity...",
+        "Correlating IMD satellite rainfall maps with ward-level drainage capacity.",
+        "Llama-3.3-70B model heartbeat verified. Latency: 2.1s.",
+        "Operational parameters synced. Ready for crisis simulation."
+      ]);
+    }, 5000);
+
     const wsUrl = `ws://${window.location.hostname}:8000/ws/dashboard`;
     const socket = new WebSocket(wsUrl);
 
@@ -101,7 +108,8 @@ export function CommandDashboard() {
       const data = JSON.parse(event.data);
       if (data.type === 'agent_reasoning') {
         if (data.status === 'CLEAR') {
-          setReasoningSteps([]);
+          // Keep our initial telemetry or clear only if explicitly asked
+          // For now, allow backend to append new reasoning steps
         } else {
           setReasoningSteps(prev => [...prev, data.status]);
         }
@@ -111,7 +119,7 @@ export function CommandDashboard() {
           tide_height_m: data.tide_height,
           rainfall_mm_hr: data.rainfall_rate,
           drain_capacity_pct: data.drainage_capacity_pct,
-          tide_direction: "Rising" // Logic for direction could be added
+          tide_direction: "Rising"
         }));
       } else if (data.type === 'alert_dispatched') {
         setAlerts(prev => [data, ...prev]);
@@ -137,7 +145,9 @@ export function CommandDashboard() {
     }
     init();
     const interval = setInterval(init, 5000);
+
     return () => {
+      clearTimeout(timer);
       clearInterval(interval);
       socket.close();
     };
@@ -147,7 +157,6 @@ export function CommandDashboard() {
     <div ref={containerRef} className="h-full w-full bg-transparent pt-22 sm:pt-30 px-12 pb-12 flex flex-col lg:flex-row gap-8 overflow-y-auto custom-scrollbar overflow-visible">
 
       <div className="flex-[0.72] flex flex-col gap-10">
-        {/* Map Panel (Top Left) */}
         <div className="flex-1 min-h-[600px] relative rounded-[2.5rem] overflow-hidden border border-white/60 shadow-2xl bg-white/30">
           <MapView
             zonesGeoJson={zones}
@@ -156,7 +165,6 @@ export function CommandDashboard() {
             onZoneClick={setSelectedZone}
             selectedZoneId={selectedZone}
           />
-          {/* In LIVE mode we keep the map interactive and visible. A small mode label is shown in the top-left card. */}
           <div className="absolute top-6 left-6 z-[1000] glass-card px-4 py-2 rounded-xl text-[10px] font-black text-white/80 uppercase border border-white/10 flex items-center gap-2">
             MUMBAI WARD MAP  -  {simulationMode === 'DEMO' ? 'DEMO MODE ACTIVE' : 'LIVE MODE'}
           </div>
@@ -168,7 +176,6 @@ export function CommandDashboard() {
           </div>
         </div>
 
-        {/* Status Ward Panel (Bottom Left) */}
         <div className="glass-card p-8 rounded-[3rem] border border-white/40 shadow-xl space-y-6">
           <header className="flex justify-between items-center text-[11px] font-bold text-gray-400 uppercase tracking-widest">
             <span>Status  -  Ward {selectedZone || 'H-East (Dharavi)'} {simulationMode === 'DEMO' ? 'Demo Active' : 'System Offline'}</span>
@@ -241,7 +248,6 @@ export function CommandDashboard() {
           )}
         </div>
 
-        {/* Deadline Footer (Footer Left) */}
         <div className="glass-card p-6 rounded-full border border-red-200/50 bg-red-50/10 flex items-center justify-between px-10 shadow-xl overflow-visible">
           <div className="flex items-center gap-6 flex-1 max-w-xl">
             <Label label="BMC Deadline" as="div" className="text-[11px] text-red-600 shrink-0" />
@@ -258,26 +264,23 @@ export function CommandDashboard() {
         </div>
       </div>
 
-      {/* RIGHT COLUMN (35%) */}
       <div className="flex-[0.28] flex flex-col gap-6">
-
-        {/* RIVA Reasoning Panel (Top Right) */}
         <TacticalCard
           title="Riva Agent - Reasoning"
           subtitle="Active"
           icon={<BrainCircuit size={18} className="text-blue-600" />}
           className="flex-[0.55]"
-          dark={false} // Switch to light as per previous request
+          dark={false}
         >
           <div className="absolute top-0 right-0 w-48 h-48 bg-blue-600/10 blur-[100px] rounded-full pointer-events-none" />
 
           <div className="flex flex-wrap gap-2 mb-8 relative z-10">
             <TacticalBadge label="Critical" color="red" variant="filled" />
-            <TacticalBadge label="Tide â†‘ Rising" color="orange" variant="outline" />
-            <TacticalBadge label="09:07 Â· Peak Hour" color="gray" variant="outline" />
+            <TacticalBadge label="Tide ↑ Rising" color="orange" variant="outline" />
+            <TacticalBadge label="09:07 · Peak Hour" color="gray" variant="outline" />
           </div>
 
-          <div className="flex-1 space-y-4 overflow-y-auto custom-scrollbar-dark mb-8 relative z-10 max-h-[200px]">
+          <div className="flex-1 space-y-4 overflow-y-auto custom-scrollbar-dark mb-8 relative z-10 max-h-[350px]">
             {reasoningSteps.length > 0 ? (
               reasoningSteps.map((text, i) => (
                 <div key={i} className="flex gap-4 items-start group">
@@ -286,17 +289,17 @@ export function CommandDashboard() {
                 </div>
               ))
             ) : (
-              <div className="text-sm text-gray-400 italic">
+              <div className="p-10 text-center text-gray-400 italic">
                 {simulationMode === 'DEMO'
                   ? "RIVA sequence initializing... Start demo to see reasoning telemetry."
-                  : "Live mode â€” system is peaceful. Continuous background monitoring active."}
+                  : "Live mode — system is peaceful. Continuous background monitoring active."}
               </div>
             )}
           </div>
 
           <div className="pt-6 border-t border-black/5 flex flex-col gap-5 relative z-10">
             <div className="flex justify-between items-center text-[10px] font-black text-gray-400 uppercase">
-              <span>5 DISPATCHED Â· 1.8S Â· LLAMA-3.3-70B</span>
+              <span>5 DISPATCHED · 1.8S · LLAMA-3.3-70B</span>
               <span className="text-blue-600">DISPATCHED</span>
             </div>
             <div className="grid grid-cols-2 gap-4">
@@ -306,7 +309,6 @@ export function CommandDashboard() {
           </div>
         </TacticalCard>
 
-        {/* Alert Feed Log (Bottom Right) */}
         <TacticalCard
           title="Alert Feed - Live Log"
           icon={<History size={18} className="text-slate-700" />}
@@ -341,5 +343,3 @@ function LegendItem({ color, label }: { color: string; label: string }) {
     </div>
   );
 }
-
-
