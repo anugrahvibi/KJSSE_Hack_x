@@ -107,7 +107,7 @@ function Navigation() {
   }, [location.pathname, mainNavItems]);
 
   const currentRole = role || 'BMC Ward Officer';
-  
+
   useEffect(() => {
     if (!isAgencyPortal) return;
     const updateStyle = () => {
@@ -126,19 +126,17 @@ function Navigation() {
     <div ref={navRef} className="fixed top-3 sm:top-5 left-1/2 -translate-x-1/2 w-[96%] max-w-7xl z-50 flex flex-col gap-2 pointer-events-none">
       {/* PRIMARY NAV BAR */}
       <nav
-        className="h-16 sm:h-20 rounded-[2rem] flex items-center justify-between px-8 border border-white/80 shadow-2xl pointer-events-auto"
+        className="h-16 sm:h-20 rounded-[2rem] flex items-center justify-between px-8 border border-white/80 shadow-2xl shadow-[inset_0_1px_1px_rgba(255,255,255,0.8),_inset_0_-1px_1px_rgba(0,0,0,0.05)] pointer-events-auto"
         style={{
-          background: 'rgba(255, 255, 255, 0.25)',
-          backdropFilter: 'blur(40px) saturate(180%)',
-          WebkitBackdropFilter: 'blur(40px) saturate(180%)'
+          background: 'rgba(255, 255, 255, 0.4)',
+          backdropFilter: 'blur(50px) saturate(210%)',
+          WebkitBackdropFilter: 'blur(50px) saturate(210%)'
         }}
       >
         <div className="flex items-center gap-10">
-          <div className="flex items-center gap-4 group cursor-pointer" onClick={() => navigate('/')}>
-            <div className="w-10 h-10 bg-white shadow-xl rounded-2xl flex items-center justify-center group-hover:scale-110 transition-all">
-              <Activity className="text-blue-600" size={20} />
-            </div>
-            <h1 className="text-2xl font-black brand-font uppercase tracking-tighter text-gradient-primary">RIVA</h1>
+          <div className="flex flex-col cursor-pointer" onClick={() => navigate('/')}>
+            <h1 className="text-2xl font-black brand-font uppercase tracking-tighter text-gradient-primary leading-none">RIVA</h1>
+            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">Flood Intelligence Console</span>
           </div>
 
           <div className="hidden lg:flex items-center gap-6 border-l border-black/5 pl-8">
@@ -154,10 +152,10 @@ function Navigation() {
         </div>
 
         {/* MAIN TABS */}
-        <div className="hidden md:inline-flex relative items-center gap-1.5 p-1 bg-white/40 rounded-full border border-white/60 overflow-hidden">
+        <div className="hidden md:inline-flex relative items-center gap-1.5 p-1 bg-white/40 rounded-full border border-white/60 shadow-md shadow-[inset_0_1px_1px_rgba(255,255,255,0.5),_inset_0_-1px_1px_rgba(0,0,0,0.05)] overflow-hidden">
           {/* Layer 0: Highlight/Hover Pill (Bottom) */}
           {hoveredMainNav !== null && mainNavRefs.current[hoveredMainNav] && location.pathname !== mainNavItems[hoveredMainNav].path && (
-            <div 
+            <div
               className="absolute top-1 bottom-1 bg-white/40 rounded-full transition-all duration-300 ease-out z-0 pointer-events-none"
               style={{
                 left: mainNavRefs.current[hoveredMainNav]?.offsetLeft || 0,
@@ -167,7 +165,7 @@ function Navigation() {
           )}
 
           {/* Layer 1: Active/Sliding Pill (Middle) */}
-          <div 
+          <div
             className="absolute top-1 bottom-1 bg-blue-600 rounded-full transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] shadow-lg shadow-blue-500/20 z-10 pointer-events-none"
             style={mainPillStyle}
           />
@@ -178,17 +176,16 @@ function Navigation() {
             return (
               <button
                 key={nav.path}
-                ref={el => mainNavRefs.current[idx] = el}
+                ref={el => { mainNavRefs.current[idx] = el; }}
                 onClick={() => navigate(nav.path)}
                 onMouseEnter={() => setHoveredMainNav(idx)}
                 onMouseLeave={() => setHoveredMainNav(null)}
                 className="relative z-30 px-8 py-2.5 rounded-full text-[11px] font-black uppercase transition-colors duration-300 whitespace-nowrap tracking-wider outline-none bg-transparent"
               >
-                <span className={`relative z-40 transition-colors duration-300 ${
-                  isActive 
-                    ? 'text-white' 
+                <span className={`relative z-40 transition-colors duration-300 ${isActive
+                    ? 'text-white'
                     : (hoveredMainNav === idx ? 'text-blue-600' : 'text-gray-600')
-                }`}>
+                  }`}>
                   {nav.label}
                 </span>
               </button>
@@ -197,30 +194,36 @@ function Navigation() {
         </div>
 
         <div className="flex items-center gap-4">
-          {/* Live / Demo mode controls */}
-          <div className={`inline-flex items-center gap-2 ${isSwitchingMode ? 'opacity-50 pointer-events-none' : ''}`}>
+          {/* UNIFIED MODE TOGGLE */}
+          <div className={`relative flex items-center bg-white/40 p-1 rounded-2xl border border-white/60 shadow-lg shadow-[inset_0_1px_1px_rgba(255,255,255,0.5),_inset_0_-1px_1px_rgba(0,0,0,0.05)] pointer-events-auto transition-all duration-500 ${isSwitchingMode ? 'opacity-50 grayscale pointer-events-none' : ''}`}>
+            {/* Sliding Mode Indicator */}
+            <div
+              className={`absolute top-1 bottom-1 rounded-xl transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] shadow-lg z-0 ${simulationMode === 'LIVE'
+                  ? 'left-1 w-[80px] bg-emerald-600 shadow-emerald-500/20'
+                  : 'left-[84px] w-[88px] bg-red-600 shadow-red-500/20'
+                }`}
+            />
+
             <button
-              onClick={() => !isSwitchingMode && setSimulationMode('LIVE')}
-              disabled={isSwitchingMode}
-              className={`px-5 py-2 rounded-xl text-[10px] font-black uppercase flex items-center gap-2 transition-all ${simulationMode === 'LIVE' ? 'bg-emerald-600 text-white shadow-xl' : 'bg-gray-200 text-gray-700'
+              onClick={() => setSimulationMode('LIVE')}
+              className={`relative z-10 w-[80px] py-2 text-[10px] font-black uppercase flex items-center justify-center gap-2 transition-colors duration-300 ${simulationMode === 'LIVE' ? 'text-white' : 'text-gray-500 hover:text-gray-900'
                 }`}
             >
               <Activity size={14} />
-              Live Mode
+              Live
             </button>
 
             <button
-              onClick={() => !isSwitchingMode && setSimulationMode('DEMO')}
-              disabled={isSwitchingMode}
-              className={`px-5 py-2 rounded-xl text-[10px] font-black uppercase flex items-center gap-2 transition-all ${simulationMode === 'DEMO' ? 'bg-red-600 text-white shadow-xl' : 'bg-gray-200 text-gray-700'
+              onClick={() => setSimulationMode('DEMO')}
+              className={`relative z-10 w-[88px] py-2 text-[10px] font-black uppercase flex items-center justify-center gap-2 transition-colors duration-300 ${simulationMode === 'DEMO' ? 'text-white' : 'text-gray-500 hover:text-gray-900'
                 }`}
             >
               <AlertTriangle size={14} />
-              Demo Mode
+              Demo
             </button>
           </div>
 
-          <button onClick={logout} className="p-3 bg-white rounded-xl border border-black/5 text-gray-900 hover:bg-slate-50 transition-all ml-2">
+          <button onClick={logout} className="p-3 bg-white rounded-xl border border-black/5 text-gray-900 hover:bg-slate-50 transition-all pointer-events-auto">
             <LogOut size={18} />
           </button>
         </div>
@@ -229,16 +232,16 @@ function Navigation() {
       {/* TACTICAL SUB-BAR (Only for Agency Portal) */}
       {isAgencyPortal && (
         <div
-          className="relative inline-flex self-center items-center justify-center gap-1.5 w-fit rounded-full border border-white/40 p-1 shadow-xl animate-in fade-in slide-in-from-top-2 duration-300 pointer-events-auto"
+          className="relative inline-flex self-center items-center justify-center gap-1.5 w-fit rounded-full border border-white/40 p-1 shadow-xl shadow-[inset_0_1px_1px_rgba(255,255,255,0.6)] animate-in fade-in slide-in-from-top-2 duration-300 pointer-events-auto"
           style={{
-            background: 'rgba(255, 255, 255, 0.15)',
-            backdropFilter: 'blur(40px) saturate(180%)',
-            WebkitBackdropFilter: 'blur(40px) saturate(180%)'
+            background: 'rgba(255, 255, 255, 0.4)',
+            backdropFilter: 'blur(50px) saturate(210%)',
+            WebkitBackdropFilter: 'blur(50px) saturate(210%)'
           }}
         >
           {/* Layer 0: Highlight/Hover Pill (Bottom) */}
           {hoveredAgency !== null && agencyRefs.current[hoveredAgency] && currentRole !== agencyRoles[hoveredAgency].id && (
-            <div 
+            <div
               className="absolute top-1 bottom-1 bg-white/40 rounded-full transition-all duration-300 ease-out z-0 pointer-events-none"
               style={{
                 left: agencyRefs.current[hoveredAgency]?.offsetLeft || 0,
@@ -248,28 +251,27 @@ function Navigation() {
           )}
 
           {/* Layer 1: Active/Sliding Pill (Middle) */}
-          <div 
+          <div
             className="absolute top-1 bottom-1 bg-gray-950 rounded-full transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] drop-shadow-md z-10 pointer-events-none"
             style={agencyPillStyle}
           />
-          
+
           {/* Layer 2: Interactive Buttons & Text (Top) */}
           {agencyRoles.map((agency, idx) => {
             const isActive = currentRole === agency.id;
             return (
               <button
                 key={agency.id}
-                ref={el => agencyRefs.current[idx] = el}
+                ref={el => { agencyRefs.current[idx] = el; }}
                 onClick={() => setRoleDirectly(agency.id)}
                 onMouseEnter={() => setHoveredAgency(idx)}
                 onMouseLeave={() => setHoveredAgency(null)}
                 className="relative z-30 px-6 py-2 rounded-full text-[11px] font-semibold uppercase transition-colors duration-300 whitespace-nowrap outline-none bg-transparent"
               >
-                <span className={`relative z-40 transition-colors duration-300 ${
-                  isActive 
-                    ? 'text-white' 
+                <span className={`relative z-40 transition-colors duration-300 ${isActive
+                    ? 'text-white'
                     : (hoveredAgency === idx ? 'text-gray-950' : 'text-gray-500')
-                }`}>
+                  }`}>
                   {agency.label}
                 </span>
               </button>
@@ -294,9 +296,18 @@ function AppContent() {
 
   return (
     <div className="h-dvh w-full bg-[#f8fafc] flex flex-col overflow-visible relative font-sans">
+      {/* TACTICAL ATMOSPHERE MESH */}
       <div className="fixed top-0 left-0 w-full h-full pointer-events-none overflow-hidden" style={{ zIndex: 0 }}>
-        <div className="absolute top-[-15%] left-1/2 -translate-x-1/2 w-[70%] h-[50%] bg-blue-600/15 blur-[120px] rounded-full" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-blue-800/10 blur-[140px] rounded-full" />
+        {/* Primary Sapphire Gradient */}
+        <div className="absolute top-0 right-0 w-full h-full bg-linear-to-br from-blue-50/50 via-indigo-50/30 to-slate-50/50" />
+
+        {/* Animated Aurora Blobs */}
+        <div className="absolute top-[-10%] left-[-10%] w-[60vw] h-[60vw] bg-blue-600/15 blur-[180px] rounded-full animate-pulse-slow" />
+        <div className="absolute bottom-[-5%] right-[-5%] w-[50vw] h-[50vw] bg-indigo-500/10 blur-[200px] rounded-full animate-pulse-slow" style={{ animationDelay: '3s' }} />
+        <div className="absolute top-[20%] right-[15%] w-[35vw] h-[35vw] bg-cyan-400/5 blur-[150px] rounded-full animate-float-slow" />
+
+        {/* Subtle Horizontal Scanlines for depth */}
+        <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[linear-gradient(rgba(15,23,42,0)_1px,transparent_1px)] bg-[size:100%_4px]" />
       </div>
 
       {isAuthenticated && <Navigation />}

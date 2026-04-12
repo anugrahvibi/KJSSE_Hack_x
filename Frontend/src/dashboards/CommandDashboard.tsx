@@ -5,6 +5,7 @@ import { MapView } from '../components/MapView';
 import { ProgressBar } from '../components/common/ProgressBar';
 import { TacticalCard, TacticalMetric, TacticalAlertRow, TacticalBadge, Label, LabelButton, TacticalSparkline, TacticalBarChart } from '../components/tactical/TacticalLibrary';
 import { BrainCircuit, Maximize2, ChevronUp, History, AlertTriangle } from 'lucide-react';
+import { TACTICAL_THEME } from '../theme';
 import { useGsapAnimations } from '../utils/useGsapAnimations';
 import { useAuth } from '../AuthContext';
 
@@ -116,11 +117,11 @@ export function CommandDashboard() {
   }, [simulationMode]);
 
   return (
-    <div ref={containerRef} className="h-full w-full bg-transparent pt-22 sm:pt-30 px-12 pb-12 flex flex-col lg:flex-row gap-8 overflow-y-auto custom-scrollbar overflow-visible">
+    <div ref={containerRef} className={`h-full w-full bg-transparent pt-22 sm:pt-30 ${TACTICAL_THEME.paddingX} ${TACTICAL_THEME.paddingB} flex flex-col lg:flex-row ${TACTICAL_THEME.gap} overflow-y-auto custom-scrollbar overflow-visible`}>
 
-      <div className="flex-[0.72] flex flex-col gap-10">
+      <div className={`flex-[0.72] flex flex-col ${TACTICAL_THEME.gap}`}>
         {/* Map Panel (Top Left) */}
-        <div className="flex-1 min-h-[600px] relative rounded-[2.5rem] overflow-hidden border border-white/60 shadow-2xl bg-white/30">
+        <div className="flex-1 min-h-[400px] h-[calc(100vh-320px)] max-h-[850px] relative rounded-[2.5rem] overflow-hidden border border-black/5 shadow-2xl bg-white/20 backdrop-blur-xl">
           <MapView
             zonesGeoJson={zones}
             infrastructureNodes={infra}
@@ -141,9 +142,9 @@ export function CommandDashboard() {
         </div>
 
         {/* Status Ward Panel (Bottom Left) */}
-        <div className="glass-card p-8 rounded-[3rem] border border-white/40 shadow-xl space-y-6">
+        <div className={`glass-card p-10 rounded-[3rem] border border-white/60 shadow-xl ${TACTICAL_THEME.spaceY}`}>
           <header className="flex justify-between items-center text-[11px] font-bold text-gray-400 uppercase tracking-widest">
-            <span>Status  -  Ward {selectedZone || 'H-East (Dharavi)'} {simulationMode === 'DEMO' ? 'Demo Active' : 'System Offline'}</span>
+            <span>Status  -  Ward {selectedZone || 'H-East (Dharavi)'}</span>
             <Maximize2 size={14} className="opacity-40" />
           </header>
 
@@ -214,7 +215,7 @@ export function CommandDashboard() {
         </div>
 
         {/* Deadline Footer (Footer Left) */}
-        <div className="glass-card p-6 rounded-full border border-red-200/50 bg-red-50/10 flex items-center justify-between px-10 shadow-xl overflow-visible">
+        <div className="glass-card p-6 rounded-full border border-white/60 bg-white/20 backdrop-blur-xl flex items-center justify-between px-10 shadow-xl overflow-visible">
           <div className="flex items-center gap-6 flex-1 max-w-xl">
             <Label label="BMC Deadline" as="div" className="text-[11px] text-red-600 shrink-0" />
             <ProgressBar
@@ -231,7 +232,7 @@ export function CommandDashboard() {
       </div>
 
       {/* RIGHT COLUMN (35%) */}
-      <div className="flex-[0.28] flex flex-col gap-6">
+      <div className={`flex-[0.28] flex flex-col ${TACTICAL_THEME.gap}`}>
 
         {/* RIVA Reasoning Panel (Top Right) */}
         <TacticalCard
@@ -245,8 +246,8 @@ export function CommandDashboard() {
 
           <div className="flex flex-wrap gap-2 mb-8 relative z-10">
             <TacticalBadge label="Critical" color="red" variant="filled" />
-            <TacticalBadge label="Tide â†‘ Rising" color="orange" variant="outline" />
-            <TacticalBadge label="09:07 Â· Peak Hour" color="gray" variant="outline" />
+            <TacticalBadge label="Tide Up Rising" color="orange" variant="outline" />
+            <TacticalBadge label="09:07 | Peak Hour" color="gray" variant="outline" />
           </div>
 
           <div className="flex-1 space-y-4 overflow-y-auto custom-scrollbar-dark mb-8 relative z-10 max-h-[200px]">
@@ -261,14 +262,14 @@ export function CommandDashboard() {
               <div className="text-sm text-gray-400 italic">
                 {simulationMode === 'DEMO'
                   ? "RIVA sequence initializing... Start demo to see reasoning telemetry."
-                  : "Live mode â€” system is peaceful. Continuous background monitoring active."}
+                  : "Live mode - system is peaceful. Continuous background monitoring active."}
               </div>
             )}
           </div>
 
           <div className="pt-6 border-t border-black/5 flex flex-col gap-5 relative z-10">
             <div className="flex justify-between items-center text-[10px] font-black text-gray-400 uppercase">
-              <span>5 DISPATCHED Â· 1.8S Â· LLAMA-3.3-70B</span>
+              <span>5 DISPATCHED | 1.8S | LLAMA-3.3-70B</span>
               <span className="text-blue-600">DISPATCHED</span>
             </div>
             <div className="grid grid-cols-2 gap-4">

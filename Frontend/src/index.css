@@ -38,13 +38,13 @@
     --amber-watch: #f59e0b;
     --red-warning: #ef4444;
 
-    --glass-opacity: 0.22;
-    --glass-blur: 32px;
+    --glass-opacity: 0.08;
+    --glass-blur: 40px;
     --glass-bg: rgba(255, 255, 255, var(--glass-opacity));
-    --glass-border: rgba(255, 255, 255, 0.4);
+    --glass-border: rgba(255, 255, 255, 0.6);
     --glass-shadow:
-      0 4px 14px -1px rgba(0, 0, 0, 0.04),
-      0 12px 40px -10px rgba(0, 0, 0, 0.07);
+      0 10px 30px -5px rgba(0, 0, 0, 0.04),
+      0 20px 60px -15px rgba(0, 0, 0, 0.08);
   }
 
   html {
@@ -432,15 +432,18 @@
 }
 
 @keyframes pulse {
+  0%, 100% { opacity: 0.6; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.05); }
+}
 
-  0%,
-  100% {
-    opacity: 1;
-  }
+.animate-float-slow {
+  animation: float 12s ease-in-out infinite;
+}
 
-  50% {
-    opacity: .5;
-  }
+@keyframes float {
+  0%, 100% { transform: translate(0, 0); }
+  33% { transform: translate(30px, -50px); }
+  66% { transform: translate(-20px, 20px); }
 }
 
 .map-container {
@@ -677,7 +680,21 @@
   border-bottom: 1px solid rgba(255, 255, 255, 0.5) !important;
 }
 
+.leaflet-container {
+  background: transparent !important;
+  border: none !important;
+  outline: none !important;
+}
+
+.leaflet-tile-container img {
+  width: 256.5px !important;
+  height: 256.5px !important;
+}
+
 .leaflet-container a.leaflet-control-zoom-in,
+.leaflet-container a.leaflet-control-zoom-out {
+  text-decoration: none !important;
+}
 .leaflet-container a.leaflet-control-zoom-out {
   text-decoration: none;
 }

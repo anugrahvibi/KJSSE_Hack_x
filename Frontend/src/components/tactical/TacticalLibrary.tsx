@@ -15,7 +15,7 @@ export function Label({ label, icon, className = '', as = 'span', variant = 'pil
     : 'rounded-2xl px-4 py-2';
 
   return (
-    <Tag className={`${shapeClasses} inline-flex items-center gap-2 text-[10px] font-black uppercase ${className}`}>
+    <Tag className={`${shapeClasses} inline-flex items-center justify-center gap-2 text-[10px] font-black uppercase text-center ${className}`}>
       {icon}
       {label}
     </Tag>
@@ -60,14 +60,14 @@ interface TacticalCardProps {
 
 export function TacticalCard({ children, title, subtitle, icon, badge, className = "", headerClassName = "", dark = false }: TacticalCardProps) {
   return (
-    <div className={`glass-card rounded-[2.5rem] border border-white/40 shadow-xl overflow-visible flex flex-col ${dark ? 'bg-slate-950/30 text-white backdrop-blur-2xl' : 'bg-white/10 text-gray-950'} ${className}`}>
+    <div className={`glass-card rounded-[2.5rem] border border-white/60 shadow-xl overflow-visible flex flex-col ${dark ? 'bg-slate-950/40 text-white backdrop-blur-2xl' : 'backdrop-blur-xl saturate-[180%] text-gray-950'} ${className}`}>
       {title && (
         <header className={`p-8 border-b border-black/5 flex justify-between items-center ${headerClassName}`}>
           <div className="space-y-1">
-            <h3 className={`text-[13px] font-bold uppercase flex items-center gap-3 ${dark ? 'text-blue-400' : 'text-gray-950'}`}>
+            <h3 className={`text-[13px] font-bold uppercase flex items-center justify-center gap-3 ${dark ? 'text-blue-400' : 'text-gray-950'}`}>
               {icon} {title}
             </h3>
-            {subtitle && <p className="text-[10px] font-medium text-gray-400 italic uppercase tracking-widest">{subtitle}</p>}
+            {subtitle && <p className="text-[10px] font-medium text-gray-400 italic uppercase tracking-widest text-center">{subtitle}</p>}
           </div>
           {badge}
         </header>
@@ -89,15 +89,15 @@ interface TacticalMetricProps {
 
 export function TacticalMetric({ label, value, sub, color = "text-gray-900", icon }: TacticalMetricProps) {
   return (
-    <div className="space-y-1 group">
-      <div className="text-[10px] font-black text-gray-400 uppercase tracking-tighter">{label}</div>
-      <div className="flex items-center gap-3">
-        <div className={`text-3xl sm:text-4xl font-black brand-font ${color} group-hover:scale-105 transition-transform`}>
+    <div className="space-y-1 group flex flex-col items-center">
+      <div className="text-[10px] font-black text-gray-400 uppercase tracking-tighter text-center">{label}</div>
+      <div className="flex items-center justify-center gap-3">
+        <div className={`text-3xl sm:text-4xl font-black brand-font ${color} group-hover:scale-105 transition-transform text-center`}>
           {value}
         </div>
         {icon}
       </div>
-      {sub && <div className="text-[10px] font-medium text-gray-400 italic tracking-wide">{sub}</div>}
+      {sub && <div className="text-[10px] font-medium text-gray-400 italic tracking-wide text-center">{sub}</div>}
     </div>
   );
 }
@@ -164,9 +164,9 @@ export function TacticalAlertRow({ status, title, description, time, action }: T
     <div className="flex items-start justify-between gap-4 p-5 hover:bg-black/5 rounded-[2rem] transition-all group border border-transparent hover:border-black/5">
       <div className="flex items-start gap-4 flex-1 min-w-0">
         <TacticalBadge label={badge.label} color={badge.color} variant={badge.variant} className="w-[80px] shrink-0 text-center" />
-        <div className="min-w-0">
-          <p className="text-[12px] font-bold text-gray-900 uppercase leading-none mb-1 truncate">{title}</p>
-          <p className="text-[14px] font-normal text-gray-600 italic leading-snug line-clamp-2">"{description}"</p>
+        <div className="min-w-0 flex-1">
+          <p className="text-[12px] font-bold text-gray-900 uppercase leading-none mb-1 truncate text-center">{title}</p>
+          <p className="text-[14px] font-normal text-gray-600 italic leading-snug line-clamp-2 text-center">"{description}"</p>
         </div>
       </div>
       <div className="flex flex-col items-end gap-2 shrink-0">

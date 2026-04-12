@@ -7,6 +7,7 @@ import { useAuth } from '../AuthContext';
 import { MapView } from '../components/MapView';
 import { ProgressBar } from '../components/common/ProgressBar';
 import { Label, LabelButton } from '../components/tactical/TacticalLibrary';
+import { TACTICAL_THEME } from '../theme';
 import { AccountabilityReport } from './AccountabilityReport';
 
 export function AuditDashboard() {
@@ -26,15 +27,15 @@ export function AuditDashboard() {
    }, []);
 
    return (
-    <div ref={containerRef} className="pt-22 sm:pt-30 px-12 pb-12 h-full bg-transparent overflow-y-auto w-full custom-scrollbar overflow-visible">
-      <div className="w-full flex flex-col lg:flex-row gap-10">
+    <div ref={containerRef} className={`pt-22 sm:pt-30 ${TACTICAL_THEME.paddingX} ${TACTICAL_THEME.paddingB} h-full bg-transparent overflow-y-auto w-full custom-scrollbar overflow-visible`}>
+      <div className={`w-full flex flex-col lg:flex-row ${TACTICAL_THEME.gap}`}>
 
             {/* LEFT COLUMN: Insights & Map (65%) */}
-            <div className="flex-[0.65] flex flex-col gap-10">
+            <div className={`flex-[0.65] flex flex-col ${TACTICAL_THEME.gap}`}>
 
                {/* Vulnerability Ranking (Top Left) - DEMO vs LIVE */}
                {simulationMode === 'DEMO' ? (
-                  <div className="glass-card p-8 rounded-[2.5rem] border border-white/40 shadow-xl space-y-6">
+                  <div className={`glass-card p-8 rounded-[2.5rem] border border-white/40 shadow-xl ${TACTICAL_THEME.spaceY}`}>
                      <header className="flex justify-between items-center text-[11px] font-black text-gray-400 uppercase tracking-widest">
                         <span>Vulnerability Ranking - Cascade Multiplier</span>
                         <span className="text-gray-400 italic font-bold">Audit mode - no live event needed</span>
@@ -87,7 +88,7 @@ export function AuditDashboard() {
                )}
 
                {/* Structural Map (Middle Left) */}
-               <div className="flex-1 min-h-[450px] relative rounded-[2.5rem] overflow-hidden border border-white/60 shadow-2xl bg-white/30">
+               <div className="flex-1 min-h-[450px] h-[calc(100vh-340px)] relative rounded-[2.5rem] overflow-hidden border border-black/5 shadow-2xl bg-white/30">
                   {!showReport && (
                      <MapView
                         zonesGeoJson={null}
@@ -156,7 +157,7 @@ export function AuditDashboard() {
             </div>
 
             {/* RIGHT COLUMN: Sidebar (35%) */}
-            <div className="flex-[0.35] flex flex-col gap-5">
+            <div className={`flex-[0.35] flex flex-col ${TACTICAL_THEME.gap}`}>
 
                {/* AI Narrative (Top Right) - DEMO vs LIVE */}
                {simulationMode === 'DEMO' ? (
@@ -242,6 +243,7 @@ export function AuditDashboard() {
          </div>
 
          {showReport && <AccountabilityReport onClose={() => setShowReport(false)} mode={simulationMode} />}
+
       </div>
    );
 }

@@ -4,7 +4,9 @@ import type { ZonePrediction, StakeholderAction } from '@schema';
 import { PlusCircle, Bed, Ambulance, AlertTriangle, Activity, Navigation, Clock, X, MapPin } from 'lucide-react';
 import { useGsapAnimations } from '../utils/useGsapAnimations';
 import { useAuth } from '../AuthContext';
+import { MapView } from '../components/MapView';
 import { TacticalCard, TacticalBadge } from '../components/tactical/TacticalLibrary';
+import { TACTICAL_THEME } from '../theme';
 
 export function DistrictAdminDashboard() {
    const containerRef = useRef<HTMLDivElement>(null);
@@ -22,9 +24,9 @@ export function DistrictAdminDashboard() {
       init();
    }, []);
 
-   return (
-    <div ref={containerRef} className="pt-35 sm:pt-46 px-12 pb-12 h-full bg-transparent overflow-y-auto w-full custom-scrollbar overflow-visible">
-      <div className="w-full space-y-12">
+  return (
+    <div ref={containerRef} className={`pt-34 sm:pt-43 ${TACTICAL_THEME.paddingX} h-full bg-transparent overflow-y-auto w-full custom-scrollbar overflow-visible`}>
+      <div className={`w-full ${TACTICAL_THEME.spaceY}`}>
             {/* Alert Bar - only in DEMO */}
             {simulationMode === 'DEMO' && (
                <div className="glass-card p-6 rounded-[2.25rem] border border-orange-200 bg-orange-500/10 shadow-xl overflow-visible flex flex-col md:flex-row items-center justify-between gap-6 group">
@@ -59,10 +61,23 @@ export function DistrictAdminDashboard() {
                </div>
             )}
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
 
                {/* LEFT COLUMN */}
-               <div className="space-y-8 flex flex-col">
+               <div className="space-y-10 flex flex-col">
+
+                  {/* SUB-MAP: Accessibility Oversight */}
+                  <div className="min-h-[400px] relative rounded-[2.5rem] overflow-hidden border border-black/5 shadow-2xl bg-white/20 backdrop-blur-xl shrink-0">
+                     <MapView 
+                        variant="emergency" 
+                        infrastructureNodes={[]} 
+                        predictions={[]} 
+                        onZoneClick={() => {}} 
+                     />
+                     <div className="absolute top-6 left-6 z-[1000] glass-card px-4 py-2 rounded-xl text-[10px] font-black text-gray-950 uppercase border border-white/40 flex items-center gap-2">
+                        Hospital Transit Oversight
+                      </div>
+                  </div>
 
                   {/* Hospital Capacity */}
                   <TacticalCard title="HOSPITAL CAPACITY" icon={<Bed size={16} className="text-gray-400" />}>
@@ -71,13 +86,16 @@ export function DistrictAdminDashboard() {
                         <CapacityProgress label="Surge capacity available" value={35} color="bg-emerald-500" sub="approx 140 beds" />
                      </div>
                   </TacticalCard>
+               </div>
 
+               {/* RIGHT COLUMN */}
+               <div className="space-y-10 flex flex-col">
                   {/* Cascade Risk to KEM */}
                   {simulationMode === 'DEMO' ? (
                      <TacticalCard title="CASCADE RISK TO KEM" icon={<AlertTriangle size={18} className="text-red-600" />}>
                         <div className="space-y-6">
                            <p className="text-[16px] font-bold text-gray-700 leading-snug uppercase">
-                              If WR fails at T+60 â†' roads choke at T+90 â†' <span className="text-red-600 font-black">KEM unreachable by T+135</span>
+                              If WR fails at T+60 then roads choke at T+90 then <span className="text-red-600 font-black">KEM unreachable by T+135</span>
                            </p>
                            <div className="space-y-2">
                               <StatusMetric label="Current window" value="125 min remaining" color="text-emerald-600" />
@@ -100,12 +118,27 @@ export function DistrictAdminDashboard() {
                         </div>
                      </TacticalCard>
                   )}
-               </div>
 
-               {/* RIGHT COLUMN */}
-               <div className="space-y-8 flex flex-col">
-
-                  {simulationMode === 'DEMO' ? (
+                  {/* LIVE Logistics & Inventory Surge */}
+                  {simulationMode === 'LIVE' ? (
+                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 gap-10">
+                        <TacticalCard title="CRITICAL INVENTORY" icon={<Activity size={16} className="text-blue-600" />}>
+                           <div className="space-y-6">
+                              <CapacityProgress label="Blood Bank (O-)" value={92} color="bg-emerald-500" />
+                              <CapacityProgress label="Oxygen Reserve" value={84} color="bg-emerald-500" sub="Liquid O2 Stable" />
+                              <CapacityProgress label="Emergency Meds" value={78} color="bg-blue-600" />
+                           </div>
+                        </TacticalCard>
+                        
+                        <TacticalCard title="STAFF READINESS" icon={<PlusCircle size={16} className="text-blue-600" />}>
+                           <div className="space-y-6">
+                              <StatusMetric label="Surge Team" value="On Standby" color="text-blue-600" />
+                              <StatusMetric label="ED Physicians" value="12 Active" color="text-gray-950" />
+                              <StatusMetric label="Nursing Staff" value="Optimal" color="text-emerald-600" />
+                           </div>
+                        </TacticalCard>
+                     </div>
+                  ) : (
                      <>
                         {/* Surge Protocol Checklist (DEMO only) */}
                         <TacticalCard title="SURGE PROTOCOL CHECKLIST" icon={<Activity size={18} className="text-blue-600" />}>
@@ -172,16 +205,17 @@ export function DistrictAdminDashboard() {
                                  </div>
                                  <div>
                                     <p className="text-[10px] font-black text-blue-100 uppercase leading-none mb-1">Recommended Detour</p>
-                                    <p className="text-[13px] font-bold text-white uppercase tracking-tight">BYPASS SION â†’ USE LBS MARG</p>
+                                    <p className="text-[13px] font-bold text-white uppercase tracking-tight">BYPASS SION TO USE LBS MARG</p>
                                  </div>
                               </div>
                            </div>
                         </div>
                      </>
-                  ) : null}
+                  )}
                </div>
             </div>
          </div>
+
       </div>
    );
 }
@@ -203,7 +237,7 @@ function CapacityProgress({ label, value, color, sub }: { label: string; value: 
 
 function StatusMetric({ label, value, color }: { label: string; value: string; color: string }) {
    return (
-      <div className="flex items-center gap-4 text-[14px] font-bold uppercase">
+      <div className="flex items-center gap-4 text-[14px] font-bold uppercase text-center justify-center">
          <span className="text-gray-400 w-32">{label}:</span>
          <span className={color}>{value}</span>
       </div>
@@ -216,14 +250,6 @@ function HospChecklistRow({ time, label, status, color, variant = 'filled' }: { 
          <span className="text-[13px] font-black text-gray-400">{time}</span>
          <p className="flex-1 text-[14px] font-bold text-gray-700 leading-tight uppercase tracking-tighter">{label}</p>
          <TacticalBadge label={status} color={color} variant={variant} className="shrink-0 w-24 text-center" />
-      </div>
-   );
-}
-
-function ArrowIcon() {
-   return (
-      <div className="text-gray-300">
-         <Navigation size={18} className="rotate-90" />
       </div>
    );
 }
@@ -248,7 +274,7 @@ function RouteWaypoint({ icon, label, status, time, color, variant = 'filled', a
          `}>
             {icon}
          </div>
-         <div className="flex-1">
+         <div className="flex-1 text-center justify-center">
             <div className="flex justify-between items-baseline mb-0.5">
                <p className="text-[11px] font-black text-gray-900 uppercase tracking-tight">{label}</p>
                {time && <p className="text-[9px] font-bold text-gray-400">{time}</p>}
@@ -260,4 +286,3 @@ function RouteWaypoint({ icon, label, status, time, color, variant = 'filled', a
       </div>
    );
 }
-

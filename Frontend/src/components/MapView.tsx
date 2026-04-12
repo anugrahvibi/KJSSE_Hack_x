@@ -152,8 +152,9 @@ export function MapView({ infrastructureNodes, predictions, onZoneClick, selecte
       const map = L.map(containerRef.current!, {
         center: [19.0760, 72.8777],
         zoom: 12,
-        zoomControl: true,
+        zoomControl: false,
       });
+      L.control.zoom({ position: 'topright' }).addTo(map);
       mapRef.current = map;
       applyTileLayer(map, L);
 
@@ -359,7 +360,7 @@ export function MapView({ infrastructureNodes, predictions, onZoneClick, selecte
       </div>
       {/* Geospatial Intelligence Card */}
       <div className="glass-card shadow-2xl overflow-visible border-white/60" style={{
-        position: 'absolute', top: 20, left: 60, zIndex: 1000,
+        position: 'absolute', top: 20, left: 80, zIndex: 1000,
         borderRadius: 24, padding: '16px',
         background: 'rgba(255,255,255,0.4)',
         backdropFilter: 'blur(32px)',

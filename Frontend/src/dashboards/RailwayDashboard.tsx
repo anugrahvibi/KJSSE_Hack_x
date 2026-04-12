@@ -8,6 +8,7 @@ import {
 import { useGsapAnimations } from '../utils/useGsapAnimations';
 import { TacticalCard, TacticalBadge, TacticalMetric, TacticalSparkline } from '../components/tactical/TacticalLibrary';
 import { MapView } from '../components/MapView';
+import { TACTICAL_THEME } from '../theme';
 import { useAuth } from '../AuthContext';
 
 export function RailwayDashboard() {
@@ -63,8 +64,8 @@ export function RailwayDashboard() {
     }, [simulationMode]);
 
     return (
-        <div ref={containerRef} className="pt-35 sm:pt-46 px-12 pb-12 h-full bg-transparent overflow-y-auto w-full custom-scrollbar overflow-visible">
-            <div className="w-full space-y-10 pb-16">
+        <div ref={containerRef} className={`pt-34 sm:pt-43 ${TACTICAL_THEME.paddingX} ${TACTICAL_THEME.paddingB} h-full bg-transparent overflow-y-auto w-full custom-scrollbar overflow-visible`}>
+            <div className={`w-full ${TACTICAL_THEME.spaceY}`}>
                 {/* SYSTEM NORMAL STATUS (Live Mode) */}
                 {simulationMode === 'LIVE' && (
                     <div className="glass-card p-6 rounded-[2.5rem] border border-emerald-200 bg-emerald-50/30 flex items-center justify-between">
@@ -74,7 +75,7 @@ export function RailwayDashboard() {
                             </div>
                             <div>
                                 <h3 className="text-lg font-black text-emerald-900 uppercase tracking-tight">Corridor Watch: Nominal</h3>
-                                <p className="text-xs font-bold text-emerald-600 uppercase">Western Line operating at full capacity. No track-level threats detected.</p>
+                                <p className="text-[15px] font-bold text-gray-700 leading-relaxed uppercase">Battalion 4 reporting 100% mission readiness. All tactical equipment verified. Sync with Central Command active.</p>
                             </div>
                         </div>
                         <TacticalBadge label="Live Telemetry" color="emerald" variant="outline" />
@@ -105,10 +106,10 @@ export function RailwayDashboard() {
                     </div>
                 )}
 
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:h-[800px]">
+                <div className={`grid grid-cols-1 lg:grid-cols-12 ${TACTICAL_THEME.gap} h-[calc(100vh-550px)] min-h-[400px]`}>
                     {/* MAP PANEL */}
-                    <div className="lg:col-span-8 flex flex-col gap-6">
-                        <div className="flex-1 relative glass-card p-1 rounded-[3rem] border-white/60 shadow-2xl overflow-hidden bg-white/30">
+                    <div className="lg:col-span-8 flex flex-col gap-10">
+                        <div className="flex-1 relative glass-card p-0 rounded-[3rem] border border-black/5 shadow-2xl overflow-hidden bg-white/20 backdrop-blur-xl">
                             <MapView
                                 variant="railway"
                                 infrastructureNodes={infra}
@@ -147,7 +148,7 @@ export function RailwayDashboard() {
                     </div>
 
                     {/* TELEMETRY & TASKS COLUMN */}
-                    <div className="lg:col-span-4 flex flex-col gap-6">
+                    <div className="lg:col-span-4 flex flex-col gap-10">
 
                         {/* AI REASONING PANEL */}
                         <TacticalCard title="Agent Reasoning" icon={<BrainCircuit size={18} className="text-blue-600" />}>
@@ -171,7 +172,7 @@ export function RailwayDashboard() {
                                     ))
                                 ) : (
                                     <div className="text-[11px] font-black text-gray-400 uppercase italic animate-pulse">
-                                        Awaiting real-time RIVA strategy sequence...
+                                        Awaiting real-time system strategy sequence...
                                     </div>
                                 )}
                             </div>
@@ -263,11 +264,12 @@ export function RailwayDashboard() {
                                 </div>
                             </div>
                         </div>
-                    </div>
                 </div>
             </div>
         </div>
-    );
+
+    </div>
+  );
 }
 
 function StationRiskCard({ name, risk, sub, color }: { name: string; risk: string; sub: string, color: any }) {

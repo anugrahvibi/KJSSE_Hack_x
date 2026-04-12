@@ -8,6 +8,7 @@ import {
 import { useGsapAnimations } from '../utils/useGsapAnimations';
 import { TacticalCard, TacticalBadge, TacticalMetric, Label, TacticalSparkline, TacticalBarChart } from '../components/tactical/TacticalLibrary';
 import { MapView } from '../components/MapView';
+import { TACTICAL_THEME } from '../theme';
 import { useAuth } from '../AuthContext';
 
 export function AgencyPortalDashboard() {
@@ -88,11 +89,11 @@ export function AgencyPortalDashboard() {
   }, [config.dept]);
 
   return (
-    <div ref={containerRef} className="pt-35 sm:pt-46 px-12 pb-12 h-full bg-transparent overflow-y-auto w-full custom-scrollbar overflow-visible">
-      <div className="w-full space-y-12">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 h-[700px]">
+    <div ref={containerRef} className={`pt-34 sm:pt-43 ${TACTICAL_THEME.paddingX} ${TACTICAL_THEME.paddingB} h-full bg-transparent overflow-y-auto w-full custom-scrollbar overflow-visible`}>
+      <div className={`w-full ${TACTICAL_THEME.spaceY}`}>
+        <div className={`grid grid-cols-1 lg:grid-cols-12 ${TACTICAL_THEME.gap} h-[calc(100vh-320px)] min-h-[500px]`}>
           {/* MAP PANEL */}
-          <div className="lg:col-span-8 relative glass-card p-1 rounded-[3rem] border-white/60 shadow-2xl overflow-hidden bg-white/30">
+          <div className="lg:col-span-8 relative glass-card p-0 rounded-[3rem] border border-black/5 shadow-2xl overflow-hidden bg-white/30">
             <MapView
               variant={config.variant}
               infrastructureNodes={infra}
@@ -105,7 +106,7 @@ export function AgencyPortalDashboard() {
           </div>
 
           {/* TELEMETRY PANEL */}
-          <div className="lg:col-span-4 flex flex-col gap-8">
+          <div className={`lg:col-span-4 flex flex-col ${TACTICAL_THEME.gap}`}>
             <TacticalCard title="Mission Telemetry" subtitle="Trend Analysis Hub" icon={<Activity size={18} className="text-blue-600" />}>
               <div className="space-y-12">
                 {config.metrics.map((m, i) => (
@@ -151,6 +152,9 @@ export function AgencyPortalDashboard() {
           </div>
         </div>
       </div>
+
+      {/* FINAL MISSION BUFFER */}
+      <div className="h-32 w-full shrink-0" />
     </div>
   );
 }

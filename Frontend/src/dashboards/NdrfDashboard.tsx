@@ -2,10 +2,11 @@ import React, { useEffect, useState, useRef } from 'react';
 import { MapView } from '../components/MapView';
 import { fetchInfrastructure, fetchPredictions, fetchActiveAlerts } from '../utils/dataFetcher';
 import type { StakeholderAction, InfrastructureNode, ZonePrediction } from '@schema';
-import { Navigation, ShieldAlert, Target, Clock, AlertTriangle, Activity } from 'lucide-react';
+import { Navigation, ShieldAlert, Target, Clock, AlertTriangle, Activity, Zap, Droplets, UserCheck } from 'lucide-react';
 import { useGsapAnimations } from '../utils/useGsapAnimations';
 import { useAuth } from '../AuthContext';
 import { TacticalCard, TacticalBadge } from '../components/tactical/TacticalLibrary';
+import { TACTICAL_THEME } from '../theme';
 
 export function NdrfDashboard() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -33,7 +34,7 @@ export function NdrfDashboard() {
   }, []);
 
   return (
-    <div ref={containerRef} className="h-full w-full bg-transparent pt-35 sm:pt-46 px-12 pb-12 flex flex-col gap-10 overflow-y-auto custom-scrollbar overflow-visible">
+    <div ref={containerRef} className={`h-full w-full bg-transparent pt-34 sm:pt-43 ${TACTICAL_THEME.paddingX} flex flex-col ${TACTICAL_THEME.gap} overflow-y-auto custom-scrollbar overflow-visible`}>
       {/* Top Urgent Alert Bar (only in DEMO) */}
       {simulationMode === 'DEMO' ? (
         <div className="glass-card p-6 rounded-[2rem] border border-red-200 bg-red-50/20 flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl overflow-visible">
@@ -42,7 +43,7 @@ export function NdrfDashboard() {
               <AlertTriangle size={16} /> Alert Dispatched 09:07
             </p>
             <p className="text-[15px] font-bold text-gray-900 leading-tight">
-              Deploy Battalion 4 to Dharavi Sector B via 60 Feet Road Â· Deadline: 09:37 Â· Response logged  -  action required now
+              Deploy Battalion 4 to Dharavi Sector B via 60 Feet Road | Deadline: 09:37 | Response logged - action required now
             </p>
           </div>
           <div className="flex gap-4">
@@ -88,16 +89,16 @@ export function NdrfDashboard() {
 
               <TacticalCard title="Sector Assessment  -  H-East" icon={<ShieldAlert size={18} className="text-blue-600" />}>
                 <div className="grid grid-cols-2 gap-4">
-                  <SectorBlock label="Sector B  -  RED" desc="Dharavi near 90 Feet Rd Â· Water rising Â· 1,200 at risk Â· Evacuate priority" color="red" />
-                  <SectorBlock label="Sector A  -  AMBER" desc="Dharavi north Â· Monitor only Â· 340 residents" color="orange" />
-                  <SectorBlock label="Sector C  -  CLEAR" desc="Mahim side Â· No action needed" color="emerald" />
-                  <SectorBlock label="Sector D  -  WATCH" desc="Near Sion border Â· Monitor if rain persists" color="blue" />
+                  <SectorBlock label="Sector B  -  RED" desc="Dharavi near 90 Feet Rd | Water rising | 1,200 at risk | Evacuate priority" color="red" />
+                  <SectorBlock label="Sector A  -  AMBER" desc="Dharavi north | Monitor only | 340 residents" color="orange" />
+                  <SectorBlock label="Sector C  -  CLEAR" desc="Mahim side | No action needed" color="emerald" />
+                  <SectorBlock label="Sector D  -  WATCH" desc="Near Sion border | Monitor if rain persists" color="blue" />
                 </div>
               </TacticalCard>
             </div>
 
             {/* Route Map (LIVE MapView) */}
-            <div className="flex-1 min-h-[450px] glass-card rounded-[2.5rem] border border-white/40 shadow-xl relative overflow-hidden bg-slate-50/50">
+            <div className="flex-1 min-h-[450px] glass-card rounded-[2.5rem] border border-black/5 shadow-xl relative overflow-hidden bg-slate-50/50">
               <div className="absolute top-6 left-6 z-[1000] glass-card px-4 py-2 rounded-xl text-[10px] font-black text-gray-400 uppercase">ROUTE MAP  -  LIVE AVOIDANCES</div>
               <MapView
                 infrastructureNodes={infra}
@@ -112,14 +113,59 @@ export function NdrfDashboard() {
             </div>
           </div>
         ) : (
+          /* LIVE MODE: High Density Readiness Oversight */
           <div className="flex-[0.65] flex flex-col gap-10">
-            <div className="glass-card p-8 rounded-[2.5rem] border border-emerald-200 bg-emerald-50/30 text-emerald-700 flex flex-col items-center justify-center min-h-96">
-              <AlertTriangle size={48} className="mb-4 text-emerald-600" />
-              <h3 className="text-lg font-bold text-emerald-700 uppercase mb-2">Live Mode — No Active Deployments</h3>
-              <p className="text-sm text-gray-600 text-center max-w-md">Battalion status: Ready and awaiting deployment orders. Sector assessment: All clear. Switch to Demo Mode to simulate tactical scenarios and deployment orders.</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                <TacticalCard title="Battalion Readiness" icon={<UserCheck size={18} className="text-emerald-600" />}>
+                    <div className="space-y-6">
+                        <div className="flex justify-between items-center bg-emerald-500/5 p-4 rounded-xl border border-emerald-500/10">
+                            <span className="text-[11px] font-black text-emerald-900 uppercase">Active Personnel</span>
+                            <span className="text-[18px] font-black text-emerald-600">420 / 420</span>
+                        </div>
+                        <div className="space-y-3">
+                            <ReadinessMetric label="Rescue Swimmers" value={100} />
+                            <ReadinessMetric label="Medical Techs" value={98} />
+                            <ReadinessMetric label="Navigation Officers" value={100} />
+                        </div>
+                    </div>
+                </TacticalCard>
+
+                <TacticalCard title="Logistics & Supplies" icon={<Zap size={18} className="text-blue-600" />}>
+                    <div className="space-y-6">
+                        <div className="flex items-center gap-4">
+                            <div className="p-3 bg-blue-500/10 rounded-xl text-blue-600">
+                                <Droplets size={20} />
+                            </div>
+                            <div className="flex-1">
+                                <div className="flex justify-between items-center mb-1">
+                                    <span className="text-[10px] font-black text-gray-500 uppercase">Drinkable Water</span>
+                                    <span className="text-[11px] font-black text-blue-600 uppercase">8,400L</span>
+                                </div>
+                                <div className="h-1.5 w-full bg-gray-100 rounded-full overflow-hidden">
+                                    <div className="h-full bg-blue-500 w-[84%]" />
+                                </div>
+                            </div>
+                        </div>
+                        <div className="flex items-center gap-4">
+                            <div className="p-3 bg-orange-500/10 rounded-xl text-orange-600">
+                                <ShieldAlert size={20} />
+                            </div>
+                            <div className="flex-1">
+                                <div className="flex justify-between items-center mb-1">
+                                    <span className="text-[10px] font-black text-gray-500 uppercase">Dry Rations</span>
+                                    <span className="text-[11px] font-black text-orange-600 uppercase">12,000 Units</span>
+                                </div>
+                                <div className="h-1.5 w-full bg-gray-100 rounded-full overflow-hidden">
+                                    <div className="h-full bg-orange-500 w-[95%]" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </TacticalCard>
             </div>
-            <div className="flex-1 min-h-[450px] glass-card rounded-[2.5rem] border border-white/40 shadow-xl relative overflow-hidden bg-slate-50/50">
-              <div className="absolute top-6 left-6 z-[1000] glass-card px-4 py-2 rounded-xl text-[10px] font-black text-gray-400 uppercase">ROUTE MAP  -  MONITORING</div>
+
+            <div className="flex-1 min-h-[450px] glass-card rounded-[2.5rem] border border-black/5 shadow-xl relative overflow-hidden bg-slate-50/50">
+              <div className="absolute top-6 left-6 z-[1000] glass-card px-4 py-2 rounded-xl text-[10px] font-black text-gray-400 uppercase">BATTALION MAP  -  STANDBY VIEW</div>
               <MapView
                 infrastructureNodes={infra}
                 predictions={predictions}
@@ -127,9 +173,6 @@ export function NdrfDashboard() {
                 selectedZoneId={selectedZone}
                 variant="emergency"
               />
-              <div className="absolute bottom-6 left-6 z-[1000] text-[10px] font-bold text-emerald-600 uppercase italic">
-                All sectors clear — routine patrol mode active
-              </div>
             </div>
           </div>
         )}
@@ -162,23 +205,44 @@ export function NdrfDashboard() {
           </div>
         ) : (
           <div className="flex-[0.35] flex flex-col gap-10">
-            <TacticalCard title="Battalion Status" className="flex-1">
-              <div className="space-y-6 flex flex-col justify-between h-full">
+            <TacticalCard title="Battalion Summary" className="flex-1">
+              <div className="space-y-8 flex flex-col h-full">
                 <div className="space-y-3">
-                  <p className="text-[13px] font-bold text-emerald-600 uppercase">READY</p>
-                  <p className="text-[16px] font-bold text-gray-700 leading-relaxed">All personnel present and accounted for. Equipment ready. Awaiting deployment orders.</p>
+                  <p className="text-[13px] font-bold text-emerald-600 uppercase">SYSTEM READY</p>
+                  <p className="text-[15px] font-bold text-gray-700 leading-relaxed uppercase">Battalion 4 reporting 100% mission readiness. All tactical equipment verified. Sync with RIVA central command active.</p>
                 </div>
-                <div className="space-y-2 pt-4 border-t border-emerald-200">
-                  <p className="text-[11px] font-bold text-gray-500 italic">No active casualties.</p>
-                  <p className="text-[11px] font-bold text-gray-500 italic">No urgent deadlines.</p>
+                <div className="space-y-2 pt-6 border-t border-emerald-200">
+                  <div className="flex justify-between items-center">
+                    <span className="text-[10px] font-black text-gray-400 uppercase">Comm Link</span>
+                    <span className="text-[10px] font-black text-emerald-600 uppercase">STABLE</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-[10px] font-black text-gray-400 uppercase">Encryption</span>
+                    <span className="text-[10px] font-black text-emerald-600 uppercase">ACTIVE</span>
+                  </div>
                 </div>
               </div>
             </TacticalCard>
           </div>
         )}
       </div>
+
     </div>
   );
+}
+
+function ReadinessMetric({ label, value }: { label: string, value: number }) {
+    return (
+        <div className="flex flex-col gap-1">
+            <div className="flex justify-between items-center text-[10px] font-black uppercase text-gray-500">
+                <span>{label}</span>
+                <span>{value}%</span>
+            </div>
+            <div className="h-1 w-full bg-gray-100 rounded-full overflow-hidden">
+                <div className="h-full bg-emerald-500" style={{ width: `${value}%` }} />
+            </div>
+        </div>
+    );
 }
 
 function SectorBlock({ label, desc, color }: { label: string; desc: string; color: 'red' | 'orange' | 'emerald' | 'blue' | 'gray' }) {
@@ -201,4 +265,3 @@ function EstimateRow({ time, label, badge, badgeColor }: { time: string; label: 
     </div>
   );
 }
-

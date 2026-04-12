@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import { useGsapAnimations } from '../utils/useGsapAnimations';
 import { TacticalCard, TacticalBadge, Label, LabelButton } from '../components/tactical/TacticalLibrary';
+import { TACTICAL_THEME } from '../theme';
 import { useAuth } from '../AuthContext';
 
 export function BmcWardDashboard() {
@@ -54,8 +55,8 @@ export function BmcWardDashboard() {
     }, []);
 
     return (
-        <div ref={containerRef} className="pt-35 sm:pt-46 px-12 pb-12 h-full bg-transparent overflow-y-auto w-full custom-scrollbar overflow-visible">
-            <div className="w-full space-y-8">
+        <div ref={containerRef} className={`pt-34 sm:pt-43 ${TACTICAL_THEME.paddingX} ${TACTICAL_THEME.paddingB} h-full bg-transparent overflow-y-auto w-full custom-scrollbar overflow-visible`}>
+            <div className={`w-full ${TACTICAL_THEME.spaceY}`}>
 
                 {/* CRISIS HEADER (Show only in DEMO mode or if active threats exist) */}
                 {simulationMode === 'DEMO' && (
@@ -94,14 +95,14 @@ export function BmcWardDashboard() {
                     </div>
                 )}
 
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
 
                     {/* LEFT COLUMN: Alerts & Tasks */}
-                    <div className="lg:col-span-6 flex flex-col gap-8">
+                    <div className="lg:col-span-6 flex flex-col gap-10">
 
                         {/* WARD ALERT BOX (Only in DEMO) */}
                         {simulationMode === 'DEMO' ? (
-                            <div className="glass-card p-10 rounded-[3rem] border-red-100 bg-red-50/50 relative overflow-hidden">
+                            <div className="glass-card p-10 rounded-[3rem] border border-white/60 bg-white/20 backdrop-blur-xl relative overflow-hidden">
                                 <div className="absolute top-0 right-0 w-32 h-32 bg-red-600/5 blur-[60px] rounded-full" />
                                 <h3 className="text-[11px] font-black text-gray-400 uppercase tracking-[0.2em] mb-8">WARD ALERT — H-EAST DHARAVI</h3>
                                 <div className="space-y-6">
@@ -129,7 +130,7 @@ export function BmcWardDashboard() {
                         )}
 
                         {/* ROAD CLOSURE STATUS */}
-                        <div className="glass-card p-10 rounded-[3rem] border-white/40 flex flex-col gap-6">
+                        <div className="glass-card p-10 rounded-[3rem] border-white/40 flex flex-col gap-10">
                             <h3 className="text-[11px] font-black text-gray-400 uppercase tracking-[0.2em]">OPERATIONAL LOG</h3>
                             <div className="space-y-2">
                                 <TaskRow time="09:09" label={simulationMode === 'DEMO' ? "Sion underpass closed — barriers deployed" : "Morning equipment calibration"} status="DONE" color="emerald" />
@@ -155,10 +156,10 @@ export function BmcWardDashboard() {
                     </div>
 
                     {/* RIGHT COLUMN: Map & Reasoning */}
-                    <div className="lg:col-span-6 flex flex-col gap-8">
+                    <div className="lg:col-span-6 flex flex-col gap-10">
 
                         {/* TACTICAL MAP PINS */}
-                        <div className="glass-card p-10 rounded-[3rem] border-white/40 flex flex-col h-[450px]">
+                        <div className="glass-card p-10 rounded-[3rem] border-white/40 flex flex-col h-[calc(100vh-340px)] min-h-[450px]">
                             <h3 className="text-[11px] font-black text-gray-400 uppercase tracking-[0.2em] mb-6">WARD MAP — TACTICAL VIEW</h3>
                             <div className="flex-1 relative bg-gray-50 rounded-3xl border border-black/5 overflow-hidden">
                                 <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#000000_1px,transparent_1px)] [background-size:24px_24px]" />
@@ -181,7 +182,7 @@ export function BmcWardDashboard() {
                         </div>
 
                         {/* PUMP STATION STATUS GRID */}
-                        <div className="glass-card p-10 rounded-[3rem] border-white/40 space-y-6">
+                        <div className="glass-card p-10 rounded-[3rem] border-white/40 space-y-10">
                             <h3 className="text-[11px] font-black text-gray-400 uppercase tracking-[0.2em]">HYDRAULIC STATUS</h3>
                             <div className="grid grid-cols-2 gap-4">
                                 <PumpStatus name="Pump 3 — 90 Feet Rd" status={simulationMode === 'DEMO' ? "ON" : "STANDBY"} color={simulationMode === 'DEMO' ? "emerald" : "orange"} />
@@ -192,7 +193,7 @@ export function BmcWardDashboard() {
                         </div>
 
                         {/* AGENT REASONING BOX */}
-                        <div className="glass-card p-10 rounded-[3rem] border-white/40 space-y-6">
+                        <div className="glass-card p-10 rounded-[3rem] border-white/40 space-y-10">
                             <h3 className="text-[11px] font-black text-gray-400 uppercase tracking-[0.2em]">RIVA REASONING</h3>
                             <div className="space-y-4">
                                 {(simulationMode === 'DEMO' ? reasoningSteps : [
@@ -208,11 +209,14 @@ export function BmcWardDashboard() {
                             </div>
                         </div>
 
-                    </div>
                 </div>
             </div>
         </div>
-    );
+
+        {/* FINAL MISSION BUFFER */}
+        <div className="h-32 w-full shrink-0" />
+    </div>
+  );
 }
 
 function TaskRow({ time, label, status, color }: { time: string; label: string; status: string; color: any }) {
