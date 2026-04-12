@@ -21,13 +21,9 @@ export function Login() {
 
   // Auto-redirect if already authenticated
   React.useEffect(() => {
-    if (role === 'NDRF') navigate('/ndrf', { replace: true });
-    else if (role === 'BMC Ward Officer') navigate('/bmc', { replace: true });
-    else if (role === 'Western Railway') navigate('/western-railway', { replace: true });
-    else if (role === 'Central Railway') navigate('/central-railway', { replace: true });
-    else if (role === 'KEM Hospital') navigate('/kem', { replace: true });
-    else if (role === 'Developer') navigate('/dev', { replace: true });
-    else if (role === 'Public Advisory') navigate('/public', { replace: true });
+    if (role) {
+      navigate('/', { replace: true });
+    }
   }, [role, navigate]);
 
   const requestOtp = async (e: React.FormEvent) => {
@@ -119,7 +115,7 @@ export function Login() {
             type="button"
             onClick={() => {
               login('Developer');
-              navigate('/dev', { replace: true });
+              navigate('/', { replace: true });
             }}
             className="w-20 h-20 glass-card rounded-3xl mx-auto flex items-center justify-center shadow-2xl shadow-blue-500/20 active:scale-95 transition-transform duration-500 group mb-6"
             aria-label="Bypass operator access"
