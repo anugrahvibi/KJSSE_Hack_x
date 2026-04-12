@@ -12,7 +12,7 @@ from fastapi.responses import JSONResponse
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from Backend.config import OVERDUE_CHECK_SECONDS
-from Backend.routers import accountability, agent, cascade, compat_v1, demo, detection, websocket
+from Backend.routers import accountability, agent, cascade, compat_v1, demo, detection, websocket, reports
 from Backend.services.runtime import log_service, ws_manager
 
 
@@ -53,7 +53,7 @@ app.include_router(accountability.router)
 app.include_router(websocket.router)
 app.include_router(demo.router)
 app.include_router(compat_v1.router)
-
+app.include_router(reports.router)
 
 @app.get("/health")
 def health_check():

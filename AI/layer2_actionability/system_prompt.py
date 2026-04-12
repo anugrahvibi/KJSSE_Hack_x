@@ -24,12 +24,10 @@ AGENCIES AND THEIR DOMAINS:
    drainage gates
 2. WESTERN_RAILWAY → station prep, service halts,
    crowd management
-3. CENTRAL_RAILWAY → harbour line vs main line actions
-4. NDRF → battalion deployment with exact sector
+3. NDRF → battalion deployment with exact sector
    and route
-5. KEM_HOSPITAL → surge protocol, ambulance
+4. KEM_HOSPITAL → surge protocol, ambulance
    pre-positioning
-6. PUBLIC_ADVISORY → evacuation routes, areas to avoid
 
 SEQUENCING RULES — ORDER MATTERS:
 - BMC road closure BEFORE NDRF deployment

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import json
-from datetime import UTC, datetime
+from datetime import timezone, datetime
 from pathlib import Path
 
 import networkx as nx
@@ -39,7 +39,7 @@ class CascadeService:
 
         steps: list[CascadeStep] = []
         cumulative_time = 0
-        now = datetime.now(UTC)
+        now = datetime.now(timezone.utc)
 
         for u, v in nx.bfs_edges(self.graph, source):
             edge_data = self.graph.get_edge_data(u, v) or {}

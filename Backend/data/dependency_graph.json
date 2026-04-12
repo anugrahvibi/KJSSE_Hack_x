@@ -1,34 +1,91 @@
 {
   "nodes": [
-    {"id": "ward_h_east", "label": "Ward H-East", "type": "ward"},
-    {"id": "ward_g_south", "label": "Ward G-South", "type": "ward", "permanently_undrained": true},
+    {
+      "id": "ward_h_east",
+      "label": "Ward H-East",
+      "type": "ward",
+      "lat": 19.0330,
+      "lng": 72.8597
+    },
+    {
+      "id": "ward_g_south",
+      "label": "Ward G-South",
+      "type": "ward",
+      "permanently_undrained": true,
+      "lat": 18.9950,
+      "lng": 72.8150
+    },
     {
       "id": "train_network_wr",
       "label": "Western Railway",
       "type": "transport",
       "daily_users": 3500000,
-      "flood_depth_threshold_m": 0.3
+      "flood_depth_threshold_m": 0.3,
+      "lat": 19.0170,
+      "lng": 72.8300
     },
     {
       "id": "train_network_cr",
       "label": "Central Railway",
       "type": "transport",
       "daily_users": 2800000,
-      "flood_depth_threshold_m": 0.3
+      "flood_depth_threshold_m": 0.3,
+      "lat": 19.0600,
+      "lng": 72.8600
     },
     {
       "id": "road_arterial_sion",
       "label": "Sion-Trombay Road",
       "type": "road",
       "daily_vehicles": 120000,
-      "flood_depth_threshold_m": 0.2
+      "flood_depth_threshold_m": 0.2,
+      "lat": 19.0433,
+      "lng": 72.8697
     },
     {
       "id": "kem_hospital",
       "label": "KEM Hospital",
       "type": "hospital",
       "bed_count": 1800,
-      "flood_depth_threshold_m": 0.5
+      "flood_depth_threshold_m": 0.5,
+      "lat": 19.0022,
+      "lng": 72.8419
+    },
+    {
+      "id": "airport_domestic",
+      "label": "Domestic Airport",
+      "type": "transport",
+      "daily_users": 150000,
+      "flood_depth_threshold_m": 0.4,
+      "lat": 19.0896,
+      "lng": 72.8656
+    },
+    {
+      "id": "power_substation_dharavi",
+      "label": "Dharavi Substation",
+      "type": "power",
+      "population_served": 400000,
+      "flood_depth_threshold_m": 0.6,
+      "lat": 19.0380,
+      "lng": 72.8530
+    },
+    {
+      "id": "bkc_business_district",
+      "label": "BKC Business District",
+      "type": "commercial",
+      "daily_users": 300000,
+      "flood_depth_threshold_m": 0.3,
+      "lat": 19.0660,
+      "lng": 72.8660
+    },
+    {
+      "id": "water_pumping_station",
+      "label": "Main Water Pump",
+      "type": "utility",
+      "population_served": 800000,
+      "flood_depth_threshold_m": 1.0,
+      "lat": 19.0500,
+      "lng": 72.8500
     }
   ],
   "edges": [
@@ -59,6 +116,41 @@
       "propagation_delay_min": 45,
       "impact_multiplier": 0.6,
       "failure_condition": "Emergency vehicle access blocked"
+    },
+    {
+      "source": "ward_h_east",
+      "target": "power_substation_dharavi",
+      "propagation_delay_min": 40,
+      "impact_multiplier": 0.9,
+      "failure_condition": "Flooding of ground-level transformers"
+    },
+    {
+      "source": "power_substation_dharavi",
+      "target": "water_pumping_station",
+      "propagation_delay_min": 10,
+      "impact_multiplier": 0.95,
+      "failure_condition": "Loss of primary power to pumps"
+    },
+    {
+      "source": "train_network_wr",
+      "target": "airport_domestic",
+      "propagation_delay_min": 90,
+      "impact_multiplier": 0.5,
+      "failure_condition": "Airport staff commute halted"
+    },
+    {
+      "source": "road_arterial_sion",
+      "target": "bkc_business_district",
+      "propagation_delay_min": 25,
+      "impact_multiplier": 0.8,
+      "failure_condition": "BKC entry bottlenecked"
+    },
+    {
+      "source": "ward_g_south",
+      "target": "bkc_business_district",
+      "propagation_delay_min": 120,
+      "impact_multiplier": 0.4,
+      "failure_condition": "Tidal backflow reaches BKC peripheral"
     }
   ]
 }

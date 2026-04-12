@@ -1,14 +1,14 @@
 from __future__ import annotations
 
 import json
-from datetime import UTC, datetime, timedelta
+from datetime import timezone, datetime, timedelta
 from pathlib import Path
 
 from ..models.alert import ActionPlan, AlertRecord, AlertStatus
 
 
 def now_iso() -> str:
-    return datetime.now(UTC).isoformat().replace("+00:00", "Z")
+    return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
 
 
 def parse_iso(value: str) -> datetime:
@@ -96,7 +96,7 @@ class AccountabilityLogService:
 
     def mark_overdue(self) -> list[AlertRecord]:
         overdue: list[AlertRecord] = []
-        now = datetime.now(UTC)
+        now = datetime.now(timezone.utc)
         for alert in self.alerts.values():
             if alert.status != AlertStatus.DISPATCHED:
                 continue

@@ -1,11 +1,14 @@
 from __future__ import annotations
 
 import json
-from datetime import UTC, datetime
+from datetime import timezone, datetime
 
-import anthropic
+from ..config import MOCK_MODE
 
-from ..config import ANTHROPIC_API_KEY, ANTHROPIC_MODEL, MOCK_MODE
+import sys
+import os
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+from AI.layer2_actionability.agent import run_dispatch_agent as groq_dispatch
 from ..models.alert import ActionItem, ActionPlan
 from ..models.ward import WardStatus
 
@@ -20,11 +23,11 @@ Return only valid JSON matching the requested schema.
 
 class AgentService:
     def __init__(self) -> None:
-        self.mock_mode = MOCK_MODE or not ANTHROPIC_API_KEY
-        self.client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY) if not self.mock_mode else None
+        self.mock_mode = MOCK_MODE
+        self.client = None
 
     def _build_context(self, extra: dict | None = None) -> dict:
-        now = datetime.now(UTC)
+        now = datetime.now(timezone.utc)
         base = {
             "timestamp": now.isoformat().replace("+00:00", "Z"),
             "day_of_week": now.strftime("%A"),
@@ -60,13 +63,6 @@ class AgentService:
                     rationale="Peak crowd risk rises if track drainage degrades.",
                 ),
                 ActionItem(
-                    dept_id="CENTRAL_RAILWAY",
-                    action="Trigger harbour-line contingency routing and crowd marshals.",
-                    priority="WARNING",
-                    deadline_minutes=25,
-                    rationale="Shift commuter load before network choke points form.",
-                ),
-                ActionItem(
                     dept_id="NDRF",
                     action="Deploy Battalion 4 via 60 Feet Road; avoid Sion approach.",
                     priority=priority,
@@ -80,13 +76,6 @@ class AgentService:
                     deadline_minutes=25,
                     rationale="Travel-time shocks can delay emergency admissions.",
                 ),
-                ActionItem(
-                    dept_id="PUBLIC_ADVISORY",
-                    action="Issue flood advisory: avoid Sion underpass; use 90 Feet Road northbound.",
-                    priority=priority,
-                    deadline_minutes=5,
-                    rationale="Early rerouting lowers entrapment risk.",
-                ),
             ],
             tide_trajectory_note=f"{context['tide_direction']} — no immediate natural drainage relief.",
             cascade_risk_flag="train_network_wr",
@@ -97,32 +86,5 @@ class AgentService:
         if self.mock_mode:
             return self._mock_plan(ward_status, merged_context)
 
-        user_message = f"""
-        FLOOD STATUS UPDATE:
-        Ward: {ward_status.ward_id} ({ward_status.ward_name})
-        Severity: {ward_status.flood_status.value}
-        Drainage Capacity: {ward_status.drainage_capacity_pct}%
-        Current Tide Height: {ward_status.tide_height}m
-        Outfall Elevation: {ward_status.outfall_elevation_m}m
-        Rainfall Rate: {ward_status.rainfall_rate}mm/hr
-        Tide Direction: {merged_context['tide_direction']}
-
-        CURRENT CONTEXT:
-        Time: {merged_context['timestamp']}
-        Day: {merged_context['day_of_week']}
-        KEM Hospital Capacity: {merged_context['hospital_capacity_pct']}%
-        Nearest NDRF Battalion: {merged_context['nearest_ndrf_battalion']}
-        Sion Underpass Status: {merged_context['sion_underpass_status']}
-
-        Generate dispatch action plan as JSON only.
-        """
-
-        response = self.client.messages.create(
-            model=ANTHROPIC_MODEL,
-            max_tokens=1000,
-            system=MUMBAI_DISPATCH_SYSTEM_PROMPT,
-            messages=[{"role": "user", "content": user_message}],
-        )
-        raw = response.content[0].text
-        parsed = json.loads(raw)
+        parsed = groq_dispatch(ward_status.dict(), merged_context)
         return ActionPlan(**parsed)

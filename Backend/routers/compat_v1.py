@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import UTC, datetime
+from datetime import timezone, datetime
 
 from fastapi import APIRouter, Query
 
@@ -10,39 +10,39 @@ router = APIRouter(prefix="/api/v1", tags=["compat-v1"])
 
 
 def _now_iso() -> str:
-    return datetime.now(UTC).isoformat().replace("+00:00", "Z")
+    return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
 
 
 ZONE_ROWS = [
-    {"zone_id": "ZONE_KALPETTA", "zone_name": "Kalpetta Town"},
-    {"zone_id": "ZONE_SULTHAN_BATHERY", "zone_name": "Sulthan Bathery"},
-    {"zone_id": "ZONE_MANANTHAVADY", "zone_name": "Mananthavady"},
-    {"zone_id": "ZONE_VYTHIRI", "zone_name": "Vythiri"},
-    {"zone_id": "ZONE_PANAMARAM", "zone_name": "Panamaram"},
-    {"zone_id": "ZONE_AMBALAVAYAL", "zone_name": "Ambalavayal"},
+    {"zone_id": "ZONE_H_EAST", "zone_name": "Ward H-East (Dharavi)"},
+    {"zone_id": "ZONE_G_SOUTH", "zone_name": "Ward G-South (Worli)"},
+    {"zone_id": "ZONE_F_NORTH", "zone_name": "Ward F-North (Matunga)"},
+    {"zone_id": "ZONE_L", "zone_name": "Ward L (Kurla)"},
+    {"zone_id": "ZONE_M_WEST", "zone_name": "Ward M-West (Chembur)"},
+    {"zone_id": "ZONE_K_EAST", "zone_name": "Ward K-East (Andheri)"},
 ]
 
 INFRA_NODES = [
-    {"id": "substation_kalpetta", "name": "Kalpetta Substation", "type": "substation", "lat": 11.61, "lon": 76.08},
-    {"id": "water_pump_panamaram", "name": "Panamaram Pump", "type": "water_pump", "lat": 11.79, "lon": 76.03},
-    {"id": "hospital_bathery", "name": "Bathery Hospital", "type": "hospital", "lat": 11.66, "lon": 76.25},
-    {"id": "road_vythiri", "name": "Vythiri Arterial", "type": "road", "lat": 11.55, "lon": 76.02},
-    {"id": "tower_mananthavady", "name": "Mananthavady Tower", "type": "comm_tower", "lat": 11.8, "lon": 75.97},
+    {"id": "substation_dharavi", "name": "Dharavi Substation", "type": "substation", "lat": 19.0380, "lon": 72.8530},
+    {"id": "pump_sion", "name": "Sion Pump", "type": "water_pump", "lat": 19.0433, "lon": 72.8697},
+    {"id": "hospital_kem", "name": "KEM Hospital", "type": "hospital", "lat": 19.0022, "lon": 72.8419},
+    {"id": "road_weyh", "name": "Western Express Hwy", "type": "road", "lat": 19.0500, "lon": 72.8400},
+    {"id": "station_kurla", "name": "Kurla Station", "type": "comm_tower", "lat": 19.0600, "lon": 72.8600},
 ]
 
 INFRA_EDGES = [
-    {"source": "substation_kalpetta", "target": "water_pump_panamaram", "weight": 0.7},
-    {"source": "water_pump_panamaram", "target": "hospital_bathery", "weight": 0.8},
-    {"source": "road_vythiri", "target": "hospital_bathery", "weight": 0.6},
+    {"source": "substation_dharavi", "target": "pump_sion", "weight": 0.7},
+    {"source": "pump_sion", "target": "hospital_kem", "weight": 0.8},
+    {"source": "road_weyh", "target": "hospital_kem", "weight": 0.6},
 ]
 
 PREDICTIONS = [
-    {"zone_id": "ZONE_KALPETTA", "zone_name": "Kalpetta Town", "flood_probability": 0.42, "lead_time_hours": 7.0},
-    {"zone_id": "ZONE_SULTHAN_BATHERY", "zone_name": "Sulthan Bathery", "flood_probability": 0.58, "lead_time_hours": 5.5},
-    {"zone_id": "ZONE_MANANTHAVADY", "zone_name": "Mananthavady", "flood_probability": 0.33, "lead_time_hours": 9.0},
-    {"zone_id": "ZONE_VYTHIRI", "zone_name": "Vythiri", "flood_probability": 0.73, "lead_time_hours": 3.5},
-    {"zone_id": "ZONE_PANAMARAM", "zone_name": "Panamaram", "flood_probability": 0.81, "lead_time_hours": 2.0},
-    {"zone_id": "ZONE_AMBALAVAYAL", "zone_name": "Ambalavayal", "flood_probability": 0.39, "lead_time_hours": 8.0},
+    {"zone_id": "ZONE_H_EAST", "zone_name": "Ward H-East", "flood_probability": 0.42, "lead_time_hours": 7.0},
+    {"zone_id": "ZONE_G_SOUTH", "zone_name": "Ward G-South", "flood_probability": 0.58, "lead_time_hours": 5.5},
+    {"zone_id": "ZONE_F_NORTH", "zone_name": "Ward F-North", "flood_probability": 0.33, "lead_time_hours": 9.0},
+    {"zone_id": "ZONE_L", "zone_name": "Ward L", "flood_probability": 0.73, "lead_time_hours": 3.5},
+    {"zone_id": "ZONE_M_WEST", "zone_name": "Ward M-West", "flood_probability": 0.81, "lead_time_hours": 2.0},
+    {"zone_id": "ZONE_K_EAST", "zone_name": "Ward K-East", "flood_probability": 0.39, "lead_time_hours": 8.0},
 ]
 
 DISTRESS_ALERT: dict | None = None
@@ -198,9 +198,9 @@ def cascade(zone_id: str):
 def vulnerability_map():
     return {
         "ranked_zones": [
-            {"zone_id": "ZONE_PANAMARAM", "score": 94},
-            {"zone_id": "ZONE_VYTHIRI", "score": 88},
-            {"zone_id": "ZONE_SULTHAN_BATHERY", "score": 79},
+            {"zone_id": "ZONE_H_EAST", "score": 94},
+            {"zone_id": "ZONE_L", "score": 88},
+            {"zone_id": "ZONE_G_SOUTH", "score": 79},
         ],
         "permanently_undrained_wards": ["G-South"],
     }
@@ -211,9 +211,9 @@ def lead_times(scenario: str = Query(default="2024_peak")):
     _ = scenario
     return {
         "lead_time_tickers": [
-            {"zone_id": "ZONE_PANAMARAM", "hours_until_peak": 2, "severity": "CRITICAL"},
-            {"zone_id": "ZONE_VYTHIRI", "hours_until_peak": 4, "severity": "HIGH"},
-            {"zone_id": "ZONE_SULTHAN_BATHERY", "hours_until_peak": 6, "severity": "ELEVATED"},
+            {"zone_id": "ZONE_H_EAST", "hours_until_peak": 2, "severity": "CRITICAL"},
+            {"zone_id": "ZONE_L", "hours_until_peak": 4, "severity": "HIGH"},
+            {"zone_id": "ZONE_G_SOUTH", "hours_until_peak": 6, "severity": "ELEVATED"},
         ]
     }
 
@@ -221,9 +221,9 @@ def lead_times(scenario: str = Query(default="2024_peak")):
 @router.get("/ml/roi/rankings")
 def roi_rankings():
     return [
-        {"zone_id": "ZONE_PANAMARAM", "roi_score": 93, "recommendation": "Pump hardening + diversion channels"},
-        {"zone_id": "ZONE_VYTHIRI", "roi_score": 85, "recommendation": "Road-grade flood barriers"},
-        {"zone_id": "ZONE_KALPETTA", "roi_score": 72, "recommendation": "Drain augmentation"},
+        {"zone_id": "ZONE_H_EAST", "roi_score": 93, "recommendation": "Pump hardening + diversion channels"},
+        {"zone_id": "ZONE_L", "roi_score": 85, "recommendation": "Road-grade flood barriers"},
+        {"zone_id": "ZONE_F_NORTH", "roi_score": 72, "recommendation": "Drain augmentation"},
     ]
 
 

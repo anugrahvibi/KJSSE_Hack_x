@@ -34,9 +34,6 @@ def get_demo_status():
 
 
 @router.get("/status")
-
-
-@router.get("/status")
 def detection_status():
     return drain_service.compute_all_wards()
 
