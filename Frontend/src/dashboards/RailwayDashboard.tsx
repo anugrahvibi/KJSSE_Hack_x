@@ -6,7 +6,6 @@ import {
     Droplets, Shield, ShieldAlert, Radio, ArrowRight, BrainCircuit, HardHat, Info, CheckCircle2
 } from 'lucide-react';
 import { useGsapAnimations } from '../utils/useGsapAnimations';
-import { AccountabilityBanner } from '../components/AccountabilityBanner';
 import { TacticalCard, TacticalBadge, TacticalMetric, TacticalSparkline } from '../components/tactical/TacticalLibrary';
 import { MapView } from '../components/MapView';
 import { useAuth } from '../AuthContext';
@@ -65,9 +64,7 @@ export function RailwayDashboard() {
 
     return (
         <div ref={containerRef} className="pt-40 sm:pt-44 lg:pt-48 px-3 sm:px-4 lg:px-6 py-10 h-full bg-transparent overflow-y-auto w-full custom-scrollbar overflow-visible">
-            <div className="w-full space-y-10 py-5">
-                <AccountabilityBanner />
-
+            <div className="w-full space-y-10 py-5 pb-16">
                 {/* SYSTEM NORMAL STATUS (Live Mode) */}
                 {simulationMode === 'LIVE' && (
                     <div className="glass-card p-6 rounded-[2.5rem] border border-emerald-200 bg-emerald-50/30 flex items-center justify-between">

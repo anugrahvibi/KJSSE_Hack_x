@@ -5,7 +5,6 @@ import type { StakeholderAction, InfrastructureNode, ZonePrediction } from '@sch
 import { Navigation, ShieldAlert, Target, Clock, AlertTriangle, Activity } from 'lucide-react';
 import { useGsapAnimations } from '../utils/useGsapAnimations';
 import { useAuth } from '../AuthContext';
-import { AccountabilityBanner } from '../components/AccountabilityBanner';
 import { TacticalCard, TacticalBadge } from '../components/tactical/TacticalLibrary';
 
 export function NdrfDashboard() {
@@ -35,8 +34,6 @@ export function NdrfDashboard() {
 
   return (
     <div ref={containerRef} className="h-full w-full bg-transparent pt-40 sm:pt-44 lg:pt-48 px-3 sm:px-4 lg:px-6 py-10 flex flex-col gap-10 overflow-y-auto custom-scrollbar overflow-visible">
-      <AccountabilityBanner />
-
       {/* Top Urgent Alert Bar (only in DEMO) */}
       {simulationMode === 'DEMO' ? (
         <div className="glass-card p-6 rounded-[2rem] border border-red-200 bg-red-50/20 flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl overflow-visible">

@@ -1,12 +1,11 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { fetchPredictions, fetchActiveAlerts, fetchInfrastructure } from '../utils/dataFetcher';
-import type { ZonePrediction, StakeholderAction, AlertRecord, InfrastructureNode } from '@schema';
+import type { ZonePrediction, StakeholderAction, InfrastructureNode } from '@schema';
 import {
   PlusCircle, Bed, Ambulance, AlertTriangle, Activity, Navigation,
   Clock, Droplets, Zap, Train, HardHat, Info, Power, Radio
 } from 'lucide-react';
 import { useGsapAnimations } from '../utils/useGsapAnimations';
-import { AccountabilityBanner } from '../components/AccountabilityBanner';
 import { TacticalCard, TacticalBadge, TacticalMetric, Label, TacticalSparkline, TacticalBarChart } from '../components/tactical/TacticalLibrary';
 import { MapView } from '../components/MapView';
 import { useAuth } from '../AuthContext';
@@ -16,7 +15,7 @@ export function AgencyPortalDashboard() {
   const currentRole = role || 'BMC Ward Officer';
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const [alerts, setAlerts] = useState<AlertRecord[]>([]);
+  const [alerts, setAlerts] = useState<StakeholderAction[]>([]);
   const [infra, setInfra] = useState<InfrastructureNode[]>([]);
   const [predictions, setPredictions] = useState<ZonePrediction[]>([]);
 
@@ -91,8 +90,6 @@ export function AgencyPortalDashboard() {
   return (
     <div ref={containerRef} className="pt-40 sm:pt-44 lg:pt-48 px-3 sm:px-4 lg:px-6 py-10 h-full bg-transparent overflow-y-auto w-full custom-scrollbar overflow-visible">
       <div className="w-full space-y-12 py-10">
-        <AccountabilityBanner />
-
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 h-[700px]">
           {/* MAP PANEL */}
           <div className="lg:col-span-8 relative glass-card p-1 rounded-[3rem] border-white/60 shadow-2xl overflow-hidden bg-white/30">
@@ -100,6 +97,7 @@ export function AgencyPortalDashboard() {
               variant={config.variant}
               infrastructureNodes={infra}
               predictions={predictions}
+              onZoneClick={() => { }}
             />
             <div className="absolute top-8 left-8 z-[1000] glass-card px-5 py-2.5 rounded-2xl border-white/40 shadow-xl">
               <span className="metadata-label !text-gray-900">{config.title} — Sector View</span>
@@ -143,7 +141,7 @@ export function AgencyPortalDashboard() {
                 {alerts.slice(0, 3).map((a, i) => (
                   <div key={i} className="flex items-center gap-4 p-4 border-b border-black/5 last:border-0 hover:bg-black/5 rounded-xl transition-all h-16">
                     <p className="flex-1 text-[13px] font-bold text-gray-800 uppercase truncate">
-                      {a.description}
+                      {a.action}
                     </p>
                     <TacticalBadge label="ACTIVE" color="orange" variant="outline" />
                   </div>

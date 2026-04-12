@@ -4,7 +4,6 @@ import type { ZonePrediction, StakeholderAction } from '@schema';
 import { PlusCircle, Bed, Ambulance, AlertTriangle, Activity, Navigation, Clock, X, MapPin } from 'lucide-react';
 import { useGsapAnimations } from '../utils/useGsapAnimations';
 import { useAuth } from '../AuthContext';
-import { AccountabilityBanner } from '../components/AccountabilityBanner';
 import { TacticalCard, TacticalBadge } from '../components/tactical/TacticalLibrary';
 
 export function DistrictAdminDashboard() {
@@ -26,8 +25,6 @@ export function DistrictAdminDashboard() {
    return (
       <div ref={containerRef} className="pt-40 sm:pt-44 lg:pt-48 px-3 sm:px-4 lg:px-6 py-10 h-full bg-transparent overflow-y-auto w-full custom-scrollbar overflow-visible">
          <div className="w-full space-y-12 py-10">
-            <AccountabilityBanner />
-
             {/* Alert Bar - only in DEMO */}
             {simulationMode === 'DEMO' && (
                <div className="glass-card p-6 rounded-[2.25rem] border border-orange-200 bg-orange-500/10 shadow-xl overflow-visible flex flex-col md:flex-row items-center justify-between gap-6 group">
